@@ -1,0 +1,1 @@
+{"name":"motion-lab-local","version":"1.0.0","private":true,"description":"Offline local short-video creation workspace","scripts":{"dev":"python3 dev.py","test":"python3 -m unittest discover -s tests -v"}}

@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta name="description" content="idore 的 TikTok 公开视频候选库。查看云端采集记录、来源和适合进一步核验的视频玩法。">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; frame-src https://www.tiktok.com; base-uri 'self'; form-action 'none'">
+  <title>idore · TikTok 视频发现</title>
+  <link rel="icon" type="image/svg+xml" href="./mark.svg">
+  <link rel="stylesheet" href="./styles.css">
+  <script defer src="./app.js"></script>
+</head>
+<body>
+  <div class="shell">
+    <aside class="sidebar">
+      <a class="brand" href="./"><span class="brand-icon">i<span>↗</span></span><span>idore<small>TIKTOK CREATIVE STUDIO</small></span></a>
+      <div class="workspace"><span class="avatar">i</span><div>趋势创作空间<small>Cloud discovery</small></div><span class="dot"></span></div>
+      <p class="nav-label">发现与创作</p>
+      <a class="nav active" href="#candidates"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"></circle><path d="m16 16 4 4"></path></svg>真实视频候选<span id="nav-count">0</span></a>
+      <a class="nav" href="#collection-status"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l4 2"></path></svg>采集记录</a>
+      <a class="nav" href="https://github.com/yjr927/idore_tools/actions" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m8 5-6 7 6 7m8-14 6 7-6 7M14 3l-4 18"></path></svg>云端任务<span class="external-arrow">↗</span></a>
+      <div class="sidebar-note"><span class="note-spark">✳</span><strong>先发现，再确认。</strong><p>寻找单人、短动作、重复性强的玩法。原片、热度与动作都需要有据可查。</p><a href="https://github.com/yjr927/idore_tools" target="_blank" rel="noopener noreferrer">查看项目 ↗</a></div>
+      <p class="sidebar-foot"><span class="dot"></span>公开页面 · 来源可追溯</p>
+    </aside>
+    <div class="main-shell">
+      <header class="topbar"><p>idore 工作空间 <span>/</span> <strong>视频发现</strong></p><span class="mode">GitHub 云端结果</span></header>
+      <main>
+        <section class="heading"><div><span class="eyebrow">FIND YOUR NEXT STORY</span><h1>寻找下一个，<br class="mobile-break">值得跟拍的玩法。</h1><p>直接寻找 TikTok 公开视频，收集原片线索，再为角色创作挑选合适的参考。</p></div><button class="button primary" id="refresh-button" type="button"><span aria-hidden="true">↻</span>刷新已发布结果</button></section>
+        <div class="criteria" aria-label="筛选目标"><span>单人优先</span><span>短动作 · 重复性强</span><span>固定机位优先</span><span>多个创作者跟拍待核验</span></div>
+        <section class="status-panel" id="collection-status" aria-labelledby="status-heading" aria-live="polite">
+          <div class="status-icon" aria-hidden="true">◷</div><div class="status-content"><div class="status-title"><h2 id="status-heading">正在读取采集记录</h2><span class="state-pill" id="status-pill">加载中</span></div><p id="status-message">读取已发布的数据文件，不会在你的电脑启动采集。</p><div class="status-dates"><span>最近尝试 <strong id="last-attempt">—</strong></span><span>最近取得结果 <strong id="last-success">—</strong></span></div><details id="source-details"><summary>查看来源与任务说明</summary><div id="source-report"></div><p>刷新只会重新读取已发布结果。手动启动新采集，请在 GitHub Actions 打开采集任务并选择 Run workflow。定时任务可能延迟，采集失败时保留之前的候选。</p><a href="https://github.com/yjr927/idore_tools/actions" target="_blank" rel="noopener noreferrer">前往 GitHub Actions ↗</a></details></div>
+        </section>
+        <div class="notice"><span aria-hidden="true">ⓘ</span><p>这里是<strong>原视频候选</strong>，不代表已确认的实时热榜。单人、动作重复性、跟拍一致性和 AI 复刻效果，尚未自动核验。未获取的指标显示为“—”。</p></div>
+        <section id="candidates" aria-labelledby="candidate-heading">
+          <div class="section-top"><div class="section-title"><h2 id="candidate-heading">真实视频候选</h2><span class="count-pill" id="result-count">0 条</span></div><label class="favorite-control"><input type="checkbox" id="favorites-filter">只看收藏</label></div>
+          <div class="filter-bar"><div class="category-tabs" role="group" aria-label="玩法分类"><button type="button" class="tab active" data-category="all" aria-pressed="true">全部玩法</button><button type="button" class="tab" data-category="hands" aria-pressed="false">手势 / 舞蹈</button><button type="button" class="tab" data-category="transition" aria-pressed="false">变装 / 妆容</button><button type="button" class="tab" data-category="pov" aria-pressed="false">表情 / POV</button></div><label class="search"><span aria-hidden="true">⌕</span><input id="search-input" type="search" placeholder="搜索玩法或创作者" aria-label="搜索玩法或创作者"></label></div>
+          <div id="video-grid" class="video-grid" aria-live="polite"></div>
+        </section>
+      </main>
+      <footer>idore · Create your next story.<span>公开视频线索 · 收藏保存在当前浏览器 · 不自动生成或发布视频</span></footer>
+    </div>
+  </div>
+  <dialog id="preview-dialog" aria-labelledby="preview-title"><div class="dialog-head"><div><span class="eyebrow">WATCH THE REFERENCE</span><h2 id="preview-title">查看原片</h2></div><button id="close-preview" class="icon-button" type="button" aria-label="关闭播放器">✕</button></div><div id="preview-container"></div><p class="preview-note">播放器由 TikTok 提供。遇到登录、验证、地域限制或视频不可用时，可打开原链接查看；不保证内嵌播放成功。</p><a class="button" id="preview-original" target="_blank" rel="noopener noreferrer">在 TikTok 打开 ↗</a></dialog>
+  <p id="toast" class="toast" role="status" hidden></p>
+  <noscript><p class="noscript">请启用 JavaScript，以读取视频候选和采集记录。</p></noscript>
+</body>
+</html>

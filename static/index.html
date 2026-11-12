@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light"><meta name="description" content="本地运行的TikTok 短视频平台：发现趋势、匹配自有素材、编排分镜、模拟生成与人工审核。">
+  <title>idore · TikTok 短视频平台</title>
+  <link rel="icon" type="image/svg+xml" href="/mark.svg"><link rel="stylesheet" href="/styles.css">
+  <script defer src="/discovery.js"></script>
+  <script defer src="/app.js"></script>
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar">
+    <a class="brand" href="#trends" aria-label="idore 首页"><span class="brand-mark">i<span>↗</span></span><div>idore<span>你的TikTok 短视频平台</span></div></a>
+    <div class="workspace"><span class="avatar">i</span><div>idore 创作空间<small>TikTok Creative Studio</small></div><span class="local-dot"></span></div>
+    <div class="nav-label">创作流程</div>
+    <nav aria-label="主导航">
+      <a href="#discover" class="nav-link" data-route="discover"><span data-icon="search"></span>寻找真实视频<span class="nav-count">新</span></a>
+      <a href="#trends" class="nav-link" data-route="trends"><span data-icon="compass"></span>趋势发现<span class="nav-count" id="trend-count">6</span></a>
+      <a href="#assets" class="nav-link" data-route="assets"><span data-icon="layers"></span>我的素材<span class="nav-count" id="asset-count">0</span></a>
+      <a href="#jobs" class="nav-link" data-route="jobs"><span data-icon="film"></span>创作任务<span class="nav-count" id="job-count">0</span></a>
+      <a href="#review" class="nav-link" data-route="review"><span data-icon="check"></span>审核队列<span class="nav-count" id="review-count">0</span></a>
+    </nav>
+    <div class="nav-label second-label">工作空间</div>
+    <nav><a href="#settings" class="nav-link" data-route="settings"><span data-icon="settings"></span>接口与设置</a></nav>
+    <div class="sidebar-bottom"><div class="seedance-mark">✳</div><strong>为 Seedance 2.5 预留</strong><p>先把创作流程跑通。<br>准备好后，再接入你的 API。</p><a href="#settings">查看接口配置 <span>↗</span></a></div>
+    <div class="sidebar-foot"><span class="local-dot"></span>数据仅保存在本机 <span>v1.0</span></div>
+  </aside>
+  <div class="main-shell">
+    <header class="topbar"><button class="icon-button mobile-menu" id="mobile-menu" aria-label="打开导航">☰</button><div class="breadcrumb">工作空间 <span>/</span> <b id="breadcrumb-current">趋势发现</b></div><div class="header-right"><span class="mode-pill"><span></span>本地模拟模式</span><button class="help-button" id="help-button" aria-label="使用说明">?</button><span class="header-avatar">i</span></div></header>
+    <main id="main" tabindex="-1"><div class="loading-state"><span class="spinner"></span><p>正在打开你的创作工作台…</p></div></main>
+    <footer class="page-footer">idore · Create your next story.<span>公开页面发现 · 本地素材 · 生成仍为模拟 · 不自动发布</span></footer>
+  </div>
+</div>
+<dialog id="planner-dialog" class="dialog planner-dialog" aria-labelledby="planner-title"></dialog>
+<dialog id="upload-dialog" class="dialog upload-dialog" aria-labelledby="upload-title"></dialog>
+<dialog id="review-dialog" class="dialog review-dialog" aria-labelledby="review-title"></dialog>
+<dialog id="help-dialog" class="dialog help-dialog" aria-labelledby="help-title"><div class="dialog-head"><div><span class="eyebrow">GET STARTED</span><h2 id="help-title">把第一条创作流程跑通</h2></div><button class="icon-button" data-close="help-dialog" aria-label="关闭">✕</button></div><div class="help-steps"><div><b>01</b><p><strong>挑选一个示例趋势</strong>查看抽象镜头结构，原参考视频不会进入成片。</p></div><div><b>02</b><p><strong>导入你的自有素材</strong>图片与视频只写入本地 data 文件夹。填写标签并确认使用权。</p></div><div><b>03</b><p><strong>匹配分镜，创建模拟任务</strong>可使用示例素材体验，也可关闭示例只使用自己的文件。当前为标签匹配。</p></div><div><b>04</b><p><strong>预演与人工审核</strong>查看分镜，批准、要求修改或退回任务。可导出 JSON 任务单。</p></div></div><div class="notice"><span data-icon="info"></span><p>这是能实际操作的本地工作台。趋势数据为虚构示例，生成进度是流程模拟，不会调用 Seedance、不生成真实成片，也不自动发帖。接口文档在项目的 docs/API.md 中。</p></div><button class="button primary full" data-close="help-dialog">开始创作</button></dialog>
+<div id="toast-region" aria-live="polite" aria-atomic="true"></div>
+<noscript><p>请启用 JavaScript，才能使用本地工作台。</p></noscript>
+</body></html>

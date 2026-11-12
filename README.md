@@ -1,0 +1,53 @@
+# idore · TikTok 视频发现与创作工作台
+
+包含本地创作工作台，以及独立的 GitHub 云端 TikTok 公开视频采集试跑程序。
+
+**当前云端功能是验证公开页面可读性。发现链接不等于已确认热门、单人动作或 AI 可复刻。** 页面要求登录、验证码或不返回列表时，程序停止并保存真实状态，不用示例视频填充。
+
+## GitHub 云端试跑
+
+打开 [TikTok public discovery](https://github.com/yjr927/idore_tools/actions/workflows/tiktok-discovery.yml)，选择 **Run workflow**。
+
+- 使用 GitHub 托管的 Chromium，直接读取 TikTok 公开搜索页。
+- 默认寻找简单单人手势／舞蹈、变装、表情／对口型，最多 3 次搜索、8 条链接。
+- 不使用外部趋势文章、付费采集 API、代理、账号密码或登录 cookie；不处理验证码。
+- 保存去重后的候选、首次发现时间、最后采集时间和每个来源的读取状态。
+- 数据在 `site/data/discovery.json`，每次运行另有可下载的结果文件。
+- 每天 **14:17 UTC** 自动试跑一次（纽约冬令时 09:17，夏令时 10:17）。GitHub 定时任务可能延迟或暂停，不能保证实时。
+- 采集受阻时保留旧候选，并把任务标为未取得有效结果；不能把工作流绿色状态当作视频已验证。
+
+## 趋势结果看板
+
+`site/` 是不含密钥的静态看板。要启用线上网址：仓库 **Settings → Pages → Build and deployment → Source → GitHub Actions**，然后运行 **Publish trend viewer**。
+
+GitHub Pages 只发布 `site/`，不会发布本地 Python 服务和角色素材。它展示采集结果、来源、最后尝试／成功时间，支持筛选、浏览器本地收藏和打开原视频。刷新按钮仅重新读取已发布的数据，不会启动后台采集。
+
+## 可选 OpenAI 分析
+
+直接读取公开页面不需要 OpenAI。只有手动运行任务时选择 `analyze=true` 才会调用模型，并可能产生 API 费用。
+
+1. **Settings → Secrets and variables → Actions → Secrets**：新增 `OPENAI_API_KEY`。
+2. 同一页面 **Variables**：新增 `OPENAI_MODEL`，填写你账号中可用、支持结构化输出的模型 ID。
+3. 手动运行采集，勾选 `analyze`。
+
+模型只根据已获得的文字元数据提供玩法分类建议。没有观看视频时，不会标记人数、动作或热度已核验。没有密钥／模型配置时明确显示未配置，不会伪装调用成功。密钥不写入源码、浏览器、结果或日志。
+
+## 本机工作台
+
+需要 Python 3.10+。双击 `start.command`，或运行：
+
+```sh
+python3 server.py --open
+```
+
+浏览器打开 `http://localhost:8765`。完整本地功能说明见 [本地工作台说明](docs/LOCAL_WORKSPACE.md)。
+
+`data/`、`library/`、角色图片、ZIP、预览截图、个人环境配置均不上传本仓库。你的本机仍保留原有素材；从 GitHub 新下载的项目不会包含这些私人素材。公开云端结果与本机素材库分别存储。
+
+## 验证
+
+```sh
+python3 -m unittest discover -s tests -v
+```
+
+云端采集依赖单独列在 `requirements-cloud.txt`。本机常规工作台不需要 Playwright。

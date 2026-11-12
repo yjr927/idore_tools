@@ -1,0 +1,8 @@
+{
+  "collector": "tiktok_public_browser",
+  "status": "not_run",
+  "last_attempt_at": null,
+  "last_success_at": null,
+  "videos": [],
+  "runs": []
+}

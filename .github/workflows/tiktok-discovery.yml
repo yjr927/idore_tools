@@ -1,0 +1,75 @@
+name: TikTok public discovery
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/tiktok-discovery.yml'
+      - 'scripts/collect_tiktok_public.py'
+      - 'scripts/analyze_tiktok_candidates.py'
+      - 'requirements-cloud.txt'
+  workflow_dispatch:
+    inputs:
+      analyze:
+        description: 'Use configured OpenAI API for metadata suggestions (billable)'
+        type: boolean
+        default: false
+  schedule:
+    - cron: '17 14 * * *'
+permissions:
+  contents: write
+concurrency:
+  group: tiktok-discovery
+  cancel-in-progress: false
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Test source and data handling
+        run: python -m unittest discover -s tests -v
+      - name: Install cloud browser
+        run: |
+          python -m pip install -r requirements-cloud.txt
+          python -m playwright install --with-deps chromium
+      - name: Read TikTok public search pages
+        run: python scripts/collect_tiktok_public.py --output site/data/discovery.json --limit 8
+      - name: Optional OpenAI metadata suggestions
+        if: github.event_name == 'workflow_dispatch' && inputs.analyze
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_MODEL: ${{ vars.OPENAI_MODEL }}
+        run: python scripts/analyze_tiktok_candidates.py --input site/data/discovery.json --output site/data/discovery.json
+      - name: Save collection status and public links
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add site/data/discovery.json
+          if ! git diff --cached --quiet; then
+            git commit -m 'Update direct TikTok discovery results'
+            git push origin HEAD:main
+          fi
+      - name: Upload result for inspection
+        uses: actions/upload-artifact@v4
+        with:
+          name: tiktok-discovery-result
+          path: site/data/discovery.json
+          retention-days: 7
+      - name: Report actual collection outcome
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          data=json.loads(Path('site/data/discovery.json').read_text())
+          run=data['runs'][0]
+          summary=f"## TikTok direct public-page result\n\nStatus: **{run['status']}**\n\n{run['message']}\n\n"
+          for source in run.get('sources',[]):
+              summary+=f"- {source['name']}: {source['status']} — {source.get('message','')}\n"
+          summary+='\nNo TikTok password, session cookies, paid scraper or OpenAI API was required for this collection.\n'
+          with open(os.environ['GITHUB_STEP_SUMMARY'],'a') as output: output.write(summary)
+          if run['status'] not in ('succeeded','partial'):
+              raise SystemExit('No readable video candidates. See the saved report; this is not a verified trend feed.')
+          PY
