@@ -1,8 +1,45 @@
 {
   "collector": "tiktok_public_browser",
-  "status": "not_run",
-  "last_attempt_at": null,
-  "last_success_at": null,
   "videos": [],
-  "runs": []
+  "runs": [
+    {
+      "id": "2fc01939098048259db42a5e528f5815",
+      "status": "blocked",
+      "kind": "all",
+      "query": "",
+      "started_at": "2026-11-12T00:56:12.313395+00:00",
+      "finished_at": "2026-11-12T00:56:38.390608+00:00",
+      "found": 0,
+      "added": 0,
+      "message": "TikTok 公开页面未返回可读取的视频列表；可能需要登录或人工验证。已有候选保留。",
+      "sources": [
+        {
+          "name": "TikTok · easy solo hand dance trend",
+          "url": "https://www.tiktok.com/search?q=easy+solo+hand+dance+trend",
+          "status": "blocked",
+          "found": 0,
+          "total_links": 0,
+          "message": "公开页面没有提供视频列表；未尝试绕过访问限制。"
+        },
+        {
+          "name": "TikTok · solo outfit transition trend",
+          "url": "https://www.tiktok.com/search?q=solo+outfit+transition+trend",
+          "status": "blocked",
+          "found": 0,
+          "total_links": 0,
+          "message": "公开页面没有提供视频列表；未尝试绕过访问限制。"
+        },
+        {
+          "name": "TikTok · solo expression lip sync trend",
+          "url": "https://www.tiktok.com/search?q=solo+expression+lip+sync+trend",
+          "status": "blocked",
+          "found": 0,
+          "total_links": 0,
+          "message": "公开页面没有提供视频列表；未尝试绕过访问限制。"
+        }
+      ]
+    }
+  ],
+  "last_attempt_at": "2026-11-12T00:56:38.390608+00:00",
+  "last_success_at": null
 }
