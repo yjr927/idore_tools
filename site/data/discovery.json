@@ -400,9 +400,367 @@
           "trend_verified": false
         }
       ]
+    },
+    {
+      "url": "https://www.tiktok.com/@kimbirchwood/video/7705213331916770590",
+      "title": "Meow 侧目到正脸的近景表情对口型",
+      "kind": "pov",
+      "original_watched": true,
+      "motion_summary": "约5秒，单人坐在沙发前近景出镜，侧目、皱眉、张嘴及面对镜头的口型表情切换，伴随轻微转头；画面景别和背景构图有变化。",
+      "checks": {
+        "fixed_camera": false,
+        "repetitive": false,
+        "solo": true
+      },
+      "recreation_notes": "面部无遮挡、身体运动较少，可尝试角色表情与口型驱动；复刻时建议固定构图，降低原片镜头变化带来的难度。尚未生成测试。",
+      "published_at": null,
+      "published_text": "5d ago",
+      "metrics": {
+        "comments": 2592,
+        "likes": 1200000,
+        "shares": 157700,
+        "views": null
+      },
+      "related_videos": [
+        {
+          "url": "https://www.tiktok.com/@houstontruman/video/7704859708200389902",
+          "original_watched": true,
+          "same_pattern": true,
+          "note": "本轮重新播放：同音频下，单人近景由闭嘴表情变为张嘴微笑，轻微转头；同属短表情对口型，主片侧目皱眉更明显，并非完全相同表情或逐帧动作。页面6d ago。"
+        },
+        {
+          "url": "https://www.tiktok.com/@enhypen/video/7706463838610246913",
+          "original_watched": true,
+          "same_pattern": true,
+          "note": "本轮重新播放：单人从侧脸转向镜头、张嘴做口型，约5秒；同属同音频的短表情对口型，站立中景、身体姿态与主片坐姿近景不同。页面2d ago。"
+        }
+      ],
+      "music_name": "original sound - dailytungstenballsack",
+      "id": "tiktok-7705213331916770590",
+      "video_id": "7705213331916770590",
+      "author": "kimbirchwood",
+      "kinds": [
+        "pov"
+      ],
+      "first_seen_at": "2026-11-12T14:06:58+00:00",
+      "last_seen_at": "2026-11-12T14:06:58+00:00",
+      "duration": null,
+      "music_id": "",
+      "source": "ChatGPT Work 云端浏览器",
+      "source_url": "https://www.tiktok.com/@kimbirchwood/video/7705213331916770590",
+      "source_kind": "chatgpt_work",
+      "search_query": "",
+      "assessment": "待核验候选",
+      "assessment_note": "约5秒，单人坐在沙发前近景出镜，侧目、皱眉、张嘴及面对镜头的口型表情切换，伴随轻微转头；画面景别和背景构图有变化。",
+      "motion_verified": false,
+      "trend_verified": true,
+      "favorite": false,
+      "availability": "Work 已观看原片",
+      "observations": [
+        {
+          "run_id": "work-tiktok-20261112T140658Z-d02c989e",
+          "observed_at": "2026-11-12T14:06:58+00:00",
+          "metrics": {
+            "comments": 2592,
+            "likes": 1200000,
+            "shares": 157700,
+            "views": null
+          },
+          "original_watched": true,
+          "motion_summary": "约5秒，单人坐在沙发前近景出镜，侧目、皱眉、张嘴及面对镜头的口型表情切换，伴随轻微转头；画面景别和背景构图有变化。",
+          "checks": {
+            "fixed_camera": false,
+            "repetitive": false,
+            "solo": true
+          },
+          "recreation_notes": "面部无遮挡、身体运动较少，可尝试角色表情与口型驱动；复刻时建议固定构图，降低原片镜头变化带来的难度。尚未生成测试。",
+          "related_videos": [
+            {
+              "url": "https://www.tiktok.com/@houstontruman/video/7704859708200389902",
+              "original_watched": true,
+              "same_pattern": true,
+              "note": "本轮重新播放：同音频下，单人近景由闭嘴表情变为张嘴微笑，轻微转头；同属短表情对口型，主片侧目皱眉更明显，并非完全相同表情或逐帧动作。页面6d ago。"
+            },
+            {
+              "url": "https://www.tiktok.com/@enhypen/video/7706463838610246913",
+              "original_watched": true,
+              "same_pattern": true,
+              "note": "本轮重新播放：单人从侧脸转向镜头、张嘴做口型，约5秒；同属同音频的短表情对口型，站立中景、身体姿态与主片坐姿近景不同。页面2d ago。"
+            }
+          ],
+          "motion_verified": false,
+          "trend_verified": true
+        }
+      ]
+    },
+    {
+      "url": "https://www.tiktok.com/@anyelirrrr_/video/7705022159990607156",
+      "title": "Cow Makeup 奶牛斑纹妆与头巾切换",
+      "kind": "transition",
+      "original_watched": true,
+      "motion_summary": "约15秒，单人穿条纹上衣、戴酒红色头巾，画面叠加奶牛妆参考图；对口型、双手在胸前弯腕，随后切换为脸部黑白斑纹妆与棕白斑纹头巾，转头展示妆容。",
+      "checks": {
+        "fixed_camera": true,
+        "repetitive": false,
+        "solo": true
+      },
+      "recreation_notes": "近景与背景基本稳定，可分别制作妆前妆后角色画面后剪接；需检查斑纹位置、脸部身份及头巾一致性，转场处手部姿态可简化。尚未生成测试。",
+      "published_at": null,
+      "published_text": "6d ago",
+      "metrics": {
+        "comments": 2972,
+        "likes": 1100000,
+        "shares": 38400,
+        "views": null
+      },
+      "related_videos": [
+        {
+          "url": "https://www.tiktok.com/@raeinhyer/video/7706856820337282324",
+          "original_watched": true,
+          "same_pattern": true,
+          "note": "本轮重新播放妆前妆后：同奶牛妆参考图、对口型与造型切换，妆后双手弯腕放胸前；使用牛耳发饰、长发和奶牛服，与主片头巾版本不同。页面1d ago。"
+        },
+        {
+          "url": "https://www.tiktok.com/@rinnwyn/video/7703832061462793478",
+          "original_watched": true,
+          "same_pattern": true,
+          "note": "本轮重新播放妆前妆后：叠加同款参考图，先做口型与弯手动作，再切换奶牛斑纹妆和斑纹头巾；妆容细节与服装不同。页面11-3，超出优先7天窗口但保留原样日期。"
+        },
+        {
+          "url": "https://www.tiktok.com/@nafisafidela_2/video/7705397197134744884",
+          "original_watched": true,
+          "same_pattern": false,
+          "note": "本轮播放：先以毯子包头做口型，随后切换为草地背景的卡通奶牛，脸部眼嘴映射到卡通形象上并举手。虽使用同音频，但不是奶牛妆前后展示，不计入同玩法作者数。页面5d ago。"
+        }
+      ],
+      "music_name": "suara asli - RYN",
+      "id": "tiktok-7705022159990607156",
+      "video_id": "7705022159990607156",
+      "author": "anyelirrrr_",
+      "kinds": [
+        "transition"
+      ],
+      "first_seen_at": "2026-11-12T14:06:58+00:00",
+      "last_seen_at": "2026-11-12T14:06:58+00:00",
+      "duration": null,
+      "music_id": "",
+      "source": "ChatGPT Work 云端浏览器",
+      "source_url": "https://www.tiktok.com/@anyelirrrr_/video/7705022159990607156",
+      "source_kind": "chatgpt_work",
+      "search_query": "",
+      "assessment": "待核验候选",
+      "assessment_note": "约15秒，单人穿条纹上衣、戴酒红色头巾，画面叠加奶牛妆参考图；对口型、双手在胸前弯腕，随后切换为脸部黑白斑纹妆与棕白斑纹头巾，转头展示妆容。",
+      "motion_verified": false,
+      "trend_verified": true,
+      "favorite": false,
+      "availability": "Work 已观看原片",
+      "observations": [
+        {
+          "run_id": "work-tiktok-20261112T140658Z-d02c989e",
+          "observed_at": "2026-11-12T14:06:58+00:00",
+          "metrics": {
+            "comments": 2972,
+            "likes": 1100000,
+            "shares": 38400,
+            "views": null
+          },
+          "original_watched": true,
+          "motion_summary": "约15秒，单人穿条纹上衣、戴酒红色头巾，画面叠加奶牛妆参考图；对口型、双手在胸前弯腕，随后切换为脸部黑白斑纹妆与棕白斑纹头巾，转头展示妆容。",
+          "checks": {
+            "fixed_camera": true,
+            "repetitive": false,
+            "solo": true
+          },
+          "recreation_notes": "近景与背景基本稳定，可分别制作妆前妆后角色画面后剪接；需检查斑纹位置、脸部身份及头巾一致性，转场处手部姿态可简化。尚未生成测试。",
+          "related_videos": [
+            {
+              "url": "https://www.tiktok.com/@raeinhyer/video/7706856820337282324",
+              "original_watched": true,
+              "same_pattern": true,
+              "note": "本轮重新播放妆前妆后：同奶牛妆参考图、对口型与造型切换，妆后双手弯腕放胸前；使用牛耳发饰、长发和奶牛服，与主片头巾版本不同。页面1d ago。"
+            },
+            {
+              "url": "https://www.tiktok.com/@rinnwyn/video/7703832061462793478",
+              "original_watched": true,
+              "same_pattern": true,
+              "note": "本轮重新播放妆前妆后：叠加同款参考图，先做口型与弯手动作，再切换奶牛斑纹妆和斑纹头巾；妆容细节与服装不同。页面11-3，超出优先7天窗口但保留原样日期。"
+            },
+            {
+              "url": "https://www.tiktok.com/@nafisafidela_2/video/7705397197134744884",
+              "original_watched": true,
+              "same_pattern": false,
+              "note": "本轮播放：先以毯子包头做口型，随后切换为草地背景的卡通奶牛，脸部眼嘴映射到卡通形象上并举手。虽使用同音频，但不是奶牛妆前后展示，不计入同玩法作者数。页面5d ago。"
+            }
+          ],
+          "motion_verified": false,
+          "trend_verified": true
+        }
+      ]
     }
   ],
   "runs": [
+    {
+      "id": "work-tiktok-20261112T140658Z-d02c989e",
+      "run_id": "work-tiktok-20261112T140658Z-d02c989e",
+      "payload_sha256": "2f440e348273e22c41cb3b476aaf274262e138159e45dde53425844de921907c",
+      "collector": "chatgpt_work",
+      "status": "partial",
+      "kind": "all",
+      "query": "",
+      "started_at": "2026-11-12T14:06:58+00:00",
+      "finished_at": "2026-11-12T14:06:58+00:00",
+      "observed_at": "2026-11-12T14:06:58+00:00",
+      "found": 2,
+      "added": 2,
+      "message": "本轮新增2条主候选，已在云端浏览器实际播放并观察关键画面；每组另复看2名不同作者的原片，记录动作共性和差异。另核验1条同音频卡通奶牛特效，与奶牛妆切换不同，不计入同玩法证据。主候选页面显示5d ago与6d ago；1条关联原片显示11-3，已扩展至30天窗口。精确发布时间和播放量未核验。页面K/M缩写换算为近似取整观测值，不是精确计数。表情候选存在镜头构图变化；本轮保留部分核验状态。AI适配建议均尚未生成测试。",
+      "ingestion_status": "imported",
+      "video_snapshots": [
+        {
+          "id": "tiktok-7705213331916770590",
+          "video_id": "7705213331916770590",
+          "url": "https://www.tiktok.com/@kimbirchwood/video/7705213331916770590",
+          "title": "Meow 侧目到正脸的近景表情对口型",
+          "author": "kimbirchwood",
+          "kind": "pov",
+          "original_watched": true,
+          "motion_summary": "约5秒，单人坐在沙发前近景出镜，侧目、皱眉、张嘴及面对镜头的口型表情切换，伴随轻微转头；画面景别和背景构图有变化。",
+          "checks": {
+            "fixed_camera": false,
+            "repetitive": false,
+            "solo": true
+          },
+          "recreation_notes": "面部无遮挡、身体运动较少，可尝试角色表情与口型驱动；复刻时建议固定构图，降低原片镜头变化带来的难度。尚未生成测试。",
+          "published_at": null,
+          "published_text": "5d ago",
+          "metrics": {
+            "comments": 2592,
+            "likes": 1200000,
+            "shares": 157700,
+            "views": null
+          },
+          "related_videos": [
+            {
+              "url": "https://www.tiktok.com/@houstontruman/video/7704859708200389902",
+              "original_watched": true,
+              "same_pattern": true,
+              "note": "本轮重新播放：同音频下，单人近景由闭嘴表情变为张嘴微笑，轻微转头；同属短表情对口型，主片侧目皱眉更明显，并非完全相同表情或逐帧动作。页面6d ago。"
+            },
+            {
+              "url": "https://www.tiktok.com/@enhypen/video/7706463838610246913",
+              "original_watched": true,
+              "same_pattern": true,
+              "note": "本轮重新播放：单人从侧脸转向镜头、张嘴做口型，约5秒；同属同音频的短表情对口型，站立中景、身体姿态与主片坐姿近景不同。页面2d ago。"
+            }
+          ],
+          "music_name": "original sound - dailytungstenballsack",
+          "motion_verified": false,
+          "trend_verified": true,
+          "source": "ChatGPT Work 云端浏览器",
+          "source_url": "https://www.tiktok.com/@kimbirchwood/video/7705213331916770590",
+          "source_kind": "chatgpt_work",
+          "assessment": "待核验候选",
+          "assessment_note": "约5秒，单人坐在沙发前近景出镜，侧目、皱眉、张嘴及面对镜头的口型表情切换，伴随轻微转头；画面景别和背景构图有变化。",
+          "observed_at": "2026-11-12T14:06:58+00:00"
+        },
+        {
+          "id": "tiktok-7705022159990607156",
+          "video_id": "7705022159990607156",
+          "url": "https://www.tiktok.com/@anyelirrrr_/video/7705022159990607156",
+          "title": "Cow Makeup 奶牛斑纹妆与头巾切换",
+          "author": "anyelirrrr_",
+          "kind": "transition",
+          "original_watched": true,
+          "motion_summary": "约15秒，单人穿条纹上衣、戴酒红色头巾，画面叠加奶牛妆参考图；对口型、双手在胸前弯腕，随后切换为脸部黑白斑纹妆与棕白斑纹头巾，转头展示妆容。",
+          "checks": {
+            "fixed_camera": true,
+            "repetitive": false,
+            "solo": true
+          },
+          "recreation_notes": "近景与背景基本稳定，可分别制作妆前妆后角色画面后剪接；需检查斑纹位置、脸部身份及头巾一致性，转场处手部姿态可简化。尚未生成测试。",
+          "published_at": null,
+          "published_text": "6d ago",
+          "metrics": {
+            "comments": 2972,
+            "likes": 1100000,
+            "shares": 38400,
+            "views": null
+          },
+          "related_videos": [
+            {
+              "url": "https://www.tiktok.com/@raeinhyer/video/7706856820337282324",
+              "original_watched": true,
+              "same_pattern": true,
+              "note": "本轮重新播放妆前妆后：同奶牛妆参考图、对口型与造型切换，妆后双手弯腕放胸前；使用牛耳发饰、长发和奶牛服，与主片头巾版本不同。页面1d ago。"
+            },
+            {
+              "url": "https://www.tiktok.com/@rinnwyn/video/7703832061462793478",
+              "original_watched": true,
+              "same_pattern": true,
+              "note": "本轮重新播放妆前妆后：叠加同款参考图，先做口型与弯手动作，再切换奶牛斑纹妆和斑纹头巾；妆容细节与服装不同。页面11-3，超出优先7天窗口但保留原样日期。"
+            },
+            {
+              "url": "https://www.tiktok.com/@nafisafidela_2/video/7705397197134744884",
+              "original_watched": true,
+              "same_pattern": false,
+              "note": "本轮播放：先以毯子包头做口型，随后切换为草地背景的卡通奶牛，脸部眼嘴映射到卡通形象上并举手。虽使用同音频，但不是奶牛妆前后展示，不计入同玩法作者数。页面5d ago。"
+            }
+          ],
+          "music_name": "suara asli - RYN",
+          "motion_verified": false,
+          "trend_verified": true,
+          "source": "ChatGPT Work 云端浏览器",
+          "source_url": "https://www.tiktok.com/@anyelirrrr_/video/7705022159990607156",
+          "source_kind": "chatgpt_work",
+          "assessment": "待核验候选",
+          "assessment_note": "约15秒，单人穿条纹上衣、戴酒红色头巾，画面叠加奶牛妆参考图；对口型、双手在胸前弯腕，随后切换为脸部黑白斑纹妆与棕白斑纹头巾，转头展示妆容。",
+          "observed_at": "2026-11-12T14:06:58+00:00"
+        }
+      ],
+      "sources": [
+        {
+          "name": "ChatGPT Work 云端浏览器",
+          "url": "https://www.tiktok.com/@kimbirchwood/video/7705213331916770590",
+          "status": "ok",
+          "found": 1
+        },
+        {
+          "name": "ChatGPT Work 云端浏览器",
+          "url": "https://www.tiktok.com/@houstontruman/video/7704859708200389902",
+          "status": "ok",
+          "found": 1
+        },
+        {
+          "name": "ChatGPT Work 云端浏览器",
+          "url": "https://www.tiktok.com/@enhypen/video/7706463838610246913",
+          "status": "ok",
+          "found": 1
+        },
+        {
+          "name": "ChatGPT Work 云端浏览器",
+          "url": "https://www.tiktok.com/@anyelirrrr_/video/7705022159990607156",
+          "status": "ok",
+          "found": 1
+        },
+        {
+          "name": "ChatGPT Work 云端浏览器",
+          "url": "https://www.tiktok.com/@raeinhyer/video/7706856820337282324",
+          "status": "ok",
+          "found": 1
+        },
+        {
+          "name": "ChatGPT Work 云端浏览器",
+          "url": "https://www.tiktok.com/@rinnwyn/video/7703832061462793478",
+          "status": "ok",
+          "found": 1
+        },
+        {
+          "name": "ChatGPT Work 云端浏览器",
+          "url": "https://www.tiktok.com/@nafisafidela_2/video/7705397197134744884",
+          "status": "ok",
+          "found": 1
+        }
+      ]
+    },
     {
       "id": "work-tiktok-20261112T013104Z-7704859708200389902",
       "run_id": "work-tiktok-20261112T013104Z-7704859708200389902",
@@ -763,9 +1121,10 @@
       ]
     }
   ],
-  "last_attempt_at": "2026-11-12T01:31:04+00:00",
-  "last_success_at": "2026-11-12T01:31:04+00:00",
+  "last_attempt_at": "2026-11-12T14:06:58+00:00",
+  "last_success_at": "2026-11-12T14:06:58+00:00",
   "work_imports": {
-    "work-tiktok-20261112T013104Z-7704859708200389902": "3f8b1c1e965c6bdb4e2aa62d5664177f4b4188cb0e4652526db2730fb82349c7"
+    "work-tiktok-20261112T013104Z-7704859708200389902": "3f8b1c1e965c6bdb4e2aa62d5664177f4b4188cb0e4652526db2730fb82349c7",
+    "work-tiktok-20261112T140658Z-d02c989e": "2f440e348273e22c41cb3b476aaf274262e138159e45dde53425844de921907c"
   }
 }
