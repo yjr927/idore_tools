@@ -30,7 +30,11 @@ jobs:
         with:
           python-version: '3.12'
       - name: Test source and data handling
-        run: python -m unittest discover -s tests -v
+        run: |
+          python -m unittest discover -s tests -v
+          node --check site/app.js
+          node --check static/app.js
+          node --check static/discovery.js
       - name: Install cloud browser
         run: |
           python -m pip install -r requirements-cloud.txt
@@ -43,21 +47,21 @@ jobs:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           OPENAI_MODEL: ${{ vars.OPENAI_MODEL }}
         run: python scripts/analyze_tiktok_candidates.py --input site/data/discovery.json --output site/data/discovery.json
-      - name: Save collection status and public links
-        run: |
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add site/data/discovery.json
-          if ! git diff --cached --quiet; then
-            git commit -m 'Update direct TikTok discovery results'
-            git push origin HEAD:main
-          fi
       - name: Upload result for inspection
         uses: actions/upload-artifact@v4
         with:
           name: tiktok-discovery-result
           path: site/data/discovery.json
           retention-days: 7
+      - name: Save collection status and public links
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -f -- site/data/discovery.json
+          if ! git diff --cached --quiet; then
+            git commit -m 'Update direct TikTok discovery results'
+            git push origin HEAD:main
+          fi
       - name: Report actual collection outcome
         run: |
           python - <<'PY'
@@ -68,7 +72,7 @@ jobs:
           summary=f"## TikTok direct public-page result\n\nStatus: **{run['status']}**\n\n{run['message']}\n\n"
           for source in run.get('sources',[]):
               summary+=f"- {source['name']}: {source['status']} — {source.get('message','')}\n"
-          summary+='\nNo TikTok password, session cookies, paid scraper or OpenAI API was required for this collection.\n'
+          summary+='\nDirect collection uses no TikTok password, session cookies or paid scraper. Optional OpenAI analysis is a separate manual step.\n'
           with open(os.environ['GITHUB_STEP_SUMMARY'],'a') as output: output.write(summary)
           if run['status'] not in ('succeeded','partial'):
               raise SystemExit('No readable video candidates. See the saved report; this is not a verified trend feed.')
