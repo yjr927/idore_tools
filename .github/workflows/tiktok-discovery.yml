@@ -1,20 +1,11 @@
 name: TikTok public discovery
 on:
-  push:
-    branches: [main]
-    paths:
-      - '.github/workflows/tiktok-discovery.yml'
-      - 'scripts/collect_tiktok_public.py'
-      - 'scripts/analyze_tiktok_candidates.py'
-      - 'requirements-cloud.txt'
   workflow_dispatch:
     inputs:
       analyze:
         description: 'Use configured OpenAI API for metadata suggestions (billable)'
         type: boolean
         default: false
-  schedule:
-    - cron: '17 14 * * *'
 permissions:
   contents: write
 concurrency:
