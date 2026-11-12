@@ -1,0 +1,11 @@
+data/
+library/
+.preview-data/
+__pycache__/
+*.pyc
+.env
+.env.*
+!.env.example
+*-preview.png
+*.zip
+.DS_Store
