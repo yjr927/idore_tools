@@ -1,159 +1,87 @@
 {
   "schema_version": 1,
-  "run_id": "work-tiktok-20261112T013104Z-7704859708200389902",
-  "observed_at": "2026-11-11T20:31:04-05:00",
+  "run_id": "work-tiktok-20261112T140658Z-d02c989e",
+  "observed_at": "2026-11-12T09:06:58-05:00",
   "status": "partial",
-  "message": "本轮已在同一已登录云端浏览器播放并检查5条候选的动作关键画面，主视频可见指标已复核；关联视频沿用本任务此前逐条播放的观察。每个玩法仅列出1名其他创作者，合计2名创作者，仍不足3人核验阈值。所有播放量与精确发布时间未核验；页面K缩写换算为近似整数，不代表精确计数。AI复刻尚未生成测试；近期发布不代表玩法近期首创。",
+  "message": "本轮新增2条主候选，已在云端浏览器实际播放并观察关键画面；每组另复看2名不同作者的原片，记录动作共性和差异。另核验1条同音频卡通奶牛特效，与奶牛妆切换不同，不计入同玩法证据。主候选页面显示5d ago与6d ago；1条关联原片显示11-3，已扩展至30天窗口。精确发布时间和播放量未核验。页面K/M缩写换算为近似取整观测值，不是精确计数。表情候选存在镜头构图变化；本轮保留部分核验状态。AI适配建议均尚未生成测试。",
   "videos": [
     {
-      "url": "https://www.tiktok.com/@houstontruman/video/7704859708200389902",
-      "title": "Meow 单人近景表情对口型",
+      "url": "https://www.tiktok.com/@kimbirchwood/video/7705213331916770590",
+      "title": "Meow 侧目到正脸的近景表情对口型",
       "kind": "pov",
       "original_watched": true,
-      "motion_summary": "单人坐着面对镜头，从平静表情切换为张嘴、微笑，伴随轻微头部动作；约5秒。",
+      "motion_summary": "约5秒，单人坐在沙发前近景出镜，侧目、皱眉、张嘴及面对镜头的口型表情切换，伴随轻微转头；画面景别和背景构图有变化。",
       "checks": {
         "solo": true,
         "repetitive": false,
-        "fixed_camera": null
+        "fixed_camera": false
       },
-      "recreation_notes": "近景构图基本稳定、面部无遮挡、动作幅度小，适合角色表情与口型驱动；无法仅凭画面确认机位是否固定。尚未生成测试。",
+      "recreation_notes": "面部无遮挡、身体运动较少，可尝试角色表情与口型驱动；复刻时建议固定构图，降低原片镜头变化带来的难度。尚未生成测试。",
       "published_at": null,
-      "published_text": "6d ago",
+      "published_text": "5d ago",
       "metrics": {
         "views": null,
-        "likes": 519300,
-        "comments": 2107,
-        "shares": 105800
+        "likes": 1200000,
+        "comments": 2592,
+        "shares": 157700
       },
       "related_videos": [
+        {
+          "url": "https://www.tiktok.com/@houstontruman/video/7704859708200389902",
+          "original_watched": true,
+          "same_pattern": true,
+          "note": "本轮重新播放：同音频下，单人近景由闭嘴表情变为张嘴微笑，轻微转头；同属短表情对口型，主片侧目皱眉更明显，并非完全相同表情或逐帧动作。页面6d ago。"
+        },
         {
           "url": "https://www.tiktok.com/@enhypen/video/7706463838610246913",
           "original_watched": true,
           "same_pattern": true,
-          "note": "本任务此前已播放核验：JAY单人面对镜头做同音频表情对口型，加少量手势；与主片景别、姿态不同。仅1名其他创作者，不足3人核验阈值。"
+          "note": "本轮重新播放：单人从侧脸转向镜头、张嘴做口型，约5秒；同属同音频的短表情对口型，站立中景、身体姿态与主片坐姿近景不同。页面2d ago。"
         }
       ],
       "music_name": "original sound - dailytungstenballsack"
     },
     {
-      "url": "https://www.tiktok.com/@charlotteseet/video/7703871221569424661",
-      "title": "手掌扫镜遮挡换装",
+      "url": "https://www.tiktok.com/@anyelirrrr_/video/7705022159990607156",
+      "title": "Cow Makeup 奶牛斑纹妆与头巾切换",
       "kind": "transition",
       "original_watched": true,
-      "motion_summary": "单人穿粉色睡衣、戴发卷，双手在脸前及镜头前扫过，随后切换为灰色露肩毛衣和整理后的发型；约14秒。",
+      "motion_summary": "约15秒，单人穿条纹上衣、戴酒红色头巾，画面叠加奶牛妆参考图；对口型、双手在胸前弯腕，随后切换为脸部黑白斑纹妆与棕白斑纹头巾，转头展示妆容。",
       "checks": {
         "solo": true,
         "repetitive": false,
         "fixed_camera": true
       },
-      "recreation_notes": "分别生成换装前后两段，在手掌遮挡处剪接，减少连续换衣生成难度；注意衔接姿势和背景一致。原片标注Paid partnership。尚未生成测试。",
+      "recreation_notes": "近景与背景基本稳定，可分别制作妆前妆后角色画面后剪接；需检查斑纹位置、脸部身份及头巾一致性，转场处手部姿态可简化。尚未生成测试。",
       "published_at": null,
-      "published_text": "11-3",
+      "published_text": "6d ago",
       "metrics": {
         "views": null,
-        "likes": 14200,
-        "comments": 29,
-        "shares": 334
+        "likes": 1100000,
+        "comments": 2972,
+        "shares": 38400
       },
       "related_videos": [
         {
-          "url": "https://www.tiktok.com/@floor_vandermeer/video/7705770462084664608",
+          "url": "https://www.tiktok.com/@raeinhyer/video/7706856820337282324",
           "original_watched": true,
           "same_pattern": true,
-          "note": "本任务此前已播放核验：同音频与手势遮挡转场，随后展示红色头发和黑色服装；属于换发色变体，并非相同服装内容。仅1名其他创作者，不足3人核验阈值。"
-        }
-      ],
-      "music_name": "original sound - editsbykaj"
-    },
-    {
-      "url": "https://www.tiktok.com/@raeinhyer/video/7706856820337282324",
-      "title": "Cow Makeup 奶牛妆造型切换",
-      "kind": "transition",
-      "original_watched": true,
-      "motion_summary": "单人普通造型面对镜头，画面叠加奶牛妆参考图，切换为黑白斑点妆、假发和奶牛服，配合嘟嘴及双手蜷在胸前的小动作；约15秒。",
-      "checks": {
-        "solo": true,
-        "repetitive": false,
-        "fixed_camera": true
-      },
-      "recreation_notes": "可先制作一致角色的妆前妆后造型，再分别生成短动作并剪接；重点检查面部斑纹、身份和服装一致性。尚未生成测试。",
-      "published_at": null,
-      "published_text": "15h ago",
-      "metrics": {
-        "views": null,
-        "likes": 27500,
-        "comments": 480,
-        "shares": 907
-      },
-      "related_videos": [
+          "note": "本轮重新播放妆前妆后：同奶牛妆参考图、对口型与造型切换，妆后双手弯腕放胸前；使用牛耳发饰、长发和奶牛服，与主片头巾版本不同。页面1d ago。"
+        },
         {
           "url": "https://www.tiktok.com/@rinnwyn/video/7703832061462793478",
           "original_watched": true,
           "same_pattern": true,
-          "note": "本任务此前已播放核验：RYN也使用同音频、奶牛妆参考图与妆前妆后展示；头巾造型不同。主片公开标注ib:@RYN。仅1名其他创作者，不足3人核验阈值。"
+          "note": "本轮重新播放妆前妆后：叠加同款参考图，先做口型与弯手动作，再切换奶牛斑纹妆和斑纹头巾；妆容细节与服装不同。页面11-3，超出优先7天窗口但保留原样日期。"
+        },
+        {
+          "url": "https://www.tiktok.com/@nafisafidela_2/video/7705397197134744884",
+          "original_watched": true,
+          "same_pattern": false,
+          "note": "本轮播放：先以毯子包头做口型，随后切换为草地背景的卡通奶牛，脸部眼嘴映射到卡通形象上并举手。虽使用同音频，但不是奶牛妆前后展示，不计入同玩法作者数。页面5d ago。"
         }
       ],
       "music_name": "suara asli - RYN"
-    },
-    {
-      "url": "https://www.tiktok.com/@shelbyjanero/video/7706775425162300702",
-      "title": "Eat it up 单人原地摆臂舞",
-      "kind": "hands",
-      "original_watched": true,
-      "motion_summary": "固定机位单人原地摆肩摆髋，前臂交叉、向下摆手和左右挥手，面向镜头重复摆动；约14秒。",
-      "checks": {
-        "solo": true,
-        "repetitive": true,
-        "fixed_camera": true
-      },
-      "recreation_notes": "适合以原片进行动作迁移，保留身体节奏并替换角色；手臂交叉、手部及身体边缘需检查。这是旧玩法的近期跟拍，不应称为本周新趋势。尚未生成测试。",
-      "published_at": null,
-      "published_text": "20h ago",
-      "metrics": {
-        "views": null,
-        "likes": 228,
-        "comments": 5,
-        "shares": 1
-      },
-      "related_videos": [
-        {
-          "url": "https://www.tiktok.com/@notaudrina26/video/7686951860804308237",
-          "original_watched": true,
-          "same_pattern": true,
-          "note": "本任务此前已播放核验：Audrina双人版本，同音频与交叉摆臂动作，背景有其他人；页面显示9-19，证明并非本周才出现的玩法。仅1名其他创作者，不足3人核验阈值。"
-        }
-      ],
-      "music_name": "original sound - Audrina"
-    },
-    {
-      "url": "https://www.tiktok.com/@rosariodecre/video/7703530440023444769",
-      "title": "Bicep Heart 屈臂双手比心",
-      "kind": "hands",
-      "original_watched": true,
-      "motion_summary": "画面聚焦一人的上臂和双手，屈肘展示上臂，双手在上臂上方合成爱心；约7秒。",
-      "checks": {
-        "solo": true,
-        "repetitive": false,
-        "fixed_camera": true
-      },
-      "recreation_notes": "固定背景、短时长和明确终点姿势适合用关键姿势约束；手指接触和手腕弯曲难度较高，建议后于表情及换装测试。尚未生成测试。",
-      "published_at": null,
-      "published_text": "11-2",
-      "metrics": {
-        "views": null,
-        "likes": 76300,
-        "comments": 448,
-        "shares": 18600
-      },
-      "related_videos": [
-        {
-          "url": "https://www.tiktok.com/@pyaephyozaw870/video/7704245075324194069",
-          "original_watched": true,
-          "same_pattern": true,
-          "note": "本任务此前已播放核验：同音频，先屈臂再双手合成爱心，衣着和背景不同。仅1名其他创作者，不足3人核验阈值。"
-        }
-      ],
-      "music_name": "âm thanh gốc - Chris Pham"
     }
   ]
 }
