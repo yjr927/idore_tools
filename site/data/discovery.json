@@ -478,7 +478,215 @@
           "status": "ok",
           "found": 1
         }
-      ]
+      ],
+      "video_snapshots": [
+        {
+          "id": "tiktok-7704859708200389902",
+          "video_id": "7704859708200389902",
+          "url": "https://www.tiktok.com/@houstontruman/video/7704859708200389902",
+          "title": "Meow 单人近景表情对口型",
+          "author": "houstontruman",
+          "kind": "pov",
+          "original_watched": true,
+          "motion_summary": "单人坐着面对镜头，从平静表情切换为张嘴、微笑，伴随轻微头部动作；约5秒。",
+          "checks": {
+            "fixed_camera": null,
+            "repetitive": false,
+            "solo": true
+          },
+          "recreation_notes": "近景构图基本稳定、面部无遮挡、动作幅度小，适合角色表情与口型驱动；无法仅凭画面确认机位是否固定。尚未生成测试。",
+          "published_at": null,
+          "published_text": "6d ago",
+          "metrics": {
+            "comments": 2107,
+            "likes": 519300,
+            "shares": 105800,
+            "views": null
+          },
+          "related_videos": [
+            {
+              "url": "https://www.tiktok.com/@enhypen/video/7706463838610246913",
+              "original_watched": true,
+              "same_pattern": true,
+              "note": "本任务此前已播放核验：JAY单人面对镜头做同音频表情对口型，加少量手势；与主片景别、姿态不同。仅1名其他创作者，不足3人核验阈值。"
+            }
+          ],
+          "music_name": "original sound - dailytungstenballsack",
+          "motion_verified": false,
+          "trend_verified": false,
+          "source": "ChatGPT Work 云端浏览器",
+          "source_url": "https://www.tiktok.com/@houstontruman/video/7704859708200389902",
+          "source_kind": "chatgpt_work",
+          "assessment": "待核验候选",
+          "assessment_note": "单人坐着面对镜头，从平静表情切换为张嘴、微笑，伴随轻微头部动作；约5秒。",
+          "observed_at": "2026-11-12T01:31:04+00:00"
+        },
+        {
+          "id": "tiktok-7703871221569424661",
+          "video_id": "7703871221569424661",
+          "url": "https://www.tiktok.com/@charlotteseet/video/7703871221569424661",
+          "title": "手掌扫镜遮挡换装",
+          "author": "charlotteseet",
+          "kind": "transition",
+          "original_watched": true,
+          "motion_summary": "单人穿粉色睡衣、戴发卷，双手在脸前及镜头前扫过，随后切换为灰色露肩毛衣和整理后的发型；约14秒。",
+          "checks": {
+            "fixed_camera": true,
+            "repetitive": false,
+            "solo": true
+          },
+          "recreation_notes": "分别生成换装前后两段，在手掌遮挡处剪接，减少连续换衣生成难度；注意衔接姿势和背景一致。原片标注Paid partnership。尚未生成测试。",
+          "published_at": null,
+          "published_text": "11-3",
+          "metrics": {
+            "comments": 29,
+            "likes": 14200,
+            "shares": 334,
+            "views": null
+          },
+          "related_videos": [
+            {
+              "url": "https://www.tiktok.com/@floor_vandermeer/video/7705770462084664608",
+              "original_watched": true,
+              "same_pattern": true,
+              "note": "本任务此前已播放核验：同音频与手势遮挡转场，随后展示红色头发和黑色服装；属于换发色变体，并非相同服装内容。仅1名其他创作者，不足3人核验阈值。"
+            }
+          ],
+          "music_name": "original sound - editsbykaj",
+          "motion_verified": false,
+          "trend_verified": false,
+          "source": "ChatGPT Work 云端浏览器",
+          "source_url": "https://www.tiktok.com/@charlotteseet/video/7703871221569424661",
+          "source_kind": "chatgpt_work",
+          "assessment": "待核验候选",
+          "assessment_note": "单人穿粉色睡衣、戴发卷，双手在脸前及镜头前扫过，随后切换为灰色露肩毛衣和整理后的发型；约14秒。",
+          "observed_at": "2026-11-12T01:31:04+00:00"
+        },
+        {
+          "id": "tiktok-7706856820337282324",
+          "video_id": "7706856820337282324",
+          "url": "https://www.tiktok.com/@raeinhyer/video/7706856820337282324",
+          "title": "Cow Makeup 奶牛妆造型切换",
+          "author": "raeinhyer",
+          "kind": "transition",
+          "original_watched": true,
+          "motion_summary": "单人普通造型面对镜头，画面叠加奶牛妆参考图，切换为黑白斑点妆、假发和奶牛服，配合嘟嘴及双手蜷在胸前的小动作；约15秒。",
+          "checks": {
+            "fixed_camera": true,
+            "repetitive": false,
+            "solo": true
+          },
+          "recreation_notes": "可先制作一致角色的妆前妆后造型，再分别生成短动作并剪接；重点检查面部斑纹、身份和服装一致性。尚未生成测试。",
+          "published_at": null,
+          "published_text": "15h ago",
+          "metrics": {
+            "comments": 480,
+            "likes": 27500,
+            "shares": 907,
+            "views": null
+          },
+          "related_videos": [
+            {
+              "url": "https://www.tiktok.com/@rinnwyn/video/7703832061462793478",
+              "original_watched": true,
+              "same_pattern": true,
+              "note": "本任务此前已播放核验：RYN也使用同音频、奶牛妆参考图与妆前妆后展示；头巾造型不同。主片公开标注ib:@RYN。仅1名其他创作者，不足3人核验阈值。"
+            }
+          ],
+          "music_name": "suara asli - RYN",
+          "motion_verified": false,
+          "trend_verified": false,
+          "source": "ChatGPT Work 云端浏览器",
+          "source_url": "https://www.tiktok.com/@raeinhyer/video/7706856820337282324",
+          "source_kind": "chatgpt_work",
+          "assessment": "待核验候选",
+          "assessment_note": "单人普通造型面对镜头，画面叠加奶牛妆参考图，切换为黑白斑点妆、假发和奶牛服，配合嘟嘴及双手蜷在胸前的小动作；约15秒。",
+          "observed_at": "2026-11-12T01:31:04+00:00"
+        },
+        {
+          "id": "tiktok-7706775425162300702",
+          "video_id": "7706775425162300702",
+          "url": "https://www.tiktok.com/@shelbyjanero/video/7706775425162300702",
+          "title": "Eat it up 单人原地摆臂舞",
+          "author": "shelbyjanero",
+          "kind": "hands",
+          "original_watched": true,
+          "motion_summary": "固定机位单人原地摆肩摆髋，前臂交叉、向下摆手和左右挥手，面向镜头重复摆动；约14秒。",
+          "checks": {
+            "fixed_camera": true,
+            "repetitive": true,
+            "solo": true
+          },
+          "recreation_notes": "适合以原片进行动作迁移，保留身体节奏并替换角色；手臂交叉、手部及身体边缘需检查。这是旧玩法的近期跟拍，不应称为本周新趋势。尚未生成测试。",
+          "published_at": null,
+          "published_text": "20h ago",
+          "metrics": {
+            "comments": 5,
+            "likes": 228,
+            "shares": 1,
+            "views": null
+          },
+          "related_videos": [
+            {
+              "url": "https://www.tiktok.com/@notaudrina26/video/7686951860804308237",
+              "original_watched": true,
+              "same_pattern": true,
+              "note": "本任务此前已播放核验：Audrina双人版本，同音频与交叉摆臂动作，背景有其他人；页面显示9-19，证明并非本周才出现的玩法。仅1名其他创作者，不足3人核验阈值。"
+            }
+          ],
+          "music_name": "original sound - Audrina",
+          "motion_verified": true,
+          "trend_verified": false,
+          "source": "ChatGPT Work 云端浏览器",
+          "source_url": "https://www.tiktok.com/@shelbyjanero/video/7706775425162300702",
+          "source_kind": "chatgpt_work",
+          "assessment": "已看原片的动作候选",
+          "assessment_note": "固定机位单人原地摆肩摆髋，前臂交叉、向下摆手和左右挥手，面向镜头重复摆动；约14秒。",
+          "observed_at": "2026-11-12T01:31:04+00:00"
+        },
+        {
+          "id": "tiktok-7703530440023444769",
+          "video_id": "7703530440023444769",
+          "url": "https://www.tiktok.com/@rosariodecre/video/7703530440023444769",
+          "title": "Bicep Heart 屈臂双手比心",
+          "author": "rosariodecre",
+          "kind": "hands",
+          "original_watched": true,
+          "motion_summary": "画面聚焦一人的上臂和双手，屈肘展示上臂，双手在上臂上方合成爱心；约7秒。",
+          "checks": {
+            "fixed_camera": true,
+            "repetitive": false,
+            "solo": true
+          },
+          "recreation_notes": "固定背景、短时长和明确终点姿势适合用关键姿势约束；手指接触和手腕弯曲难度较高，建议后于表情及换装测试。尚未生成测试。",
+          "published_at": null,
+          "published_text": "11-2",
+          "metrics": {
+            "comments": 448,
+            "likes": 76300,
+            "shares": 18600,
+            "views": null
+          },
+          "related_videos": [
+            {
+              "url": "https://www.tiktok.com/@pyaephyozaw870/video/7704245075324194069",
+              "original_watched": true,
+              "same_pattern": true,
+              "note": "本任务此前已播放核验：同音频，先屈臂再双手合成爱心，衣着和背景不同。仅1名其他创作者，不足3人核验阈值。"
+            }
+          ],
+          "music_name": "âm thanh gốc - Chris Pham",
+          "motion_verified": false,
+          "trend_verified": false,
+          "source": "ChatGPT Work 云端浏览器",
+          "source_url": "https://www.tiktok.com/@rosariodecre/video/7703530440023444769",
+          "source_kind": "chatgpt_work",
+          "assessment": "待核验候选",
+          "assessment_note": "画面聚焦一人的上臂和双手，屈肘展示上臂，双手在上臂上方合成爱心；约7秒。",
+          "observed_at": "2026-11-12T01:31:04+00:00"
+        }
+      ],
+      "ingestion_status": "imported"
     },
     {
       "id": "3cb8eba660e24b90aec81eac57607543",
