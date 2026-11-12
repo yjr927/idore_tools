@@ -11,6 +11,10 @@ contain url/original_watched/same_pattern/note. All dates require a timezone.
 Only watched evidence can establish motion_verified; trend_verified additionally
 requires two watched same-pattern examples from two other distinct authors. These
 fields are derived here and cannot be supplied in the input. No network calls.
+
+Every retained run carries immutable video_snapshots from that observation, so
+history does not depend on today's candidate titles or metrics. The newest 90
+runs are retained; each video retains its newest 30 detailed observations.
 """
 from __future__ import annotations
 
@@ -45,7 +49,14 @@ METRIC_KEYS = {"views", "likes", "comments", "shares"}
 RELATED_KEYS = {"url", "original_watched", "same_pattern", "note"}
 STATUSES = {"succeeded", "partial", "empty", "blocked", "failed"}
 MAX_INPUT_BYTES = 256 * 1024
+MAX_RUNS = 90
 SOURCE = "ChatGPT Work 云端浏览器"
+SNAPSHOT_KEYS = (
+    "id", "video_id", "url", "title", "author", "kind", "original_watched",
+    "motion_summary", "checks", "recreation_notes", "published_at", "published_text",
+    "metrics", "related_videos", "music_name", "motion_verified", "trend_verified",
+    "source", "source_url", "source_kind", "assessment", "assessment_note",
+)
 
 
 class WorkResultError(ValueError):
@@ -195,6 +206,34 @@ def _timestamp(value):
         return float("-inf")
 
 
+def video_snapshots(clean):
+    """Capture only the validated observation, never current candidate state."""
+    snapshots = []
+    for video in clean["videos"]:
+        row = normalized_video(video, clean["observed_at"])
+        snapshots.append({**{key: copy.deepcopy(row[key]) for key in SNAPSHOT_KEYS},
+                          "observed_at": clean["observed_at"]})
+    return snapshots
+
+
+def enrich_existing_run(previous, clean):
+    """Backfill exact replayed observations without changing recorded run facts.
+
+    A matching fingerprint was checked by the caller. Other legacy runs cannot
+    be reconstructed from today's candidates and are deliberately left alone.
+    """
+    result = copy.deepcopy(previous)
+    for run in result.get("runs", []):
+        if not isinstance(run, dict) or not (run.get("run_id") == clean["run_id"] or run.get("id") == clean["run_id"]):
+            continue
+        if "video_snapshots" not in run:
+            run["video_snapshots"] = video_snapshots(clean)
+        # This records input ingestion, not a successful website publication.
+        run.setdefault("ingestion_status", "imported")
+    result["runs"] = result.get("runs", [])[:MAX_RUNS]
+    return result
+
+
 def merge_work_results(previous, payload):
     """Return a new state; validation/idempotency errors never mutate previous."""
     clean = validate_payload(payload)
@@ -207,12 +246,12 @@ def merge_work_results(previous, payload):
         raise WorkResultError("已有 Work 导入记录格式无效。")
     if clean["run_id"] in imports:
         if imports[clean["run_id"]] == fingerprint:
-            return copy.deepcopy(previous)
+            return enrich_existing_run(previous, clean)
         raise WorkResultError("该 run_id 已用于不同结果，请使用新的 run_id。")
     for prior in previous.get("runs", []):
         if isinstance(prior, dict) and (prior.get("run_id") == clean["run_id"] or prior.get("id") == clean["run_id"]):
             if prior.get("payload_sha256") == fingerprint:
-                return copy.deepcopy(previous)
+                return enrich_existing_run(previous, clean)
             raise WorkResultError("该 run_id 已用于不同结果，请使用新的 run_id。")
     result = copy.deepcopy(previous)
     result.setdefault("videos", []); result.setdefault("runs", [])
@@ -244,10 +283,11 @@ def merge_work_results(previous, payload):
         "collector": "chatgpt_work", "status": clean["status"], "kind": "all", "query": "",
         "started_at": stamp, "finished_at": stamp, "observed_at": stamp,
         "found": len(clean["videos"]), "added": added, "message": clean["message"],
+        "ingestion_status": "imported", "video_snapshots": video_snapshots(clean),
         "sources": [{"name": SOURCE, "url": url, "status": "ok", "found": 1} for url in source_urls]}
     result["runs"].append(run)
     result["runs"].sort(key=lambda row: _timestamp(row.get("observed_at") or row.get("started_at")), reverse=True)
-    result["runs"] = result["runs"][:30]
+    result["runs"] = result["runs"][:MAX_RUNS]
     if _timestamp(stamp) >= _timestamp(result.get("last_attempt_at")):
         result.update(collector="chatgpt_work", last_attempt_at=stamp)
     if clean["videos"] and _timestamp(stamp) >= _timestamp(result.get("last_success_at")):

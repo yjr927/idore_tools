@@ -25,6 +25,7 @@ DEFAULT_QUERIES = (
 )
 MAX_QUERIES = 3
 MAX_VIDEOS = 8
+MAX_RUN_HISTORY = 90
 
 
 class PublicPageError(Exception):
@@ -161,10 +162,12 @@ def build_result(previous, new_rows, reports, started_at, finished_at, failure=N
     }
     result = {
         "collector": "tiktok_public_browser", "videos": videos,
-        "runs": [run] + previous.get("runs", [])[:29],
+        "runs": [run] + previous.get("runs", [])[:MAX_RUN_HISTORY - 1],
         "last_attempt_at": finished_at,
         "last_success_at": finished_at if found else previous.get("last_success_at"),
     }
+    if "work_imports" in previous:
+        result["work_imports"] = copy.deepcopy(previous["work_imports"])
     return result
 
 

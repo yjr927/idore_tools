@@ -17,6 +17,7 @@ let data = { videos: [], runs: [] };
 let category = 'all';
 let search = '';
 let onlyFavorites = false;
+let historyDate = '';
 let toastTimer;
 let favorites = new Set();
 try {
@@ -30,11 +31,31 @@ function el(tag, className, content) {
   if (content !== undefined) node.textContent = String(content);
   return node;
 }
-function formatDate(value) {
-  if (!value) return '—';
+const collectionTimeZone = 'America/New_York';
+const collectionDateFormat = new Intl.DateTimeFormat('en-CA', {
+  timeZone: collectionTimeZone, year: 'numeric', month: '2-digit', day: '2-digit',
+  hour: '2-digit', minute: '2-digit', hourCycle: 'h23'
+});
+function dateParts(value) {
+  if (!value) return null;
   const time = new Date(value);
-  if (!Number.isFinite(time.getTime())) return '—';
-  return time.toLocaleString('zh-CN', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', timeZoneName: 'short' });
+  if (!Number.isFinite(time.getTime())) return null;
+  return Object.fromEntries(collectionDateFormat.formatToParts(time).map(part => [part.type, part.value]));
+}
+function collectionDay(value) {
+  const parts = dateParts(value);
+  return parts ? `${parts.year}-${parts.month}-${parts.day}` : '';
+}
+function formatDate(value) {
+  const parts = dateParts(value);
+  return parts ? `${parts.year}-${parts.month}-${parts.day} ${parts.hour}:${parts.minute}` : '—';
+}
+function runMoment(run) { return run.observed_at || run.started_at || run.finished_at; }
+function orderedRuns(runs) {
+  return (Array.isArray(runs) ? runs : []).filter(run => run && typeof run === 'object').sort((a, b) => {
+    const time = run => { const value = new Date(runMoment(run)).getTime(); return Number.isFinite(value) ? value : -Infinity; };
+    return time(b) - time(a);
+  }).slice(0, 90);
 }
 function metric(value) {
   if (typeof value !== 'number' || !Number.isFinite(value) || value < 0) return '—';
@@ -116,6 +137,93 @@ function relatedExamples(video) {
   }
   return details;
 }
+function historySnapshot(video, run) {
+  const canonical = videoUrl(video.url);
+  const snapshot = el('article', 'history-video');
+  const heading = el('div', 'history-video-heading');
+  heading.append(el('h4', '', video.title || `@${canonical.author} 的原视频候选`));
+  heading.append(externalLink('打开当次原视频 ↗', canonical.url));
+  snapshot.append(heading, el('p', 'history-video-meta', `@${canonical.author} · ${kindLabels[video.kind] || '玩法待分类'} · ${workObservation(video) ? 'Work 已观看原片' : '原片待核验'}`));
+  snapshot.append(el('p', 'history-motion', video.motion_summary || '该次未保存动作描述；不能据此判断单人、动作重复性或复刻难度。'));
+  const checks = el('div', 'checks');
+  checks.append(observationCheck('单人', video.checks?.solo, workObservation(video)), observationCheck('重复动作', video.checks?.repetitive, workObservation(video)), observationCheck('固定机位', video.checks?.fixed_camera, workObservation(video)), el('span', '', 'AI 复刻 · 未试做'));
+  snapshot.append(checks);
+  const observed = video.observed_at || runMoment(run);
+  const values = [['views', '播放'], ['likes', '点赞'], ['comments', '评论'], ['shares', '分享']].map(([key, label]) => `${label} ${metric(video.metrics?.[key])}`).join(' · ');
+  snapshot.append(el('p', 'history-video-meta', `当次页面指标：${values}。观察时间 ${formatDate(observed)}（纽约）；未获取项为“—”。`));
+  const published = video.published_at ? formatDate(video.published_at) : video.published_text ? `${video.published_text}（当时页面显示）` : '未核验';
+  snapshot.append(el('p', 'history-video-meta', `原视频发布：${published}`));
+  if (typeof video.recreation_notes === 'string' && video.recreation_notes.trim()) snapshot.append(el('p', 'history-motion', `复刻建议（未试做）：${video.recreation_notes}`));
+  const related = relatedExamples(video);
+  if (related) snapshot.append(related);
+  const source = sourceUrl(video.source_url);
+  const label = `来源：${video.source || (video.source_kind === 'chatgpt_work' ? 'ChatGPT Work 原片观察' : 'TikTok 公开页面')}`;
+  snapshot.append(source ? externalLink(`${label} ↗`, source, 'history-video-source') : el('p', 'history-video-meta', label));
+  return snapshot;
+}
+function historyRun(run) {
+  const row = el('details', 'history-run');
+  const summary = el('summary');
+  const date = el('time', 'history-run-time', formatDate(runMoment(run)));
+  if (typeof runMoment(run) === 'string') date.dateTime = runMoment(run);
+  const status = Object.hasOwn(statuses, run.status) ? run.status : 'unknown';
+  const counts = value => Number.isInteger(value) && value >= 0 ? value : '—';
+  summary.append(date,
+    el('span', `state-pill state-${status}`, statuses[status]?.[1] || '状态未记录'),
+    el('span', 'history-run-counts', `观察 ${counts(run.found)} 条 · 新增 ${counts(run.added)} 条`),
+    el('span', 'history-run-source', run.collector === 'chatgpt_work' || run.source_kind === 'chatgpt_work' ? 'ChatGPT Work' : '公开页面采集'));
+  row.append(summary);
+  const body = el('div', 'history-run-body');
+  if (typeof run.message === 'string' && run.message.trim()) body.append(el('p', 'history-run-message', run.message));
+  const snapshots = Array.isArray(run.video_snapshots) ? run.video_snapshots.filter(video => video && videoUrl(video.url)).slice(0, 8) : [];
+  if (snapshots.length) {
+    body.append(el('p', 'history-evidence-note', `本批保存 ${snapshots.length} 条视频的当时记录；指标按页面显示，AI 复刻建议尚未试做。`));
+    body.append(...snapshots.map(video => historySnapshot(video, run)));
+  } else {
+    const note = Array.isArray(run.video_snapshots) ? '该次没有保存可展示的视频快照。失败或空结果不会补造视频信息。' : '这条较早的记录未保存当批视频快照，历史视频详情不可用；只能查看当时保存的来源。';
+    body.append(el('p', 'history-evidence-note', note));
+    const sources = Array.isArray(run.sources) ? run.sources : [];
+    for (const source of sources) {
+      if (!source || typeof source !== 'object') continue;
+      const sourceRow = el('p', 'history-source-row');
+      const link = sourceUrl(source.url);
+      sourceRow.append(link ? externalLink(`${source.name || 'TikTok 来源'} ↗`, link) : el('span', '', source.name || '来源名称未记录'));
+      if (link) sourceRow.append(el('span', '', ` · ${link}`));
+      else if (typeof source.url === 'string' && source.url.trim()) sourceRow.append(el('span', '', ` · 来源链接（未校验）：${source.url.slice(0, 500)}`));
+      if (typeof source.message === 'string' && source.message.trim()) sourceRow.append(el('span', '', ` · ${source.message}`));
+      body.append(sourceRow);
+    }
+    if (!sources.length) body.append(el('p', 'history-video-meta', '此记录未附来源链接。'));
+  }
+  row.append(body);
+  return row;
+}
+function renderHistory() {
+  const saved = orderedRuns(data.runs);
+  const filtered = saved.filter(run => !historyDate || collectionDay(runMoment(run)) === historyDate);
+  $('#history-count').textContent = `已保存 ${saved.length} 次${historyDate ? ` · 当天 ${filtered.length} 次` : ''}`;
+  const list = $('#history-list');
+  if (!filtered.length) {
+    const empty = el('div', 'history-empty');
+    empty.append(el('p', '', historyDate ? '所选纽约日期没有已收录的采集记录。' : '尚未收到采集记录。完成采集并更新数据后，这里才会显示真实历史。'));
+    list.replaceChildren(empty);
+    return;
+  }
+  const groups = [];
+  let day = null;
+  let section;
+  for (const run of filtered) {
+    const nextDay = collectionDay(runMoment(run)) || '日期未记录';
+    if (nextDay !== day) {
+      day = nextDay;
+      section = el('section', 'history-day');
+      section.append(el('h3', '', day));
+      groups.push(section);
+    }
+    section.append(historyRun(run));
+  }
+  list.replaceChildren(...groups);
+}
 function videoCard(video) {
   const canonical = videoUrl(video.url);
   const watched = workObservation(video);
@@ -194,12 +302,12 @@ function renderVideos() {
   grid.replaceChildren(empty);
 }
 function renderStatus() {
-  const runs = data.runs.filter(run => run && typeof run === 'object');
+  const runs = orderedRuns(data.runs);
   const latest = runs[0];
   const fromWork = data.collector === 'chatgpt_work' || latest?.source_kind === 'chatgpt_work' || latest?.collector === 'chatgpt_work';
   const state = latest?.status || data.status || 'not_run';
   const [title, pill] = statuses[state] || ['采集状态待确认', '状态未知'];
-  $('#status-heading').textContent = fromWork ? ({ succeeded: 'Work 结果已发布', partial: 'Work 部分结果已发布', empty: 'Work 本次未提交候选', failed: 'Work 本次未完成', blocked: 'Work 访问遇到限制', not_run: '等待 Work 结果', running: 'Work 结果记录中', interrupted: 'Work 本次中断' }[state] || 'Work 结果状态待确认') : title;
+  $('#status-heading').textContent = fromWork ? ({ succeeded: 'Work 最近采集取得候选', partial: 'Work 最近采集取得部分候选', empty: 'Work 本次未提交候选', failed: 'Work 本次未完成', blocked: 'Work 访问遇到限制', not_run: '等待 Work 结果', running: 'Work 结果记录中', interrupted: 'Work 本次中断' }[state] || 'Work 结果状态待确认') : title;
   $('#status-pill').textContent = fromWork && ['succeeded', 'partial'].includes(state) ? 'Work 记录' : pill;
   $('#status-pill').className = `state-pill state-${Object.hasOwn(statuses, state) ? state : 'unknown'}`;
   const defaults = {
@@ -231,19 +339,21 @@ async function loadData() {
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     const next = await response.json();
     if (!next || !Array.isArray(next.videos) || !Array.isArray(next.runs)) throw new Error('Invalid data schema');
-    data = next; renderStatus(); renderVideos();
+    data = next; renderStatus(); renderVideos(); renderHistory();
   } catch {
     $('#status-heading').textContent = '暂时无法读取已发布结果';
     $('#status-pill').textContent = '读取失败';
     $('#status-pill').className = 'state-pill state-failed';
     $('#status-message').textContent = '请稍后刷新。这是网站数据读取失败，不代表云端没有采集到视频；已有显示内容保留。';
-    renderVideos();
+    renderVideos(); renderHistory();
   } finally { button.disabled = false; button.replaceChildren(el('span', '', '↻'), document.createTextNode('刷新已发布结果')); }
 }
 
 $('#refresh-button').addEventListener('click', loadData);
 $('#favorites-filter').addEventListener('change', event => { onlyFavorites = event.target.checked; renderVideos(); });
 $('#search-input').addEventListener('input', event => { search = event.target.value.trim(); renderVideos(); });
+$('#history-date-filter').addEventListener('change', event => { historyDate = event.target.value; renderHistory(); });
+$('#history-clear-filter').addEventListener('click', () => { historyDate = ''; $('#history-date-filter').value = ''; renderHistory(); });
 document.querySelectorAll('[data-category]').forEach(button => button.addEventListener('click', () => {
   category = button.dataset.category;
   document.querySelectorAll('[data-category]').forEach(tab => { const active = tab.dataset.category === category; tab.classList.toggle('active', active); tab.setAttribute('aria-pressed', String(active)); });

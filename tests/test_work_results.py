@@ -105,9 +105,100 @@ class WorkResultsTests(unittest.TestCase):
         self.assertTrue(result["videos"][0]["favorite"])
         self.assertEqual(result["videos"][0]["first_seen_at"], "2026-11-01T12:00:00+00:00")
         self.assertEqual(result["analysis"], {"status": "not_configured"})
-        self.assertEqual(len(result["runs"]), 30)
+        self.assertEqual(len(result["runs"]), 36)
         original = payload()
         self.assertEqual(work.merge_work_results(result, original), result)
+
+    def test_run_snapshots_keep_historical_title_checks_and_metrics(self):
+        first_payload = payload()
+        first = work.merge_work_results({}, first_payload)
+        original_snapshot = copy.deepcopy(first["runs"][0]["video_snapshots"][0])
+        changed = payload()
+        changed.update(run_id="changed-observation", observed_at="2026-11-12T12:00:00Z")
+        changed["videos"][0].update(title="新的标题", kind="pov", motion_summary="新的动作观察")
+        changed["videos"][0]["checks"]["solo"] = False
+        changed["videos"][0]["metrics"]["views"] = 500
+        changed["videos"][0]["related_videos"] = [example("other", "7699497385185119503")]
+        result = work.merge_work_results(first, changed)
+        self.assertEqual(result["videos"][0]["title"], "新的标题")
+        historical = next(run for run in result["runs"] if run["run_id"] == first_payload["run_id"])
+        self.assertEqual(historical["video_snapshots"][0], original_snapshot)
+        self.assertEqual(historical["found"], 1)
+        self.assertEqual(historical["added"], 1)
+        self.assertEqual(result["runs"][0]["video_snapshots"][0]["metrics"]["views"], 500)
+        result["videos"][0]["checks"]["solo"] = True
+        result["videos"][0]["related_videos"][0]["note"] = "changed current candidate"
+        self.assertFalse(result["runs"][0]["video_snapshots"][0]["checks"]["solo"])
+        self.assertNotEqual(result["runs"][0]["video_snapshots"][0]["related_videos"][0]["note"], "changed current candidate")
+
+    def test_exact_replay_backfills_old_run_without_duplicates_or_rollback(self):
+        raw = payload()
+        first = work.merge_work_results({}, raw)
+        del first["runs"][0]["video_snapshots"]
+        del first["runs"][0]["ingestion_status"]
+        recorded_run = copy.deepcopy(first["runs"][0])
+        first["videos"][0]["title"] = "current title changed independently"
+        first["videos"][0]["metrics"]["views"] = 900
+        first["videos"][0]["checks"]["solo"] = False
+        before_candidates = copy.deepcopy(first["videos"])
+        result = work.merge_work_results(first, raw)
+        self.assertEqual(len(result["runs"]), 1)
+        self.assertEqual(result["videos"], before_candidates)
+        self.assertEqual(len(result["videos"][0]["observations"]), 1)
+        for key, value in recorded_run.items():
+            self.assertEqual(result["runs"][0][key], value)
+        snapshot = result["runs"][0]["video_snapshots"][0]
+        self.assertEqual(snapshot["title"], raw["videos"][0]["title"])
+        self.assertEqual(snapshot["metrics"]["views"], 100)
+        self.assertTrue(snapshot["checks"]["solo"])
+        self.assertEqual(result["runs"][0]["ingestion_status"], "imported")
+        self.assertNotIn("published_at", result["runs"][0])
+        self.assertEqual(work.merge_work_results(result, raw), result)
+
+    def test_historical_snapshot_survives_missing_current_candidate(self):
+        result = work.merge_work_results({}, payload())
+        snapshot = copy.deepcopy(result["runs"][0]["video_snapshots"])
+        result["videos"] = []
+        blocked = payload()
+        blocked.update(run_id="blocked-after-removal", observed_at="2026-11-12T12:00:00Z", status="blocked", message="受限", videos=[])
+        result = work.merge_work_results(result, blocked)
+        self.assertEqual(result["videos"], [])
+        self.assertEqual(result["runs"][1]["video_snapshots"], snapshot)
+        self.assertEqual(result["runs"][0]["video_snapshots"], [])
+
+    def test_legacy_unrelated_run_is_not_fabricated_from_current_candidate(self):
+        previous = {"videos": [], "runs": [{"id": "legacy", "status": "blocked", "found": 0,
+            "started_at": "2026-11-10T12:00:00Z", "sources": [{"url": URL}]}]}
+        result = work.merge_work_results(previous, payload())
+        legacy = next(run for run in result["runs"] if run["id"] == "legacy")
+        self.assertNotIn("video_snapshots", legacy)
+        self.assertEqual(legacy, previous["runs"][0])
+
+    def test_run_retention_is_90_while_video_observations_stay_30(self):
+        result = {}
+        for i in range(100):
+            raw = payload()
+            raw.update(run_id=f"retention-{i}", observed_at=f"2026-11-11T13:{i // 60:02d}:{i % 60:02d}Z")
+            result = work.merge_work_results(result, raw)
+        self.assertEqual(work.MAX_RUNS, 90)
+        self.assertEqual(len(result["runs"]), 90)
+        self.assertEqual(result["runs"][0]["run_id"], "retention-99")
+        self.assertEqual(result["runs"][-1]["run_id"], "retention-10")
+        self.assertEqual(len(result["videos"][0]["observations"]), 30)
+        self.assertTrue(all(len(run["video_snapshots"]) == 1 for run in result["runs"]))
+
+    def test_no_video_statuses_have_empty_snapshots_without_publication_claim(self):
+        for status in ("empty", "blocked", "failed"):
+            raw = payload(); raw.update(status=status, videos=[])
+            result = work.merge_work_results({}, raw)
+            run = result["runs"][0]
+            self.assertEqual(run["video_snapshots"], [])
+            self.assertEqual(run["found"], 0)
+            self.assertEqual(run["added"], 0)
+            self.assertEqual(run["status"], status)
+            self.assertEqual(run["ingestion_status"], "imported")
+            self.assertNotIn("published", run)
+            self.assertNotIn("publication_success", run)
 
     def test_blocked_result_keeps_candidates_and_last_success(self):
         previous = work.merge_work_results({}, payload())

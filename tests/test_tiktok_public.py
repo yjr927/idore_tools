@@ -63,6 +63,17 @@ class TikTokPublicTests(unittest.TestCase):
         result = collector.build_result({"videos": [], "runs": []}, [], [{"status": "ok"}], STAMP, STAMP)
         self.assertEqual(result["runs"][0]["status"], "empty")
 
+    def test_manual_public_attempt_preserves_work_history_and_import_ids(self):
+        historical = {"id": "work-old", "video_snapshots": [{"url": URL, "title": "Original title"}]}
+        previous = {"videos": [self.row()], "runs": [historical] + [{"id": str(i)} for i in range(100)],
+                    "work_imports": {"work-old": "fingerprint"}}
+        result = collector.build_result(previous, [], [{"status": "blocked", "found": 0}], STAMP, STAMP)
+        self.assertEqual(len(result["runs"]), 90)
+        self.assertEqual(result["runs"][1], historical)
+        self.assertEqual(result["work_imports"], previous["work_imports"])
+        result["work_imports"]["work-old"] = "changed"
+        self.assertEqual(previous["work_imports"]["work-old"], "fingerprint")
+
     def test_cli_failure_is_saved_without_launching_browser(self):
         async def fail(*args):
             raise RuntimeError("browser unavailable")
