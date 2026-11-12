@@ -40,7 +40,7 @@ jobs:
           python -m pip install -r requirements-cloud.txt
           python -m playwright install --with-deps chromium
       - name: Read TikTok public search pages
-        run: python scripts/collect_tiktok_public.py --output site/data/discovery.json --limit 8
+        run: python scripts/collect_tiktok_public.py --output site/data/discovery.json --limit 8 --diagnostics-dir artifacts/tiktok-diagnostics
       - name: Optional OpenAI metadata suggestions
         if: github.event_name == 'workflow_dispatch' && inputs.analyze
         env:
@@ -53,6 +53,12 @@ jobs:
           name: tiktok-discovery-result
           path: site/data/discovery.json
           retention-days: 7
+      - name: Upload public-page diagnostics
+        uses: actions/upload-artifact@v4
+        with:
+          name: tiktok-public-page-diagnostics
+          path: artifacts/tiktok-diagnostics
+          retention-days: 3
       - name: Save collection status and public links
         run: |
           git config user.name 'github-actions[bot]'

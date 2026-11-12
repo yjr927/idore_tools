@@ -9,3 +9,5 @@ __pycache__/
 *-preview.png
 *.zip
 .DS_Store
+
+/artifacts/

@@ -1,3 +1,4 @@
+import asyncio
 import importlib.util
 import json
 from pathlib import Path
@@ -72,6 +73,67 @@ class TikTokPublicTests(unittest.TestCase):
             result = json.loads(output.read_text())
             self.assertEqual(result["runs"][0]["status"], "failed")
             self.assertEqual(result["videos"], [])
+
+    def test_diagnostics_directory_rejects_absolute_and_parent_paths(self):
+        self.assertEqual(collector.diagnostics_path("artifacts/tiktok"), Path("artifacts/tiktok"))
+        for value in ("/tmp/tiktok", "../tiktok", "artifacts/../../tiktok"):
+            with self.assertRaises(collector.PublicPageError):
+                collector.diagnostics_path(value)
+
+    def test_public_diagnostics_are_bounded_and_do_not_contain_browser_state(self):
+        class FakeLocator:
+            async def inner_text(self, **kwargs): return "public text " * 2000
+            async def count(self): return 0
+        class FakePage:
+            url = "https://www.tiktok.com/search?q=public"
+            async def title(self): return "TikTok" * 100
+            def locator(self, selector): return FakeLocator()
+            async def screenshot(self, **kwargs): Path(kwargs["path"]).write_bytes(b"fake screenshot")
+        report = {"url": FakePage.url, "status": "blocked", "message": "No list"}
+        with tempfile.TemporaryDirectory() as tmp:
+            asyncio.run(collector.save_diagnostics(FakePage(), Path(tmp), 1, report))
+            files = sorted(path.name for path in Path(tmp).iterdir())
+            self.assertEqual(files, ["search-01.json", "search-01.png"])
+            payload = json.loads((Path(tmp) / "search-01.json").read_text())
+            self.assertEqual(len(payload["body_text"]), 12000)
+            self.assertEqual(len(payload["title"]), 500)
+            self.assertEqual(payload["anchor_count"], 0)
+            self.assertNotIn("cookies", payload)
+            self.assertNotIn("storage_state", payload)
+
+    def test_early_http_block_has_diagnostic_artifacts(self):
+        class FakeLocator:
+            async def inner_text(self, **kwargs): return "Public access denied"
+            async def count(self): return 0
+        class FakeResponse:
+            status = 403
+        class FakePage:
+            url = "https://www.tiktok.com/search?q=public"
+            async def goto(self, *args, **kwargs): return FakeResponse()
+            async def title(self): return "TikTok"
+            def locator(self, selector): return FakeLocator()
+            async def screenshot(self, **kwargs): Path(kwargs["path"]).write_bytes(b"fake screenshot")
+        with tempfile.TemporaryDirectory() as tmp:
+            rows, report, stop = asyncio.run(collector.collect_page(FakePage(), "hands", "public", 8, Path(tmp), 3))
+            self.assertEqual(rows, [])
+            self.assertEqual(report["status"], "blocked")
+            self.assertTrue(stop)
+            payload = json.loads((Path(tmp) / "search-03.json").read_text())
+            self.assertEqual(payload["status"], "blocked")
+            self.assertTrue((Path(tmp) / "search-03.png").is_file())
+
+    def test_cli_passes_relative_diagnostic_directory_without_browser(self):
+        received = []
+        async def fake_collect(queries, limit, diagnostics_dir):
+            received.append(diagnostics_dir)
+            return [], [{"status": "blocked", "found": 0}]
+        with tempfile.TemporaryDirectory() as tmp:
+            output = Path(tmp) / "data.json"
+            with patch.object(collector, "collect", fake_collect):
+                code = collector.main(["--output", str(output), "--diagnostics-dir", "artifacts/tiktok"])
+            self.assertEqual(code, 0)
+            self.assertEqual(received, [Path("artifacts/tiktok")])
+            self.assertEqual(json.loads(output.read_text())["runs"][0]["status"], "blocked")
 
 
 if __name__ == "__main__":

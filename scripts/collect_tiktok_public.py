@@ -15,7 +15,7 @@ import json
 from pathlib import Path
 import re
 import sys
-from urllib.parse import urlencode, urljoin, urlsplit
+from urllib.parse import urlencode, urlsplit
 import uuid
 
 DEFAULT_QUERIES = (
@@ -168,9 +168,62 @@ def build_result(previous, new_rows, reports, started_at, finished_at, failure=N
     return result
 
 
-async def collect_page(page, kind, query, limit):
+def diagnostics_path(value):
+    """Keep diagnostic files inside a relative workspace directory."""
+    path = Path(value)
+    if path.is_absolute() or ".." in path.parts:
+        raise PublicPageError("Diagnostics directory must be relative and cannot contain '..'.")
+    try:
+        path.resolve().relative_to(Path.cwd().resolve())
+    except ValueError:
+        raise PublicPageError("Diagnostics directory must stay within the working directory.") from None
+    return path
+
+
+async def save_diagnostics(page, directory, index, report, text=None, anchor_count=None):
+    """Save only the public viewport and bounded rendered text, never browser state."""
+    if directory is None:
+        return
+    # Numeric IDs only: no query, caption or website text becomes a filename.
+    stem = f"search-{int(index):02d}"
+    directory = Path(directory)
+    directory.mkdir(parents=True, exist_ok=True)
+    payload = {
+        "search_url": report["url"], "status": report["status"],
+        "message": report.get("message", ""), "observed_at": utc_now(),
+        "title": None, "url": None, "body_text": None,
+        "anchor_count": anchor_count, "errors": [],
+    }
+    try:
+        # The browser only visits anonymous public search pages in this job.
+        payload["url"] = str(page.url)[:2000]
+        payload["title"] = (await page.title())[:500]
+    except Exception as exc:
+        payload["errors"].append("page_info:" + type(exc).__name__)
+    try:
+        if text is None:
+            text = await page.locator("body").inner_text(timeout=2000)
+        payload["body_text"] = str(text)[:12000]
+    except Exception as exc:
+        payload["errors"].append("body_text:" + type(exc).__name__)
+    try:
+        if anchor_count is None:
+            payload["anchor_count"] = await page.locator('a[href*="/video/"]:visible').count()
+    except Exception as exc:
+        payload["errors"].append("anchor_count:" + type(exc).__name__)
+    try:
+        await page.screenshot(path=str(directory / (stem + ".png")), full_page=False, timeout=5000)
+    except Exception as exc:
+        payload["errors"].append("screenshot:" + type(exc).__name__)
+    # This sidecar is an artifact, not part of the published candidate JSON.
+    (directory / (stem + ".json")).write_text(
+        json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+
+async def collect_page(page, kind, query, limit, diagnostics_dir=None, diagnostic_index=1):
     url = "https://www.tiktok.com/search?" + urlencode({"q": query})
     report = {"name": "TikTok · " + query, "url": url, "status": "failed", "found": 0, "total_links": 0}
+    text, anchor_count = None, None
     try:
         response = await page.goto(url, wait_until="domcontentloaded", timeout=25000)
         if response is not None and response.status >= 400:
@@ -208,6 +261,7 @@ async def collect_page(page, kind, query, limit):
           return el.getClientRects().length > 0 && style.visibility !== 'hidden' && style.display !== 'none';
         }).map(el => ({href:el.href,text:el.innerText,label:el.getAttribute('aria-label')||''})).slice(0,80)""")
         rows = extract_candidates(anchors, kind, query, url, utc_now(), limit)
+        anchor_count = len(anchors)
         report.update(status="ok", found=len(rows), total_links=len(anchors))
         if not rows:
             explicit_empty = any(phrase in text.lower() for phrase in ("no results found", "no videos found", "couldn't find", "未找到", "暂无结果"))
@@ -217,9 +271,16 @@ async def collect_page(page, kind, query, limit):
         # Error text can contain page content/URLs; expose the class only.
         report.update(status="failed", message=f"公开页面读取失败（{type(exc).__name__}）；已有内容保留。")
         return [], report, False
+    finally:
+        if diagnostics_dir is not None:
+            try:
+                await save_diagnostics(page, diagnostics_dir, diagnostic_index, report, text, anchor_count)
+            except Exception:
+                # Diagnostics must not change or hide the actual collection result.
+                pass
 
 
-async def collect(queries, limit):
+async def collect(queries, limit, diagnostics_dir=None):
     from playwright.async_api import async_playwright
     rows, reports, seen = [], [], set()
     async with async_playwright() as driver:
@@ -227,10 +288,11 @@ async def collect(queries, limit):
         try:
             context = await browser.new_context()
             page = await context.new_page()
-            for kind, query in queries[:MAX_QUERIES]:
+            for diagnostic_index, (kind, query) in enumerate(queries[:MAX_QUERIES], 1):
                 if len(rows) >= limit:
                     break
-                found, report, stop = await collect_page(page, kind, query, limit - len(rows))
+                found, report, stop = await collect_page(
+                    page, kind, query, limit - len(rows), diagnostics_dir, diagnostic_index)
                 reports.append(report)
                 for row in found:
                     if row["id"] not in seen:
@@ -264,9 +326,14 @@ def main(argv=None):
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--limit", type=int, default=8, choices=range(1, MAX_VIDEOS + 1))
     parser.add_argument("--query", action="append", default=[], help="Optional free-text public search; at most 3 queries.")
+    parser.add_argument("--diagnostics-dir", help="Optional relative artifact directory for public-page screenshots and rendered text.")
     args = parser.parse_args(argv)
     if len(args.query) > MAX_QUERIES or any(not query.strip() or len(query) > 150 for query in args.query):
         parser.error("Use at most three nonempty search queries, each no longer than 150 characters.")
+    try:
+        diagnostic_directory = diagnostics_path(args.diagnostics_dir) if args.diagnostics_dir else None
+    except PublicPageError as exc:
+        parser.error(str(exc))
     try:
         previous = read_previous(args.output)
     except (OSError, ValueError, PublicPageError) as exc:
@@ -276,7 +343,7 @@ def main(argv=None):
     started = utc_now()
     failure = None
     try:
-        rows, reports = asyncio.run(collect(queries, args.limit))
+        rows, reports = asyncio.run(collect(queries, args.limit, diagnostic_directory))
     except ImportError:
         rows, reports = [], []
         failure = "采集环境缺少 Playwright；本轮未启动浏览器。已有候选保留。"
