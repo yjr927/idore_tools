@@ -596,9 +596,186 @@
           "trend_verified": true
         }
       ]
+    },
+    {
+      "url": "https://www.tiktok.com/@bizzyboom/video/7706633304702848276",
+      "title": "单人左右交替摆臂短舞",
+      "kind": "hands",
+      "original_watched": true,
+      "motion_summary": "约6秒，单人面对固定镜头，双臂在胸前左右交替斜向摆动，一手抬到肩前、另一手在腰侧，身体随之左右摆动，结尾双手放到身前下方。",
+      "checks": {
+        "fixed_camera": true,
+        "repetitive": true,
+        "solo": true
+      },
+      "recreation_notes": "背景稳定、单人中景、时长短，适合尝试角色动作迁移；注意交替摆臂时手指、前臂遮挡及身体节奏，保留足够手部画幅。尚未生成测试。",
+      "published_at": null,
+      "published_text": "2d ago",
+      "metrics": {
+        "comments": 15,
+        "likes": 6190,
+        "shares": 360,
+        "views": null
+      },
+      "related_videos": [
+        {
+          "url": "https://www.tiktok.com/@katseyeworld/video/7686164240134114591",
+          "original_watched": true,
+          "same_pattern": false,
+          "note": "本轮播放关键片段：单人站立，手放腰侧、抬单臂与身体摆动，约15秒；未呈现主片相同的左右交替摆臂组合，不因同音频认定同玩法。页面9-17，超过30天窗口，仅作历史差异比较。"
+        },
+        {
+          "url": "https://www.tiktok.com/@nianaguerrero/video/7687238571991911700",
+          "original_watched": true,
+          "same_pattern": null,
+          "note": "本轮播放约6秒原片关键画面：户外单人主舞者在胸前指向侧方、摆臂并摆动身体，背景有路人；与主片存在相似手臂动作，但未充分确认完整动作顺序一致，标未核验。页面9-19，超过30天窗口，仅作历史比较。"
+        }
+      ],
+      "music_name": "sonido original - ElRolitas",
+      "id": "tiktok-7706633304702848276",
+      "video_id": "7706633304702848276",
+      "author": "bizzyboom",
+      "kinds": [
+        "hands"
+      ],
+      "first_seen_at": "2026-11-13T14:10:41+00:00",
+      "last_seen_at": "2026-11-13T14:10:41+00:00",
+      "duration": null,
+      "music_id": "",
+      "source": "ChatGPT Work 云端浏览器",
+      "source_url": "https://www.tiktok.com/@bizzyboom/video/7706633304702848276",
+      "source_kind": "chatgpt_work",
+      "search_query": "",
+      "assessment": "已看原片的动作候选",
+      "assessment_note": "约6秒，单人面对固定镜头，双臂在胸前左右交替斜向摆动，一手抬到肩前、另一手在腰侧，身体随之左右摆动，结尾双手放到身前下方。",
+      "motion_verified": true,
+      "trend_verified": false,
+      "favorite": false,
+      "availability": "Work 已观看原片",
+      "observations": [
+        {
+          "run_id": "work-tiktok-50b2ab5b319448999ae70fc23c281d1f",
+          "observed_at": "2026-11-13T14:10:41+00:00",
+          "metrics": {
+            "comments": 15,
+            "likes": 6190,
+            "shares": 360,
+            "views": null
+          },
+          "original_watched": true,
+          "motion_summary": "约6秒，单人面对固定镜头，双臂在胸前左右交替斜向摆动，一手抬到肩前、另一手在腰侧，身体随之左右摆动，结尾双手放到身前下方。",
+          "checks": {
+            "fixed_camera": true,
+            "repetitive": true,
+            "solo": true
+          },
+          "recreation_notes": "背景稳定、单人中景、时长短，适合尝试角色动作迁移；注意交替摆臂时手指、前臂遮挡及身体节奏，保留足够手部画幅。尚未生成测试。",
+          "related_videos": [
+            {
+              "url": "https://www.tiktok.com/@katseyeworld/video/7686164240134114591",
+              "original_watched": true,
+              "same_pattern": false,
+              "note": "本轮播放关键片段：单人站立，手放腰侧、抬单臂与身体摆动，约15秒；未呈现主片相同的左右交替摆臂组合，不因同音频认定同玩法。页面9-17，超过30天窗口，仅作历史差异比较。"
+            },
+            {
+              "url": "https://www.tiktok.com/@nianaguerrero/video/7687238571991911700",
+              "original_watched": true,
+              "same_pattern": null,
+              "note": "本轮播放约6秒原片关键画面：户外单人主舞者在胸前指向侧方、摆臂并摆动身体，背景有路人；与主片存在相似手臂动作，但未充分确认完整动作顺序一致，标未核验。页面9-19，超过30天窗口，仅作历史比较。"
+            }
+          ],
+          "motion_verified": true,
+          "trend_verified": false
+        }
+      ]
     }
   ],
   "runs": [
+    {
+      "id": "work-tiktok-50b2ab5b319448999ae70fc23c281d1f",
+      "run_id": "work-tiktok-50b2ab5b319448999ae70fc23c281d1f",
+      "payload_sha256": "13f1e35e49f2b88a0e613c7255bddd7804b46e72fbcc034b7290212ccb3ff700",
+      "collector": "chatgpt_work",
+      "status": "partial",
+      "kind": "all",
+      "query": "",
+      "started_at": "2026-11-13T14:10:41+00:00",
+      "finished_at": "2026-11-13T14:10:41+00:00",
+      "observed_at": "2026-11-13T14:10:41+00:00",
+      "found": 1,
+      "added": 1,
+      "message": "本轮实际播放1条新主候选，页面显示2d ago；单人固定机位，短时摆臂动作可作AI适配候选。另播放2名同音频作者的原片，但日期分别为9-17、9-19，超出30天候选窗口，仅作历史比较，不作为近期主候选；未取得3名作者同玩法的充分证据。查找关联时发生一次浏览器超时，恢复后完成有限核验。精确发布时间和播放量未核验；AI复刻尚未生成测试。",
+      "ingestion_status": "imported",
+      "video_snapshots": [
+        {
+          "id": "tiktok-7706633304702848276",
+          "video_id": "7706633304702848276",
+          "url": "https://www.tiktok.com/@bizzyboom/video/7706633304702848276",
+          "title": "单人左右交替摆臂短舞",
+          "author": "bizzyboom",
+          "kind": "hands",
+          "original_watched": true,
+          "motion_summary": "约6秒，单人面对固定镜头，双臂在胸前左右交替斜向摆动，一手抬到肩前、另一手在腰侧，身体随之左右摆动，结尾双手放到身前下方。",
+          "checks": {
+            "fixed_camera": true,
+            "repetitive": true,
+            "solo": true
+          },
+          "recreation_notes": "背景稳定、单人中景、时长短，适合尝试角色动作迁移；注意交替摆臂时手指、前臂遮挡及身体节奏，保留足够手部画幅。尚未生成测试。",
+          "published_at": null,
+          "published_text": "2d ago",
+          "metrics": {
+            "comments": 15,
+            "likes": 6190,
+            "shares": 360,
+            "views": null
+          },
+          "related_videos": [
+            {
+              "url": "https://www.tiktok.com/@katseyeworld/video/7686164240134114591",
+              "original_watched": true,
+              "same_pattern": false,
+              "note": "本轮播放关键片段：单人站立，手放腰侧、抬单臂与身体摆动，约15秒；未呈现主片相同的左右交替摆臂组合，不因同音频认定同玩法。页面9-17，超过30天窗口，仅作历史差异比较。"
+            },
+            {
+              "url": "https://www.tiktok.com/@nianaguerrero/video/7687238571991911700",
+              "original_watched": true,
+              "same_pattern": null,
+              "note": "本轮播放约6秒原片关键画面：户外单人主舞者在胸前指向侧方、摆臂并摆动身体，背景有路人；与主片存在相似手臂动作，但未充分确认完整动作顺序一致，标未核验。页面9-19，超过30天窗口，仅作历史比较。"
+            }
+          ],
+          "music_name": "sonido original - ElRolitas",
+          "motion_verified": true,
+          "trend_verified": false,
+          "source": "ChatGPT Work 云端浏览器",
+          "source_url": "https://www.tiktok.com/@bizzyboom/video/7706633304702848276",
+          "source_kind": "chatgpt_work",
+          "assessment": "已看原片的动作候选",
+          "assessment_note": "约6秒，单人面对固定镜头，双臂在胸前左右交替斜向摆动，一手抬到肩前、另一手在腰侧，身体随之左右摆动，结尾双手放到身前下方。",
+          "observed_at": "2026-11-13T14:10:41+00:00"
+        }
+      ],
+      "sources": [
+        {
+          "name": "ChatGPT Work 云端浏览器",
+          "url": "https://www.tiktok.com/@bizzyboom/video/7706633304702848276",
+          "status": "ok",
+          "found": 1
+        },
+        {
+          "name": "ChatGPT Work 云端浏览器",
+          "url": "https://www.tiktok.com/@katseyeworld/video/7686164240134114591",
+          "status": "ok",
+          "found": 1
+        },
+        {
+          "name": "ChatGPT Work 云端浏览器",
+          "url": "https://www.tiktok.com/@nianaguerrero/video/7687238571991911700",
+          "status": "ok",
+          "found": 1
+        }
+      ]
+    },
     {
       "id": "work-tiktok-20261112T140658Z-d02c989e",
       "run_id": "work-tiktok-20261112T140658Z-d02c989e",
@@ -1121,10 +1298,11 @@
       ]
     }
   ],
-  "last_attempt_at": "2026-11-12T14:06:58+00:00",
-  "last_success_at": "2026-11-12T14:06:58+00:00",
+  "last_attempt_at": "2026-11-13T14:10:41+00:00",
+  "last_success_at": "2026-11-13T14:10:41+00:00",
   "work_imports": {
     "work-tiktok-20261112T013104Z-7704859708200389902": "3f8b1c1e965c6bdb4e2aa62d5664177f4b4188cb0e4652526db2730fb82349c7",
-    "work-tiktok-20261112T140658Z-d02c989e": "2f440e348273e22c41cb3b476aaf274262e138159e45dde53425844de921907c"
+    "work-tiktok-20261112T140658Z-d02c989e": "2f440e348273e22c41cb3b476aaf274262e138159e45dde53425844de921907c",
+    "work-tiktok-50b2ab5b319448999ae70fc23c281d1f": "13f1e35e49f2b88a0e613c7255bddd7804b46e72fbcc034b7290212ccb3ff700"
   }
 }
