@@ -1,87 +1,45 @@
 {
   "schema_version": 1,
-  "run_id": "work-tiktok-20261112T140658Z-d02c989e",
-  "observed_at": "2026-11-12T09:06:58-05:00",
+  "run_id": "work-tiktok-50b2ab5b319448999ae70fc23c281d1f",
+  "observed_at": "2026-11-13T09:10:41-05:00",
   "status": "partial",
-  "message": "本轮新增2条主候选，已在云端浏览器实际播放并观察关键画面；每组另复看2名不同作者的原片，记录动作共性和差异。另核验1条同音频卡通奶牛特效，与奶牛妆切换不同，不计入同玩法证据。主候选页面显示5d ago与6d ago；1条关联原片显示11-3，已扩展至30天窗口。精确发布时间和播放量未核验。页面K/M缩写换算为近似取整观测值，不是精确计数。表情候选存在镜头构图变化；本轮保留部分核验状态。AI适配建议均尚未生成测试。",
+  "message": "本轮实际播放1条新主候选，页面显示2d ago；单人固定机位，短时摆臂动作可作AI适配候选。另播放2名同音频作者的原片，但日期分别为9-17、9-19，超出30天候选窗口，仅作历史比较，不作为近期主候选；未取得3名作者同玩法的充分证据。查找关联时发生一次浏览器超时，恢复后完成有限核验。精确发布时间和播放量未核验；AI复刻尚未生成测试。",
   "videos": [
     {
-      "url": "https://www.tiktok.com/@kimbirchwood/video/7705213331916770590",
-      "title": "Meow 侧目到正脸的近景表情对口型",
-      "kind": "pov",
+      "url": "https://www.tiktok.com/@bizzyboom/video/7706633304702848276",
+      "title": "单人左右交替摆臂短舞",
+      "kind": "hands",
       "original_watched": true,
-      "motion_summary": "约5秒，单人坐在沙发前近景出镜，侧目、皱眉、张嘴及面对镜头的口型表情切换，伴随轻微转头；画面景别和背景构图有变化。",
+      "motion_summary": "约6秒，单人面对固定镜头，双臂在胸前左右交替斜向摆动，一手抬到肩前、另一手在腰侧，身体随之左右摆动，结尾双手放到身前下方。",
       "checks": {
         "solo": true,
-        "repetitive": false,
-        "fixed_camera": false
-      },
-      "recreation_notes": "面部无遮挡、身体运动较少，可尝试角色表情与口型驱动；复刻时建议固定构图，降低原片镜头变化带来的难度。尚未生成测试。",
-      "published_at": null,
-      "published_text": "5d ago",
-      "metrics": {
-        "views": null,
-        "likes": 1200000,
-        "comments": 2592,
-        "shares": 157700
-      },
-      "related_videos": [
-        {
-          "url": "https://www.tiktok.com/@houstontruman/video/7704859708200389902",
-          "original_watched": true,
-          "same_pattern": true,
-          "note": "本轮重新播放：同音频下，单人近景由闭嘴表情变为张嘴微笑，轻微转头；同属短表情对口型，主片侧目皱眉更明显，并非完全相同表情或逐帧动作。页面6d ago。"
-        },
-        {
-          "url": "https://www.tiktok.com/@enhypen/video/7706463838610246913",
-          "original_watched": true,
-          "same_pattern": true,
-          "note": "本轮重新播放：单人从侧脸转向镜头、张嘴做口型，约5秒；同属同音频的短表情对口型，站立中景、身体姿态与主片坐姿近景不同。页面2d ago。"
-        }
-      ],
-      "music_name": "original sound - dailytungstenballsack"
-    },
-    {
-      "url": "https://www.tiktok.com/@anyelirrrr_/video/7705022159990607156",
-      "title": "Cow Makeup 奶牛斑纹妆与头巾切换",
-      "kind": "transition",
-      "original_watched": true,
-      "motion_summary": "约15秒，单人穿条纹上衣、戴酒红色头巾，画面叠加奶牛妆参考图；对口型、双手在胸前弯腕，随后切换为脸部黑白斑纹妆与棕白斑纹头巾，转头展示妆容。",
-      "checks": {
-        "solo": true,
-        "repetitive": false,
+        "repetitive": true,
         "fixed_camera": true
       },
-      "recreation_notes": "近景与背景基本稳定，可分别制作妆前妆后角色画面后剪接；需检查斑纹位置、脸部身份及头巾一致性，转场处手部姿态可简化。尚未生成测试。",
+      "recreation_notes": "背景稳定、单人中景、时长短，适合尝试角色动作迁移；注意交替摆臂时手指、前臂遮挡及身体节奏，保留足够手部画幅。尚未生成测试。",
       "published_at": null,
-      "published_text": "6d ago",
+      "published_text": "2d ago",
       "metrics": {
         "views": null,
-        "likes": 1100000,
-        "comments": 2972,
-        "shares": 38400
+        "likes": 6190,
+        "comments": 15,
+        "shares": 360
       },
       "related_videos": [
         {
-          "url": "https://www.tiktok.com/@raeinhyer/video/7706856820337282324",
-          "original_watched": true,
-          "same_pattern": true,
-          "note": "本轮重新播放妆前妆后：同奶牛妆参考图、对口型与造型切换，妆后双手弯腕放胸前；使用牛耳发饰、长发和奶牛服，与主片头巾版本不同。页面1d ago。"
-        },
-        {
-          "url": "https://www.tiktok.com/@rinnwyn/video/7703832061462793478",
-          "original_watched": true,
-          "same_pattern": true,
-          "note": "本轮重新播放妆前妆后：叠加同款参考图，先做口型与弯手动作，再切换奶牛斑纹妆和斑纹头巾；妆容细节与服装不同。页面11-3，超出优先7天窗口但保留原样日期。"
-        },
-        {
-          "url": "https://www.tiktok.com/@nafisafidela_2/video/7705397197134744884",
+          "url": "https://www.tiktok.com/@katseyeworld/video/7686164240134114591",
           "original_watched": true,
           "same_pattern": false,
-          "note": "本轮播放：先以毯子包头做口型，随后切换为草地背景的卡通奶牛，脸部眼嘴映射到卡通形象上并举手。虽使用同音频，但不是奶牛妆前后展示，不计入同玩法作者数。页面5d ago。"
+          "note": "本轮播放关键片段：单人站立，手放腰侧、抬单臂与身体摆动，约15秒；未呈现主片相同的左右交替摆臂组合，不因同音频认定同玩法。页面9-17，超过30天窗口，仅作历史差异比较。"
+        },
+        {
+          "url": "https://www.tiktok.com/@nianaguerrero/video/7687238571991911700",
+          "original_watched": true,
+          "same_pattern": null,
+          "note": "本轮播放约6秒原片关键画面：户外单人主舞者在胸前指向侧方、摆臂并摆动身体，背景有路人；与主片存在相似手臂动作，但未充分确认完整动作顺序一致，标未核验。页面9-19，超过30天窗口，仅作历史比较。"
         }
       ],
-      "music_name": "suara asli - RYN"
+      "music_name": "sonido original - ElRolitas"
     }
   ]
 }
