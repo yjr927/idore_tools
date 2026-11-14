@@ -688,9 +688,186 @@
           "trend_verified": false
         }
       ]
+    },
+    {
+      "url": "https://www.tiktok.com/@__iwasamistake__/video/7706515605968456993",
+      "title": "洗衣机内视角：日常装切换妆发与花纹外套",
+      "kind": "transition",
+      "original_watched": true,
+      "motion_summary": "约12秒，单人在洗衣机圆形门框外面对镜头。前段穿灰色宽松图案上衣，拿衣物并伸手进入滚筒；后段在相同门框构图中换为花纹外套、衬衫领带及整理后的妆发，向镜头伸手、补唇妆，最后抬手摆姿势。前后造型和伸手动作已看见，切换瞬间的具体剪辑效果未完全核验。",
+      "checks": {
+        "fixed_camera": true,
+        "repetitive": false,
+        "solo": true
+      },
+      "recreation_notes": "单人、圆形门框和背景位置稳定，主要为上半身伸手与两套造型切换，可先用相同构图生成前后两段，再尝试匹配剪辑。注意近镜头手臂、滚筒孔洞及花纹外套的一致性；无需把播放器循环当成动作重复。尚未生成测试。",
+      "published_at": null,
+      "published_text": "4d ago",
+      "metrics": {
+        "comments": 14,
+        "likes": 1074,
+        "shares": 30,
+        "views": null
+      },
+      "related_videos": [
+        {
+          "url": "https://www.tiktok.com/@annechinggg/video/7704899708556266770",
+          "original_watched": true,
+          "same_pattern": true,
+          "note": "本轮播放约15秒原片并查看前后关键画面；页面11-6。单人在滚筒内部向外的圆形门框中，将衣物放向镜头，灰色T恤/束发切换为深色细肩带上衣、披发和妆容，结尾托脸摆姿势。共同玩法是洗衣机内视角的日常装到妆后造型切换；服装、灯光和摆姿势不同，切换瞬间特效未完整核验。"
+        },
+        {
+          "url": "https://www.tiktok.com/@_streltsova_dasha_/video/7702110470064491783",
+          "original_watched": true,
+          "same_pattern": true,
+          "note": "本轮播放约12秒原片并查看前后关键画面；页面10-29。单人在洗衣机门框外，穿浅色豹纹T恤、向滚筒放入衣物；后段切成深色上衣、妆后披发，在较暗偏紫光线下摸头发和托脸。共同玩法是洗衣机内视角的妆容/衣服前后变化；光线变化比主片更大，切换瞬间特效未完整核验。"
+        }
+      ],
+      "music_name": "оригинальный звук - Эви - бьюти/украшения ✨",
+      "id": "tiktok-7706515605968456993",
+      "video_id": "7706515605968456993",
+      "author": "__iwasamistake__",
+      "kinds": [
+        "transition"
+      ],
+      "first_seen_at": "2026-11-14T14:01:27+00:00",
+      "last_seen_at": "2026-11-14T14:01:27+00:00",
+      "duration": null,
+      "music_id": "",
+      "source": "ChatGPT Work 云端浏览器",
+      "source_url": "https://www.tiktok.com/@__iwasamistake__/video/7706515605968456993",
+      "source_kind": "chatgpt_work",
+      "search_query": "",
+      "assessment": "待核验候选",
+      "assessment_note": "约12秒，单人在洗衣机圆形门框外面对镜头。前段穿灰色宽松图案上衣，拿衣物并伸手进入滚筒；后段在相同门框构图中换为花纹外套、衬衫领带及整理后的妆发，向镜头伸手、补唇妆，最后抬手摆姿势。前后造型和伸手动作已看见，切换瞬间的具体剪辑效果未完全核验。",
+      "motion_verified": false,
+      "trend_verified": true,
+      "favorite": false,
+      "availability": "Work 已观看原片",
+      "observations": [
+        {
+          "run_id": "work-tiktok-42496ba06f294957b97fa8c6dd7d3ddc",
+          "observed_at": "2026-11-14T14:01:27+00:00",
+          "metrics": {
+            "comments": 14,
+            "likes": 1074,
+            "shares": 30,
+            "views": null
+          },
+          "original_watched": true,
+          "motion_summary": "约12秒，单人在洗衣机圆形门框外面对镜头。前段穿灰色宽松图案上衣，拿衣物并伸手进入滚筒；后段在相同门框构图中换为花纹外套、衬衫领带及整理后的妆发，向镜头伸手、补唇妆，最后抬手摆姿势。前后造型和伸手动作已看见，切换瞬间的具体剪辑效果未完全核验。",
+          "checks": {
+            "fixed_camera": true,
+            "repetitive": false,
+            "solo": true
+          },
+          "recreation_notes": "单人、圆形门框和背景位置稳定，主要为上半身伸手与两套造型切换，可先用相同构图生成前后两段，再尝试匹配剪辑。注意近镜头手臂、滚筒孔洞及花纹外套的一致性；无需把播放器循环当成动作重复。尚未生成测试。",
+          "related_videos": [
+            {
+              "url": "https://www.tiktok.com/@annechinggg/video/7704899708556266770",
+              "original_watched": true,
+              "same_pattern": true,
+              "note": "本轮播放约15秒原片并查看前后关键画面；页面11-6。单人在滚筒内部向外的圆形门框中，将衣物放向镜头，灰色T恤/束发切换为深色细肩带上衣、披发和妆容，结尾托脸摆姿势。共同玩法是洗衣机内视角的日常装到妆后造型切换；服装、灯光和摆姿势不同，切换瞬间特效未完整核验。"
+            },
+            {
+              "url": "https://www.tiktok.com/@_streltsova_dasha_/video/7702110470064491783",
+              "original_watched": true,
+              "same_pattern": true,
+              "note": "本轮播放约12秒原片并查看前后关键画面；页面10-29。单人在洗衣机门框外，穿浅色豹纹T恤、向滚筒放入衣物；后段切成深色上衣、妆后披发，在较暗偏紫光线下摸头发和托脸。共同玩法是洗衣机内视角的妆容/衣服前后变化；光线变化比主片更大，切换瞬间特效未完整核验。"
+            }
+          ],
+          "motion_verified": false,
+          "trend_verified": true
+        }
+      ]
     }
   ],
   "runs": [
+    {
+      "id": "work-tiktok-42496ba06f294957b97fa8c6dd7d3ddc",
+      "run_id": "work-tiktok-42496ba06f294957b97fa8c6dd7d3ddc",
+      "payload_sha256": "e7ef4bacfbd5a54872d6aee2266480cb1ba6d52fcadc83e19e6418b99b51fcd6",
+      "collector": "chatgpt_work",
+      "status": "partial",
+      "kind": "all",
+      "query": "",
+      "started_at": "2026-11-14T14:01:27+00:00",
+      "finished_at": "2026-11-14T14:01:27+00:00",
+      "observed_at": "2026-11-14T14:01:27+00:00",
+      "found": 1,
+      "added": 1,
+      "message": "本轮新增1条主候选，页面4d ago。实际播放主片及2名不同作者原片，确认共同的洗衣机内视角、放入衣物与妆容/服装前后切换；关联页面日期11-6、10-29，已扩展至30天。已看到前后造型及关键动作，切换瞬间的完整剪辑细节仍未核验，不推断具体特效。精确发布时间和播放量未核验；互动指标为页面显示的观测值，非实时精确计数；本条没有K/M缩写换算。AI适配尚未生成测试。",
+      "ingestion_status": "imported",
+      "video_snapshots": [
+        {
+          "id": "tiktok-7706515605968456993",
+          "video_id": "7706515605968456993",
+          "url": "https://www.tiktok.com/@__iwasamistake__/video/7706515605968456993",
+          "title": "洗衣机内视角：日常装切换妆发与花纹外套",
+          "author": "__iwasamistake__",
+          "kind": "transition",
+          "original_watched": true,
+          "motion_summary": "约12秒，单人在洗衣机圆形门框外面对镜头。前段穿灰色宽松图案上衣，拿衣物并伸手进入滚筒；后段在相同门框构图中换为花纹外套、衬衫领带及整理后的妆发，向镜头伸手、补唇妆，最后抬手摆姿势。前后造型和伸手动作已看见，切换瞬间的具体剪辑效果未完全核验。",
+          "checks": {
+            "fixed_camera": true,
+            "repetitive": false,
+            "solo": true
+          },
+          "recreation_notes": "单人、圆形门框和背景位置稳定，主要为上半身伸手与两套造型切换，可先用相同构图生成前后两段，再尝试匹配剪辑。注意近镜头手臂、滚筒孔洞及花纹外套的一致性；无需把播放器循环当成动作重复。尚未生成测试。",
+          "published_at": null,
+          "published_text": "4d ago",
+          "metrics": {
+            "comments": 14,
+            "likes": 1074,
+            "shares": 30,
+            "views": null
+          },
+          "related_videos": [
+            {
+              "url": "https://www.tiktok.com/@annechinggg/video/7704899708556266770",
+              "original_watched": true,
+              "same_pattern": true,
+              "note": "本轮播放约15秒原片并查看前后关键画面；页面11-6。单人在滚筒内部向外的圆形门框中，将衣物放向镜头，灰色T恤/束发切换为深色细肩带上衣、披发和妆容，结尾托脸摆姿势。共同玩法是洗衣机内视角的日常装到妆后造型切换；服装、灯光和摆姿势不同，切换瞬间特效未完整核验。"
+            },
+            {
+              "url": "https://www.tiktok.com/@_streltsova_dasha_/video/7702110470064491783",
+              "original_watched": true,
+              "same_pattern": true,
+              "note": "本轮播放约12秒原片并查看前后关键画面；页面10-29。单人在洗衣机门框外，穿浅色豹纹T恤、向滚筒放入衣物；后段切成深色上衣、妆后披发，在较暗偏紫光线下摸头发和托脸。共同玩法是洗衣机内视角的妆容/衣服前后变化；光线变化比主片更大，切换瞬间特效未完整核验。"
+            }
+          ],
+          "music_name": "оригинальный звук - Эви - бьюти/украшения ✨",
+          "motion_verified": false,
+          "trend_verified": true,
+          "source": "ChatGPT Work 云端浏览器",
+          "source_url": "https://www.tiktok.com/@__iwasamistake__/video/7706515605968456993",
+          "source_kind": "chatgpt_work",
+          "assessment": "待核验候选",
+          "assessment_note": "约12秒，单人在洗衣机圆形门框外面对镜头。前段穿灰色宽松图案上衣，拿衣物并伸手进入滚筒；后段在相同门框构图中换为花纹外套、衬衫领带及整理后的妆发，向镜头伸手、补唇妆，最后抬手摆姿势。前后造型和伸手动作已看见，切换瞬间的具体剪辑效果未完全核验。",
+          "observed_at": "2026-11-14T14:01:27+00:00"
+        }
+      ],
+      "sources": [
+        {
+          "name": "ChatGPT Work 云端浏览器",
+          "url": "https://www.tiktok.com/@__iwasamistake__/video/7706515605968456993",
+          "status": "ok",
+          "found": 1
+        },
+        {
+          "name": "ChatGPT Work 云端浏览器",
+          "url": "https://www.tiktok.com/@annechinggg/video/7704899708556266770",
+          "status": "ok",
+          "found": 1
+        },
+        {
+          "name": "ChatGPT Work 云端浏览器",
+          "url": "https://www.tiktok.com/@_streltsova_dasha_/video/7702110470064491783",
+          "status": "ok",
+          "found": 1
+        }
+      ]
+    },
     {
       "id": "work-tiktok-50b2ab5b319448999ae70fc23c281d1f",
       "run_id": "work-tiktok-50b2ab5b319448999ae70fc23c281d1f",
@@ -1298,11 +1475,12 @@
       ]
     }
   ],
-  "last_attempt_at": "2026-11-13T14:10:41+00:00",
-  "last_success_at": "2026-11-13T14:10:41+00:00",
+  "last_attempt_at": "2026-11-14T14:01:27+00:00",
+  "last_success_at": "2026-11-14T14:01:27+00:00",
   "work_imports": {
     "work-tiktok-20261112T013104Z-7704859708200389902": "3f8b1c1e965c6bdb4e2aa62d5664177f4b4188cb0e4652526db2730fb82349c7",
     "work-tiktok-20261112T140658Z-d02c989e": "2f440e348273e22c41cb3b476aaf274262e138159e45dde53425844de921907c",
-    "work-tiktok-50b2ab5b319448999ae70fc23c281d1f": "13f1e35e49f2b88a0e613c7255bddd7804b46e72fbcc034b7290212ccb3ff700"
+    "work-tiktok-50b2ab5b319448999ae70fc23c281d1f": "13f1e35e49f2b88a0e613c7255bddd7804b46e72fbcc034b7290212ccb3ff700",
+    "work-tiktok-42496ba06f294957b97fa8c6dd7d3ddc": "e7ef4bacfbd5a54872d6aee2266480cb1ba6d52fcadc83e19e6418b99b51fcd6"
   }
 }
