@@ -1,45 +1,45 @@
 {
   "schema_version": 1,
-  "run_id": "work-tiktok-50b2ab5b319448999ae70fc23c281d1f",
-  "observed_at": "2026-11-13T09:10:41-05:00",
+  "run_id": "work-tiktok-42496ba06f294957b97fa8c6dd7d3ddc",
+  "observed_at": "2026-11-14T09:01:27-05:00",
   "status": "partial",
-  "message": "本轮实际播放1条新主候选，页面显示2d ago；单人固定机位，短时摆臂动作可作AI适配候选。另播放2名同音频作者的原片，但日期分别为9-17、9-19，超出30天候选窗口，仅作历史比较，不作为近期主候选；未取得3名作者同玩法的充分证据。查找关联时发生一次浏览器超时，恢复后完成有限核验。精确发布时间和播放量未核验；AI复刻尚未生成测试。",
+  "message": "本轮新增1条主候选，页面4d ago。实际播放主片及2名不同作者原片，确认共同的洗衣机内视角、放入衣物与妆容/服装前后切换；关联页面日期11-6、10-29，已扩展至30天。已看到前后造型及关键动作，切换瞬间的完整剪辑细节仍未核验，不推断具体特效。精确发布时间和播放量未核验；互动指标为页面显示的观测值，非实时精确计数；本条没有K/M缩写换算。AI适配尚未生成测试。",
   "videos": [
     {
-      "url": "https://www.tiktok.com/@bizzyboom/video/7706633304702848276",
-      "title": "单人左右交替摆臂短舞",
-      "kind": "hands",
+      "url": "https://www.tiktok.com/@__iwasamistake__/video/7706515605968456993",
+      "title": "洗衣机内视角：日常装切换妆发与花纹外套",
+      "kind": "transition",
       "original_watched": true,
-      "motion_summary": "约6秒，单人面对固定镜头，双臂在胸前左右交替斜向摆动，一手抬到肩前、另一手在腰侧，身体随之左右摆动，结尾双手放到身前下方。",
+      "motion_summary": "约12秒，单人在洗衣机圆形门框外面对镜头。前段穿灰色宽松图案上衣，拿衣物并伸手进入滚筒；后段在相同门框构图中换为花纹外套、衬衫领带及整理后的妆发，向镜头伸手、补唇妆，最后抬手摆姿势。前后造型和伸手动作已看见，切换瞬间的具体剪辑效果未完全核验。",
       "checks": {
         "solo": true,
-        "repetitive": true,
+        "repetitive": false,
         "fixed_camera": true
       },
-      "recreation_notes": "背景稳定、单人中景、时长短，适合尝试角色动作迁移；注意交替摆臂时手指、前臂遮挡及身体节奏，保留足够手部画幅。尚未生成测试。",
+      "recreation_notes": "单人、圆形门框和背景位置稳定，主要为上半身伸手与两套造型切换，可先用相同构图生成前后两段，再尝试匹配剪辑。注意近镜头手臂、滚筒孔洞及花纹外套的一致性；无需把播放器循环当成动作重复。尚未生成测试。",
       "published_at": null,
-      "published_text": "2d ago",
+      "published_text": "4d ago",
       "metrics": {
         "views": null,
-        "likes": 6190,
-        "comments": 15,
-        "shares": 360
+        "likes": 1074,
+        "comments": 14,
+        "shares": 30
       },
       "related_videos": [
         {
-          "url": "https://www.tiktok.com/@katseyeworld/video/7686164240134114591",
+          "url": "https://www.tiktok.com/@annechinggg/video/7704899708556266770",
           "original_watched": true,
-          "same_pattern": false,
-          "note": "本轮播放关键片段：单人站立，手放腰侧、抬单臂与身体摆动，约15秒；未呈现主片相同的左右交替摆臂组合，不因同音频认定同玩法。页面9-17，超过30天窗口，仅作历史差异比较。"
+          "same_pattern": true,
+          "note": "本轮播放约15秒原片并查看前后关键画面；页面11-6。单人在滚筒内部向外的圆形门框中，将衣物放向镜头，灰色T恤/束发切换为深色细肩带上衣、披发和妆容，结尾托脸摆姿势。共同玩法是洗衣机内视角的日常装到妆后造型切换；服装、灯光和摆姿势不同，切换瞬间特效未完整核验。"
         },
         {
-          "url": "https://www.tiktok.com/@nianaguerrero/video/7687238571991911700",
+          "url": "https://www.tiktok.com/@_streltsova_dasha_/video/7702110470064491783",
           "original_watched": true,
-          "same_pattern": null,
-          "note": "本轮播放约6秒原片关键画面：户外单人主舞者在胸前指向侧方、摆臂并摆动身体，背景有路人；与主片存在相似手臂动作，但未充分确认完整动作顺序一致，标未核验。页面9-19，超过30天窗口，仅作历史比较。"
+          "same_pattern": true,
+          "note": "本轮播放约12秒原片并查看前后关键画面；页面10-29。单人在洗衣机门框外，穿浅色豹纹T恤、向滚筒放入衣物；后段切成深色上衣、妆后披发，在较暗偏紫光线下摸头发和托脸。共同玩法是洗衣机内视角的妆容/衣服前后变化；光线变化比主片更大，切换瞬间特效未完整核验。"
         }
       ],
-      "music_name": "sonido original - ElRolitas"
+      "music_name": "оригинальный звук - Эви - бьюти/украшения ✨"
     }
   ]
 }
