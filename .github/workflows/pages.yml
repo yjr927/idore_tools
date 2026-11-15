@@ -2,7 +2,7 @@ name: Publish trend viewer
 on:
   push:
     branches: [main]
-    paths: ['site/**', 'work-results/latest.json', 'scripts/import_work_results.py', 'tests/test_work_results.py', '.github/workflows/pages.yml']
+    paths: ['site/**', 'work-results/latest.json', 'work-results/classifications.json', 'scripts/import_work_results.py', 'scripts/import_material_classifications.py', 'tests/test_work_results.py', 'tests/test_material_classifications.py', '.github/workflows/pages.yml']
   workflow_dispatch:
   workflow_run:
     workflows: ['TikTok public discovery']
@@ -29,9 +29,13 @@ jobs:
         with:
           python-version: '3.12'
       - name: Validate Work data handling
-        run: python3 -m unittest discover -s tests -p 'test_work_results.py' -v
+        run: |
+          python3 -m unittest discover -s tests -p 'test_work_results.py' -v
+          python3 -m unittest discover -s tests -p 'test_material_classifications.py' -v
       - name: Merge latest Work observations into viewer
         run: python3 scripts/import_work_results.py --input work-results/latest.json --output site/data/discovery.json
+      - name: Merge reviewed material classifications
+        run: python3 scripts/import_material_classifications.py --input work-results/classifications.json --output site/data/discovery.json
       - name: Preserve validated observations
         run: |
           git config user.name "idore discovery bot"

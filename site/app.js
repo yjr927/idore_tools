@@ -12,9 +12,16 @@ const statuses = {
   interrupted: ['本次采集中断', '已中断']
 };
 const kindLabels = { hands: '手势 / 舞蹈', transition: '变装 / 妆容', pov: '表情 / POV' };
+const topicLabels = { kpop: 'K-pop', virtual_idol: '虚拟偶像', unknown: '主题待分类' };
+const materialLabels = { male: '男生素材', female: '女生素材', mixed: '混合素材', unknown: '素材分区待确认' };
+const castLabels = { solo: '单人', group: '多人', unknown: '人数待确认' };
+const transformationLabels = { makeup: '变妆', outfit: '换装', makeup_and_outfit: '变妆 + 换装', none: '无变妆 / 换装', unknown: '变装情况待确认' };
 const favoriteKey = 'idore-tiktok-discovery-favorites-v1';
 let data = { videos: [], runs: [] };
 let category = 'all';
+let topic = 'all';
+let material = 'all';
+let cast = 'all';
 let search = '';
 let onlyFavorites = false;
 let historyDate = '';
@@ -49,6 +56,36 @@ function collectionDay(value) {
 function formatDate(value) {
   const parts = dateParts(value);
   return parts ? `${parts.year}-${parts.month}-${parts.day} ${parts.hour}:${parts.minute}` : '—';
+}
+function captureMoment(video) {
+  return dateParts(video.first_seen_at) ? video.first_seen_at : video.last_seen_at;
+}
+function topicOf(video) { return Object.hasOwn(topicLabels, video.trend_category) ? video.trend_category : 'unknown'; }
+function materialOf(video) {
+  const reviewed = video.material_classification?.material_group;
+  const newerCapture = workObservation(video) && Object.hasOwn(materialLabels, video.material_group) && video.material_group !== 'unknown' && new Date(video.last_seen_at).getTime() > new Date(video.material_classification?.observed_at).getTime();
+  if (Object.hasOwn(materialLabels, reviewed) && !newerCapture) return reviewed;
+  return Object.hasOwn(materialLabels, video.material_group) ? video.material_group : 'unknown';
+}
+function castOf(video) {
+  const reviewed = video.material_classification?.subject_group;
+  const newerCapture = workObservation(video) && typeof video.checks?.solo === 'boolean' && new Date(video.last_seen_at).getTime() > new Date(video.material_classification?.observed_at).getTime();
+  if (Object.hasOwn(castLabels, reviewed) && !newerCapture) return reviewed;
+  if (!workObservation(video)) return 'unknown';
+  return video.checks?.solo === true ? 'solo' : video.checks?.solo === false ? 'group' : 'unknown';
+}
+function transformationOf(video) { return Object.hasOwn(transformationLabels, video.transformation) ? video.transformation : 'unknown'; }
+function generationRoute(video) {
+  const transformation = transformationOf(video);
+  if (['makeup', 'outfit', 'makeup_and_outfit'].includes(transformation)) return '先准备同一角色的前后造型图 → 再生成变装视频';
+  if (transformation === 'none' && video.kind === 'hands') return '角色照片 + 动作参考 → 生成手势 / 舞蹈视频';
+  if (transformation === 'none') return '角色照片 + 原片动作拆解 → 准备视频生成方案';
+  return '先确认是否变妆 / 换装，再选择生成流程';
+}
+function classification(video) {
+  const tags = el('div', 'classification-tags');
+  tags.append(el('span', 'topic-tag', topicLabels[topicOf(video)]), el('span', 'material-tag', materialLabels[materialOf(video)]), el('span', 'cast-tag', castLabels[castOf(video)]), el('span', '', kindLabels[video.kind] || '动作待分类'), el('span', '', transformationLabels[transformationOf(video)]));
+  return tags;
 }
 function runMoment(run) { return run.observed_at || run.started_at || run.finished_at; }
 function orderedRuns(runs) {
@@ -144,6 +181,7 @@ function historySnapshot(video, run) {
   heading.append(el('h4', '', video.title || `@${canonical.author} 的原视频候选`));
   heading.append(externalLink('打开当次原视频 ↗', canonical.url));
   snapshot.append(heading, el('p', 'history-video-meta', `@${canonical.author} · ${kindLabels[video.kind] || '玩法待分类'} · ${workObservation(video) ? 'Work 已观看原片' : '原片待核验'}`));
+  snapshot.append(classification(video), el('p', 'history-video-meta', `当次素材分区：${materialLabels[materialOf(video)]}`));
   snapshot.append(el('p', 'history-motion', video.motion_summary || '该次未保存动作描述；不能据此判断单人、动作重复性或复刻难度。'));
   const checks = el('div', 'checks');
   checks.append(observationCheck('单人', video.checks?.solo, workObservation(video)), observationCheck('重复动作', video.checks?.repetitive, workObservation(video)), observationCheck('固定机位', video.checks?.fixed_camera, workObservation(video)), el('span', '', 'AI 复刻 · 未试做'));
@@ -247,6 +285,18 @@ function videoCard(video) {
   const body = el('div', 'card-body');
   body.append(el('p', 'card-author', `@${canonical.author} · ${kindLabels[video.kind] || '玩法待分类'}`));
   body.append(el('h3', '', video.title || 'TikTok 公开视频候选'));
+  body.append(classification(video));
+  if (video.material_classification && typeof video.material_classification === 'object') {
+    const reviewed = video.material_classification;
+    const note = el('div', 'classification-review');
+    note.append(el('strong', '', `素材分类复核 · ${formatDate(reviewed.observed_at)}（纽约）`));
+    if (typeof reviewed.note === 'string' && reviewed.note.trim()) note.append(el('p', '', reviewed.note));
+    if (typeof reviewed.source === 'string' && reviewed.source.trim()) note.append(el('small', '', reviewed.source));
+    body.append(note);
+  }
+  const route = el('div', 'generation-route');
+  route.append(el('strong', '', '生成准备'), el('p', '', generationRoute(video)), el('small', '', '流程建议 · 视频接口尚未接入'));
+  body.append(route);
   if (!watched || video.assessment_note !== video.motion_summary) body.append(el('p', 'assessment', video.assessment_note || (watched ? 'Work 已记录原片观察。观看记录不代表当前热门，也不代表 AI 复刻效果已经试做。' : '已记录公开视频链接。单人、动作重复性与跟拍一致性仍待看原片核验。')));
   if (typeof video.motion_summary === 'string' && video.motion_summary.trim()) {
     const summary = el('div', 'observation-notes');
@@ -290,15 +340,61 @@ function videoCard(video) {
 }
 function renderVideos() {
   const valid = data.videos.filter(video => video && videoUrl(video.url));
-  const list = valid.filter(video => (category === 'all' || video.kind === category || (Array.isArray(video.kinds) && video.kinds.includes(category))) && (!onlyFavorites || favorites.has(candidateId(video))) && `${video.title || ''} ${video.author || ''} ${video.kind || ''} ${video.motion_summary || ''} ${video.recreation_notes || ''}`.toLowerCase().includes(search.toLowerCase()));
+  const base = valid.filter(video => (topic === 'all' || topicOf(video) === topic) && (category === 'all' || video.kind === category || (Array.isArray(video.kinds) && video.kinds.includes(category))) && (!onlyFavorites || favorites.has(candidateId(video))) && `${video.title || ''} ${video.author || ''} ${video.kind || ''} ${topicLabels[topicOf(video)]} ${materialLabels[materialOf(video)]} ${castLabels[castOf(video)]} ${transformationLabels[transformationOf(video)]} ${video.motion_summary || ''} ${video.recreation_notes || ''}`.toLowerCase().includes(search.toLowerCase()));
+  document.querySelectorAll('[data-material]').forEach(button => {
+    const key = button.dataset.material;
+    const count = base.filter(video => (cast === 'all' || castOf(video) === cast) && (key === 'all' || materialOf(video) === key)).length;
+    button.textContent = `${key === 'all' ? '全部素材' : materialLabels[key]} · ${count}`;
+  });
+  document.querySelectorAll('[data-cast]').forEach(button => {
+    const key = button.dataset.cast;
+    const count = base.filter(video => (material === 'all' || materialOf(video) === material) && (key === 'all' || castOf(video) === key)).length;
+    button.textContent = `${key === 'all' ? '全部人数' : castLabels[key]} · ${count}`;
+  });
+  const list = base.filter(video => (material === 'all' || materialOf(video) === material) && (cast === 'all' || castOf(video) === cast)).sort((a, b) => {
+    const time = video => { const value = new Date(captureMoment(video)).getTime(); return Number.isFinite(value) ? value : -Infinity; };
+    return time(b) - time(a) || String(candidateId(a)).localeCompare(String(candidateId(b)));
+  });
   $('#nav-count').textContent = String(valid.length);
   $('#result-count').textContent = `${list.length} 条`;
   const grid = $('#video-grid');
-  if (list.length) { grid.replaceChildren(...list.map(videoCard)); return; }
+  if (list.length) {
+    const days = new Map();
+    for (const video of list) {
+      const day = collectionDay(captureMoment(video)) || 'unknown';
+      if (!days.has(day)) days.set(day, []);
+      days.get(day).push(video);
+    }
+    grid.replaceChildren(...[...days].map(([day, videos]) => {
+      const section = el('section', 'capture-day');
+      const heading = el('div', 'capture-day-heading');
+      heading.append(el('h3', '', day === 'unknown' ? '抓取日期待确认' : `${day} 抓到的素材`), el('span', '', `${videos.length} 条 · 纽约时间`));
+      section.append(heading);
+      const groups = el('div', 'material-groups');
+      for (const [key, label] of Object.entries(materialLabels)) {
+        if (material !== 'all' && material !== key) continue;
+        const members = videos.filter(video => materialOf(video) === key);
+        if (!members.length && !['male', 'female'].includes(key)) continue;
+        const group = el('section', `material-group material-${key}`);
+        const groupHeading = el('div', 'material-group-heading');
+        groupHeading.append(el('h4', '', label), el('span', '', `${members.length} 条`));
+        group.append(groupHeading);
+        if (members.length) {
+          const cards = el('div', 'video-grid');
+          cards.append(...members.map(videoCard));
+          group.append(cards);
+        } else group.append(el('p', 'material-empty', '当天暂无符合当前筛选的素材'));
+        groups.append(group);
+      }
+      section.append(groups);
+      return section;
+    }));
+    return;
+  }
   const empty = el('div', 'empty-state');
   empty.append(el('span', 'empty-icon', onlyFavorites ? '☆' : '⌕'));
   empty.append(el('h3', '', onlyFavorites ? '还没有收藏的候选' : valid.length ? '没有符合当前筛选的候选' : '等待第一批原视频候选'));
-  empty.append(el('p', '', onlyFavorites ? '收藏喜欢的视频，方便回来继续比较。收藏只保存在当前浏览器。' : valid.length ? '试试其他玩法分类或搜索词。' : '公开页面没有返回结果时，我们会保留真实状态，不会使用示例视频填充。可在上方查看采集记录。'));
+  empty.append(el('p', '', onlyFavorites ? '收藏喜欢的视频，方便回来继续比较。收藏只保存在当前浏览器。' : valid.length ? '试试其他主题、素材分区、人数、动作或搜索词。缺少观察的旧记录仍可在待确认区找到。' : '公开页面没有返回结果时，我们会保留真实状态，不会使用示例视频填充。可在上方查看采集记录。'));
   grid.replaceChildren(empty);
 }
 function renderStatus() {
@@ -357,6 +453,21 @@ $('#history-clear-filter').addEventListener('click', () => { historyDate = ''; $
 document.querySelectorAll('[data-category]').forEach(button => button.addEventListener('click', () => {
   category = button.dataset.category;
   document.querySelectorAll('[data-category]').forEach(tab => { const active = tab.dataset.category === category; tab.classList.toggle('active', active); tab.setAttribute('aria-pressed', String(active)); });
+  renderVideos();
+}));
+document.querySelectorAll('[data-topic]').forEach(button => button.addEventListener('click', () => {
+  topic = button.dataset.topic;
+  document.querySelectorAll('[data-topic]').forEach(tab => { const active = tab.dataset.topic === topic; tab.classList.toggle('active', active); tab.setAttribute('aria-pressed', String(active)); });
+  renderVideos();
+}));
+document.querySelectorAll('[data-material]').forEach(button => button.addEventListener('click', () => {
+  material = button.dataset.material;
+  document.querySelectorAll('[data-material]').forEach(tab => { const active = tab.dataset.material === material; tab.classList.toggle('active', active); tab.setAttribute('aria-pressed', String(active)); });
+  renderVideos();
+}));
+document.querySelectorAll('[data-cast]').forEach(button => button.addEventListener('click', () => {
+  cast = button.dataset.cast;
+  document.querySelectorAll('[data-cast]').forEach(tab => { const active = tab.dataset.cast === cast; tab.classList.toggle('active', active); tab.setAttribute('aria-pressed', String(active)); });
   renderVideos();
 }));
 $('#close-preview').addEventListener('click', () => $('#preview-dialog').close());

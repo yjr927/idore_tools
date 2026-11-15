@@ -4,6 +4,9 @@
 Input v1 has exactly schema_version, run_id, observed_at, status, message, videos.
 Each video has exactly url, title, kind, original_watched, motion_summary, checks,
 recreation_notes, published_at, published_text, metrics, related_videos, music_name.
+Input v2 adds trend_category, material_group and transformation to each video;
+it selects at most two videos and one per topic per America/New_York day.
+Same-day rechecks keep the existing reservation. Reservations outlive run history.
 checks contains solo/repetitive/fixed_camera (boolean or null). metrics contains
 views/likes/comments/shares (finite nonnegative number or null). Related records
 contain url/original_watched/same_pattern/note. All dates require a timezone.
@@ -20,13 +23,14 @@ from __future__ import annotations
 
 import argparse
 import copy
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 import hashlib
 import json
 import math
 from pathlib import Path
 import re
 import sys
+from zoneinfo import ZoneInfo
 
 try:
     from collect_tiktok_public import canonical_video, PublicPageError
@@ -44,6 +48,11 @@ TOP_KEYS = {"schema_version", "run_id", "observed_at", "status", "message", "vid
 VIDEO_KEYS = {"url", "title", "kind", "original_watched", "motion_summary", "checks",
               "recreation_notes", "published_at", "published_text", "metrics",
               "related_videos", "music_name"}
+CLASSIFICATION_KEYS = ("trend_category", "material_group", "transformation")
+TOPICS = ("kpop", "virtual_idol")
+MATERIAL_GROUPS = ("male", "female", "mixed", "unknown")
+TRANSFORMATIONS = ("makeup", "outfit", "makeup_and_outfit", "none", "unknown")
+COLLECTION_TIME_ZONE = ZoneInfo("America/New_York")
 CHECK_KEYS = {"solo", "repetitive", "fixed_camera"}
 METRIC_KEYS = {"views", "likes", "comments", "shares"}
 RELATED_KEYS = {"url", "original_watched", "same_pattern", "note"}
@@ -121,7 +130,8 @@ def metric(value):
 
 def validate_payload(payload):
     exact_object(payload, TOP_KEYS, "Work 结果")
-    if type(payload["schema_version"]) is not int or payload["schema_version"] != 1:
+    version = payload["schema_version"]
+    if type(version) is not int or version not in (1, 2):
         raise WorkResultError("不支持的 Work 结果版本。")
     ident = payload["run_id"]
     if not isinstance(ident, str) or not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_.:-]{0,99}", ident):
@@ -132,13 +142,14 @@ def validate_payload(payload):
         raise WorkResultError("Work 采集状态无效。")
     message = public_text(payload["message"], "message", 1000, True)
     videos = payload["videos"]
-    if not isinstance(videos, list) or len(videos) > 8:
-        raise WorkResultError("每次 Work 结果最多包含 8 条视频。")
+    maximum = 2 if version == 2 else 8
+    if not isinstance(videos, list) or len(videos) > maximum:
+        raise WorkResultError(f"每次 Work v{version} 结果最多包含 {maximum} 条视频。")
     if (status in ("succeeded", "partial")) != bool(videos):
         raise WorkResultError("成功或部分成功必须有视频；empty、blocked、failed 不得包含视频。")
-    cleaned, seen = [], set()
+    cleaned, seen, topics = [], set(), set()
     for video in videos:
-        exact_object(video, VIDEO_KEYS, "视频")
+        exact_object(video, VIDEO_KEYS | set(CLASSIFICATION_KEYS) if version == 2 else VIDEO_KEYS, "视频")
         url, author, video_id = public_url(video["url"])
         if video_id in seen:
             raise WorkResultError("本次结果包含重复的原视频。")
@@ -147,6 +158,18 @@ def validate_payload(payload):
         if not isinstance(kind, str) or kind not in ("hands", "transition", "pov"):
             raise WorkResultError("视频 kind 必须为 hands、transition 或 pov。")
         seen_original = watched(video["original_watched"])
+        classification = {}
+        if version == 2:
+            for field, choices in (("trend_category", TOPICS), ("material_group", MATERIAL_GROUPS),
+                                   ("transformation", TRANSFORMATIONS)):
+                if not isinstance(video[field], str) or video[field] not in choices:
+                    raise WorkResultError("视频 " + field + " 分类无效。")
+                classification[field] = video[field]
+            if classification["trend_category"] in topics:
+                raise WorkResultError("每批最多一条 K-pop 和一条虚拟偶像视频。")
+            topics.add(classification["trend_category"])
+            if not seen_original and classification["transformation"] != "unknown":
+                raise WorkResultError("尚未观看原片时，transformation 必须为 unknown。")
         checks = exact_object(video["checks"], CHECK_KEYS, "checks")
         checks = {key: optional_bool(checks[key], "checks") for key in sorted(CHECK_KEYS)}
         metrics = exact_object(video["metrics"], METRIC_KEYS, "metrics")
@@ -168,14 +191,14 @@ def validate_payload(payload):
                 "original_watched": watched(example["original_watched"]),
                 "same_pattern": optional_bool(example["same_pattern"], "same_pattern"),
                 "note": public_text(example["note"], "跟拍 note", 500)})
-        cleaned.append({"url": url, "title": public_text(video["title"], "title", 300, True),
+        cleaned.append({**classification, "url": url, "title": public_text(video["title"], "title", 300, True),
             "kind": kind, "original_watched": seen_original,
             "motion_summary": public_text(video["motion_summary"], "motion_summary", 2000),
             "checks": checks, "recreation_notes": public_text(video["recreation_notes"], "recreation_notes", 2000),
             "published_at": published, "published_text": public_text(video["published_text"], "published_text", 100),
             "metrics": metrics, "related_videos": related_clean,
             "music_name": public_text(video["music_name"], "music_name", 300)})
-    return {"schema_version": 1, "run_id": ident, "observed_at": stamp, "status": status,
+    return {"schema_version": version, "run_id": ident, "observed_at": stamp, "status": status,
             "message": message, "videos": cleaned}
 
 
@@ -211,7 +234,7 @@ def video_snapshots(clean):
     snapshots = []
     for video in clean["videos"]:
         row = normalized_video(video, clean["observed_at"])
-        snapshots.append({**{key: copy.deepcopy(row[key]) for key in SNAPSHOT_KEYS},
+        snapshots.append({**{key: copy.deepcopy(row[key]) for key in SNAPSHOT_KEYS + CLASSIFICATION_KEYS if key in row},
                           "observed_at": clean["observed_at"]})
     return snapshots
 
@@ -232,6 +255,63 @@ def enrich_existing_run(previous, clean):
         run.setdefault("ingestion_status", "imported")
     result["runs"] = result.get("runs", [])[:MAX_RUNS]
     return result
+
+
+def collection_day(stamp):
+    """Use the same New York calendar day for offsets and daylight saving time."""
+    return datetime.fromisoformat(stamp.replace("Z", "+00:00")).astimezone(COLLECTION_TIME_ZONE).date().isoformat()
+
+
+def daily_selections(previous, clean):
+    """Reserve v2 selections across run IDs without relying on retained history.
+
+    The ledger stores IDs only and is deliberately not trimmed with the 90 runs.
+    Retained v2 snapshots also rebuild missing reservations. Reclassifying the
+    same URL cannot free its previous topic's slot for a different video.
+    """
+    ledger = copy.deepcopy(previous.get("work_daily_selections", {}))
+    if not isinstance(ledger, dict):
+        raise WorkResultError("已有每日采集记录格式无效。")
+
+    def reserve(day, topic, ident):
+        try:
+            if not isinstance(day, str) or date.fromisoformat(day).isoformat() != day:
+                raise ValueError()
+        except (ValueError, TypeError):
+            raise WorkResultError("已有每日采集日期无效。") from None
+        if topic not in TOPICS or not isinstance(ident, str) or not re.fullmatch(r"tiktok-\d{10,25}", ident):
+            raise WorkResultError("已有每日采集分类或视频编号无效。")
+        slots = ledger.setdefault(day, {})
+        if not isinstance(slots, dict) or any(key not in TOPICS for key in slots):
+            raise WorkResultError("已有每日采集分类无效。")
+        if topic in slots and slots[topic] != ident:
+            raise WorkResultError("该纽约日期已收录此类别的视频；每天最多一条 K-pop 和一条虚拟偶像。")
+        slots[topic] = ident
+
+    for day, slots in list(ledger.items()):
+        if not isinstance(slots, dict):
+            raise WorkResultError("已有每日采集记录格式无效。")
+        for topic, ident in list(slots.items()):
+            reserve(day, topic, ident)
+    for run in previous.get("runs", []):
+        if not isinstance(run, dict):
+            continue
+        snapshots = run.get("video_snapshots", [])
+        if not isinstance(snapshots, list):
+            continue
+        for snapshot in snapshots:
+            if not isinstance(snapshot, dict) or not all(key in snapshot for key in CLASSIFICATION_KEYS):
+                continue
+            stamp = snapshot.get("observed_at") or run.get("observed_at") or run.get("started_at")
+            try:
+                day = collection_day(date_value(stamp, "已保存观察时间"))
+            except WorkResultError:
+                raise WorkResultError("已有每日采集观察时间无效。") from None
+            reserve(day, snapshot["trend_category"], snapshot.get("id"))
+    day = collection_day(clean["observed_at"])
+    for video in clean["videos"]:
+        reserve(day, video["trend_category"], "tiktok-" + public_url(video["url"])[2])
+    return ledger
 
 
 def merge_work_results(previous, payload):
@@ -255,13 +335,15 @@ def merge_work_results(previous, payload):
             raise WorkResultError("该 run_id 已用于不同结果，请使用新的 run_id。")
     result = copy.deepcopy(previous)
     result.setdefault("videos", []); result.setdefault("runs", [])
+    if clean["schema_version"] == 2:
+        result["work_daily_selections"] = daily_selections(previous, clean)
     by_id = {row.get("id"): row for row in result["videos"] if isinstance(row, dict)}
     stamp, added = clean["observed_at"], 0
     for video in clean["videos"]:
         row = normalized_video(video, stamp)
         observation = {"run_id": clean["run_id"], "observed_at": stamp,
             **{key: copy.deepcopy(row[key]) for key in ("metrics", "original_watched", "motion_summary",
-                "checks", "recreation_notes", "related_videos", "motion_verified", "trend_verified")}}
+                "checks", "recreation_notes", "related_videos", "motion_verified", "trend_verified") + CLASSIFICATION_KEYS if key in row}}
         existing = by_id.get(row["id"])
         if existing is None:
             row["observations"] = [observation]

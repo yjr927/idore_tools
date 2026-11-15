@@ -166,8 +166,9 @@ def build_result(previous, new_rows, reports, started_at, finished_at, failure=N
         "last_attempt_at": finished_at,
         "last_success_at": finished_at if found else previous.get("last_success_at"),
     }
-    if "work_imports" in previous:
-        result["work_imports"] = copy.deepcopy(previous["work_imports"])
+    for key in ("work_imports", "work_daily_selections", "material_classification_imports"):
+        if key in previous:
+            result[key] = copy.deepcopy(previous[key])
     return result
 
 

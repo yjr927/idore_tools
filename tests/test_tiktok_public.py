@@ -63,16 +63,24 @@ class TikTokPublicTests(unittest.TestCase):
         result = collector.build_result({"videos": [], "runs": []}, [], [{"status": "ok"}], STAMP, STAMP)
         self.assertEqual(result["runs"][0]["status"], "empty")
 
-    def test_manual_public_attempt_preserves_work_history_and_import_ids(self):
+    def test_manual_public_attempt_preserves_work_history_import_ids_and_daily_slots(self):
         historical = {"id": "work-old", "video_snapshots": [{"url": URL, "title": "Original title"}]}
         previous = {"videos": [self.row()], "runs": [historical] + [{"id": str(i)} for i in range(100)],
-                    "work_imports": {"work-old": "fingerprint"}}
+                    "work_imports": {"work-old": "fingerprint"},
+                    "work_daily_selections": {"2026-11-11": {"kpop": "tiktok-7699497385185119502"}},
+                    "material_classification_imports": {STAMP: "classification-hash"}}
         result = collector.build_result(previous, [], [{"status": "blocked", "found": 0}], STAMP, STAMP)
         self.assertEqual(len(result["runs"]), 90)
         self.assertEqual(result["runs"][1], historical)
         self.assertEqual(result["work_imports"], previous["work_imports"])
+        self.assertEqual(result["work_daily_selections"], previous["work_daily_selections"])
+        self.assertEqual(result["material_classification_imports"], previous["material_classification_imports"])
         result["work_imports"]["work-old"] = "changed"
+        result["work_daily_selections"]["2026-11-11"]["kpop"] = "changed"
+        result["material_classification_imports"][STAMP] = "changed"
         self.assertEqual(previous["work_imports"]["work-old"], "fingerprint")
+        self.assertEqual(previous["work_daily_selections"]["2026-11-11"]["kpop"], "tiktok-7699497385185119502")
+        self.assertEqual(previous["material_classification_imports"][STAMP], "classification-hash")
 
     def test_cli_failure_is_saved_without_launching_browser(self):
         async def fail(*args):
