@@ -1,0 +1,80 @@
+name: Generate Seedance video
+on:
+  workflow_dispatch:
+    inputs:
+      model:
+        description: Seedance model (explicit selection, no automatic fallback)
+        type: choice
+        options: [bytedance/seedance-2.0, bytedance/seedance-2.0-fast, bytedance/seedance-2.5]
+        required: true
+      mode:
+        description: text, first/last frames, or character/action references
+        type: choice
+        options: [text, frames, references]
+        required: true
+      prompt:
+        description: Video instruction (workflow inputs are visible in this repository)
+        type: string
+        required: true
+      duration:
+        description: Seconds (checked against the selected model)
+        type: choice
+        options: ['5', '8', '10', '15']
+        default: '5'
+      resolution:
+        description: Resolution (checked against the selected model)
+        type: choice
+        options: [480p, 720p, 1080p]
+        default: 720p
+      first_frame_url:
+        description: Public HTTPS first-frame image or character reference URL (optional)
+        type: string
+        required: false
+      last_frame_url:
+        description: Public HTTPS last-frame image URL (frames mode only, optional)
+        type: string
+        required: false
+      reference_video_url:
+        description: Public HTTPS MP4 URL (references mode; TikTok share links are unsupported)
+        type: string
+        required: false
+      allow_paid:
+        description: I allow this one generation to transmit supplied media and use OpenRouter credits
+        type: boolean
+        default: false
+      resume_job_id:
+        description: Existing OpenRouter video job ID to query without submitting a new paid job
+        type: string
+        required: false
+permissions:
+  contents: read
+concurrency:
+  group: seedance-generation-${{ github.actor }}
+  cancel-in-progress: false
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Generate only on explicit request
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          GENERATION_INPUTS: ${{ toJSON(inputs) }}
+          VIDEO_OUTPUT_DIR: generation-output
+        run: python3 scripts/run_video_generation.py
+      - name: Save result and safe task summary
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: seedance-result-${{ github.run_id }}
+          path: |
+            generation-output/generated/*.mp4
+            generation-output/generation-summary.json
+          if-no-files-found: ignore
+          retention-days: 7
