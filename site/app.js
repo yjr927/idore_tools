@@ -61,18 +61,27 @@ function captureMoment(video) {
   return dateParts(video.first_seen_at) ? video.first_seen_at : video.last_seen_at;
 }
 function topicOf(video) { return Object.hasOwn(topicLabels, video.trend_category) ? video.trend_category : 'unknown'; }
+function axisObservation(video, axis) {
+  const observations = (Array.isArray(video.observations) ? video.observations : []).filter(item => item && typeof item === 'object' && Number.isFinite(new Date(item.observed_at).getTime()) && (axis === 'material' ? Object.hasOwn(item, 'material_group') : item.checks && Object.hasOwn(item.checks, 'solo'))).sort((a, b) => new Date(b.observed_at) - new Date(a.observed_at));
+  const observation = observations[0];
+  const source = observation || video;
+  const watched = observation ? observation.original_watched === true : workObservation(video);
+  const value = axis === 'material' ? (watched && Object.hasOwn(materialLabels, source.material_group) ? source.material_group : 'unknown') : (watched && source.checks?.solo === true ? 'solo' : watched && source.checks?.solo === false ? 'group' : 'unknown');
+  return { value, at: observation ? new Date(observation.observed_at).getTime() : null };
+}
 function materialOf(video) {
+  const fact = axisObservation(video, 'material');
   const reviewed = video.material_classification?.material_group;
-  const newerCapture = workObservation(video) && Object.hasOwn(materialLabels, video.material_group) && video.material_group !== 'unknown' && new Date(video.last_seen_at).getTime() > new Date(video.material_classification?.observed_at).getTime();
-  if (Object.hasOwn(materialLabels, reviewed) && !newerCapture) return reviewed;
-  return Object.hasOwn(materialLabels, video.material_group) ? video.material_group : 'unknown';
+  const newerCapture = fact.value !== 'unknown' && fact.at !== null && fact.at > new Date(video.material_classification?.observed_at).getTime();
+  if (Object.hasOwn(materialLabels, reviewed) && !newerCapture) return reviewed === 'unknown' || video.material_classification.original_watched === true ? reviewed : 'unknown';
+  return fact.value;
 }
 function castOf(video) {
+  const fact = axisObservation(video, 'cast');
   const reviewed = video.material_classification?.subject_group;
-  const newerCapture = workObservation(video) && typeof video.checks?.solo === 'boolean' && new Date(video.last_seen_at).getTime() > new Date(video.material_classification?.observed_at).getTime();
-  if (Object.hasOwn(castLabels, reviewed) && !newerCapture) return reviewed;
-  if (!workObservation(video)) return 'unknown';
-  return video.checks?.solo === true ? 'solo' : video.checks?.solo === false ? 'group' : 'unknown';
+  const newerCapture = fact.value !== 'unknown' && fact.at !== null && fact.at > new Date(video.material_classification?.observed_at).getTime();
+  if (Object.hasOwn(castLabels, reviewed) && !newerCapture) return reviewed === 'unknown' || video.material_classification.original_watched === true ? reviewed : 'unknown';
+  return fact.value;
 }
 function transformationOf(video) { return Object.hasOwn(transformationLabels, video.transformation) ? video.transformation : 'unknown'; }
 function generationRoute(video) {
@@ -335,6 +344,11 @@ function videoCard(video) {
   const actions = el('div', 'card-actions');
   const preview = el('button', 'button primary small', '▶ 查看原片'); preview.type = 'button'; preview.addEventListener('click', () => openPreview(video));
   actions.append(preview, externalLink('TikTok 打开 ↗', canonical.url, 'button small'));
+  const replicate = el('a', 'button small', '用我的角色跟拍 ↗');
+  replicate.href = `http://127.0.0.1:8765/generate?reference=${encodeURIComponent(video.id)}#replicate-step`;
+  replicate.target = '_blank'; replicate.rel = 'noopener noreferrer';
+  replicate.title = '打开本机素材库，选择同组角色与参考视频文件；需先启动本机工作台';
+  actions.append(replicate);
   body.append(actions); card.append(body);
   return card;
 }

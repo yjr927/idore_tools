@@ -10,7 +10,10 @@ let submissionRecord = null;
 const files = new Map(), references = [], refreshing = new Set(), downloading = new Set(), sampling = new Set(), lastRemoteRefresh = new Map();
 let openAIConnected = false, openAIConnecting = false, creativeModels = { image_models: [], text_models: [] }, creativeJobs = [], creativeSignature = '', styleReference = '', requiredStylePair = false;
 const creativeBusy = { images: false, draft: false }, creativeRecords = {}, draftFrames = [];
+const materialLabels = { male: '男生角色', female: '女生角色', mixed: '男女混合', unknown: '分组待确认' }, subjectLabels = { solo: '单人', group: '多人', unknown: '人数待确认' };
+let replicationAssets = [], replicationReferences = [], selectedAssetId = '', selectedReferenceId = '', preparedReplication = null, replicationPreparing = false, replicationSubmitting = false, replicationRecord = null, requestedChoicesApplied = false, replicationSelectionVersion = 0, assetClassificationDirty = false, referenceClassificationDirty = false;
 try { const saved = JSON.parse(localStorage.getItem(submissionStorage) || 'null'); if (saved && typeof saved.key === 'string' && typeof saved.fingerprint === 'string') submissionRecord = saved; } catch { /* The page also works when browser storage is unavailable. */ }
+try { const saved = JSON.parse(localStorage.getItem('idore-replication-submission-v1') || 'null'); if (saved && typeof saved.key === 'string' && typeof saved.fingerprint === 'string') replicationRecord = saved; } catch { /* Keep paired request state in memory for this visit. */ }
 
 function node(tag, className, content) {
   const element = document.createElement(tag);
@@ -50,7 +53,7 @@ function fillOptions(select, values, previous, preferred, label = value => value
 function stylePairReady(caps = capabilities(currentModel())) {
   return $('#mode').value === 'frames' && caps.first && caps.last && Boolean(files.get('first') || $('#first-frame-url').value.trim()) && Boolean(files.get('last') || $('#last-frame-url').value.trim());
 }
-function updateGenerateButton() { const caps = capabilities(currentModel()); $('#generate-button').disabled = !connected || submitting || preparingSubmission || !currentModel() || !caps.durations.length || !caps.resolutions.length || !caps.aspects.length || requiredStylePair && !stylePairReady(caps); }
+function updateGenerateButton() { const caps = capabilities(currentModel()); $('#generate-button').disabled = !connected || submitting || preparingSubmission || !currentModel() || !caps.durations.length || !caps.resolutions.length || !caps.aspects.length || requiredStylePair && !stylePairReady(caps); updateReplicationButton(); }
 function configureModel() {
   const model = currentModel(), caps = capabilities(model);
   fillOptions($('#duration'), caps.durations, $('#duration').value, undefined, value => `${value} 秒`);
@@ -93,7 +96,7 @@ async function loadModels() {
   models = (Array.isArray(result.models) ? result.models : []).filter(model => model && typeof model.id === 'string' && model.id.startsWith('bytedance/seedance'));
   const placeholder = node('option', '', models.length ? '选择这次使用的模型版本' : '暂无可用的 Seedance 模型'); placeholder.value = '';
   $('#model').replaceChildren(placeholder);
-  for (const model of models) { const option = node('option', '', model.name || model.id); option.value = model.id; $('#model').append(option); }
+  for (const model of models) { const option = node('option', '', (model.name || model.id) + (replicationModelSupported(model) ? '' : ' · 不用于角色与视频共同跟拍')); option.value = model.id; $('#model').append(option); }
   $('#model').value = models.some(model => model.id === previous) ? previous : '';
   configureModel();
 }
@@ -129,7 +132,11 @@ function imageValue(value, label) {
 function referenceValue(item) {
   const value = item.fileData || item.url.value.trim();
   if (item.type.value === 'image_url') return { type: 'image_url', url: imageValue(value, '参考图片') };
-  try { const url = new URL(value); if (url.protocol === 'https:' && !url.username && !url.password && /\.mp4$/i.test(url.pathname) && !/(^|\.)(tiktok\.com|douyin\.com)$/.test(url.hostname)) return { type: 'video_url', url: url.href }; } catch { /* Explain the expected input below. */ }
+  try {
+    const url = new URL(value), host = url.hostname.toLowerCase().replace(/\.$/, '');
+    const officialPlayerFile = /^v[0-9]+(?:-[a-z0-9]+)*\.(?:[a-z]{2}\.)?tiktok\.com$/.test(host) && /^\/video\/tos\/[A-Za-z0-9/_-]+\/?$/.test(decodeURIComponent(url.pathname)) && url.searchParams.getAll('mime_type').length === 1 && url.searchParams.get('mime_type') === 'video_mp4';
+    if (url.protocol === 'https:' && !url.username && !url.password && !url.hash && (!url.port || url.port === '443') && (officialPlayerFile || /\.(mp4|webm|mov)$/i.test(url.pathname) && !/(^|\.)(tiktok\.com|douyin\.com|iesdouyin\.com)$/.test(host))) return { type: 'video_url', url: url.href };
+  } catch { /* Explain the expected input below. */ }
   throw new Error('参考视频需为 HTTPS 的 MP4 文件直链，不能使用 TikTok / 抖音分享链接。');
 }
 function addReference() {
@@ -201,6 +208,7 @@ function renderJobs() {
     const status = Object.hasOwn(statusLabels, job.status) ? job.status : 'unknown';
     top.append(node('span', `status-pill status-${status}`, statusLabels[status] || '状态待确认'), node('span', 'job-time', `${date(job.created_at)} · 纽约`)); card.append(top, node('h3', '', job.model || 'Seedance'), node('p', 'job-prompt', job.prompt || ''));
     const info = [job.duration ? `${job.duration} 秒` : '', job.resolution || '', job.aspect_ratio || '', typeof job.cost === 'number' && Number.isFinite(job.cost) ? `费用 $${job.cost.toFixed(4)}` : ''].filter(Boolean); if (info.length) card.append(node('p', 'job-meta', info.join(' · ')));
+    if (job.source_asset_id && job.source_reference_id) { const asset = replicationAssets.find(item => item.id === job.source_asset_id), reference = replicationReferences.find(item => item.id === job.source_reference_id); card.append(node('p', 'job-meta paired-job-meta', `角色：${asset?.character || asset?.name || job.source_asset_id} · 动作参考：${reference?.title || job.source_reference_id}`)); }
     if (job.error) card.append(node('p', 'job-error', typeof job.error === 'string' ? job.error : '任务未完成，请检查接口配置或素材。'));
     const local = localVideo(job.result_url), actions = node('div', 'job-actions');
     if (local) { const video = node('video'); video.src = local; video.controls = true; video.preload = 'metadata'; video.setAttribute('aria-label', '生成结果预览'); card.append(video); const download = node('a', 'button small', '下载 MP4'); download.href = local; download.download = `idore-${job.id}.mp4`; actions.append(download); const draftButton = node('button', 'button small', sampling.has(job.id) ? '正在选取成片关键帧…' : '用这条成片生成文案'); draftButton.type = 'button'; draftButton.disabled = sampling.has(job.id); draftButton.addEventListener('click', () => useVideoForDraft(job)); actions.append(draftButton); }
@@ -229,6 +237,7 @@ async function loadJobs(remote = true) {
     const result = await api('/jobs'); const next = (Array.isArray(result.jobs) ? result.jobs : []).filter(job => job && typeof job.id === 'string').sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
     jobs = next;
     if (submissionRecord?.outcome === 'uncertain') { const recovered = jobs.find(job => job.idempotency_key === submissionRecord.key || job.id === submissionRecord.job_id); if (recovered && recovered.status !== 'submission_uncertain') persistSubmission({ ...submissionRecord, outcome: 'accepted', job_id: recovered.id }); }
+    if (replicationRecord?.outcome === 'uncertain') { const recovered = jobs.find(job => job.idempotency_key === replicationRecord.key || job.id === replicationRecord.job_id); if (recovered && recovered.status !== 'submission_uncertain') persistReplication({ ...replicationRecord, outcome: 'accepted', job_id: recovered.id }); }
     const signature = JSON.stringify(jobs) + String(connected); if (signature !== jobSignature) { jobSignature = signature; renderJobs(); }
     if (remote && connected) {
       const now = Date.now();
@@ -245,7 +254,234 @@ async function refreshConnectionStates() {
     creativeApi('/connection').then(result => { if (openAIConnected !== (result.connected === true)) { openAIConnected = result.connected === true; paintOpenAIConnection(); } }).catch(() => {})
   ]);
 }
-async function poll() { clearTimeout(pollTimer); await Promise.all([loadJobs(), loadCreativeJobs(), refreshConnectionStates()]); pollTimer = setTimeout(poll, 5000); }
+async function poll() { clearTimeout(pollTimer); await Promise.all([loadJobs(), loadCreativeJobs(), refreshConnectionStates()]); updateReplicationButton(); pollTimer = setTimeout(poll, 5000); }
+
+const replicationApi = (path, method = 'GET', body) => api(path, method, body, '/api/replication');
+function selectedAsset() { return replicationAssets.find(asset => asset.id === selectedAssetId); }
+function selectedReference() { return replicationReferences.find(reference => reference.id === selectedReferenceId); }
+function materialLabel(value) { return Object.hasOwn(materialLabels, value) ? materialLabels[value] : materialLabels.unknown; }
+function subjectLabel(value) { return Object.hasOwn(subjectLabels, value) ? subjectLabels[value] : subjectLabels.unknown; }
+function localAssetImage(value) {
+  if (typeof value !== 'string') return '';
+  try { const url = new URL(value, location.origin); return url.origin === location.origin && /^\/media\/asset-[a-f0-9]{16}\.(png|jpe?g|webp|gif)$/.test(url.pathname) ? url.pathname : ''; } catch { return ''; }
+}
+function replicationModelSupported(model) { const generation = String(model?.id || '').match(/^bytedance\/seedance-(\d+)(?:\.|-|$)/); return Boolean(generation && Number(generation[1]) >= 2 && capabilities(model).refs); }
+function matchingBlockers(reference, asset = selectedAsset()) {
+  const blockers = [];
+  if (!asset) blockers.push('先选择我们的角色照片。');
+  else {
+    blockers.push(...(Array.isArray(asset.blockers) ? asset.blockers.filter(value => typeof value === 'string') : []));
+    if (!['male', 'female'].includes(asset.material_group)) blockers.push('请先标记所选角色为男生或女生。');
+    if (asset.subject_group !== 'solo') blockers.push('请先确认所选角色图片为单人。');
+    if (asset.ready === false && !blockers.length) blockers.push('所选角色图片尚未准备好。');
+  }
+  blockers.push(...(Array.isArray(reference?.blockers) ? reference.blockers.filter(value => typeof value === 'string') : []));
+  if (!reference || reference.original_watched !== true) blockers.push('参考视频尚未确认已观看原片。');
+  if (!['male', 'female'].includes(reference?.material_group)) blockers.push('参考视频的男生／女生分组待确认。');
+  if (reference?.subject_group !== 'solo') blockers.push('本流程需要已确认单人的参考。');
+  if (asset && ['male', 'female'].includes(asset.material_group) && ['male', 'female'].includes(reference?.material_group) && asset.material_group !== reference.material_group) blockers.push('与所选角色的男生／女生分组不一致。');
+  if (reference?.ready === false && !blockers.length) blockers.push('参考视频尚未准备好。');
+  return [...new Set(blockers)];
+}
+function invalidateReplication(reason = '') {
+  replicationSelectionVersion++;
+  preparedReplication = null; $('#replication-consent').checked = false; $('#new-replication-button').hidden = true;
+  $('#replication-pair-review').replaceChildren(node('p', 'empty-inline', reason || '选择角色与参考，准备后在这里确认两份输入。'));
+  message('#replication-message'); updateReplicationButton();
+}
+function replicationPlanProblem() {
+  const plan = preparedReplication;
+  if (assetClassificationDirty) return '角色标记有未保存的更改，请先保存，再重新准备。';
+  if (referenceClassificationDirty) return '参考标记有未保存的更改，请先保存，再重新准备。';
+  if (!plan || plan.can_submit !== true || typeof plan.plan_id !== 'string') return '请先准备并确认角色图片与动作参考。';
+  if (plan.asset?.id !== selectedAssetId || plan.reference?.id !== selectedReferenceId) return '素材选择已经变化，请重新准备。';
+  if (!Array.isArray(plan.required_inputs) || !['character_image', 'reference_video'].every(input => plan.required_inputs.includes(input)) || plan.has_reference_video !== true) return '角色图片或动作视频尚未共同准备好，请重新准备。';
+  if (plan.expires_at && (!Number.isFinite(new Date(plan.expires_at).getTime()) || new Date(plan.expires_at).getTime() <= Date.now())) return '准备方案已过期，请重新准备这组素材。';
+  const blockers = matchingBlockers(selectedReference()); if (blockers.length) return blockers.join(' ');
+  if (!connected) return '请连接 OpenRouter，再生成这组跟拍。';
+  const model = currentModel(), caps = capabilities(model);
+  if (!model || !replicationModelSupported(model)) return '请选择支持角色图片与动作视频参考的 Seedance 2 或更新版本。';
+  if (!caps.durations.includes(Number($('#duration').value)) || !caps.resolutions.includes($('#resolution').value) || !caps.aspects.includes($('#aspect-ratio').value)) return '请选择模型支持的时长、分辨率与画幅。';
+  return '';
+}
+function updateReplicationButton() {
+  const problem = replicationPlanProblem(); $('#replication-button').disabled = replicationSubmitting || Boolean(problem);
+  $('#replication-prepare-button').disabled = replicationPreparing || assetClassificationDirty || referenceClassificationDirty || !selectedAsset() || !selectedReference() || matchingBlockers(selectedReference()).length > 0;
+  $('#replication-model-note').textContent = problem || `已准备：${preparedReplication?.asset?.character || preparedReplication?.asset?.name || '所选角色'}的图片 + 所选参考的动作视频。${currentModel()?.name || currentModel()?.id} 会同时使用这两份输入，不生成音轨。`;
+}
+function populateReplicationFilters() {
+  for (const [key, selector, label] of [['character', '#replication-character', '全部角色'], ['stage', '#replication-stage', '全部阶段']]) {
+    const previous = $(selector).value, option = node('option', '', label); option.value = ''; $(selector).replaceChildren(option);
+    const values = [...new Set(replicationAssets.map(asset => asset[key]).filter(value => typeof value === 'string' && value))];
+    for (const value of values) { const item = node('option', '', value); item.value = value; $(selector).append(item); }
+    $(selector).value = values.includes(previous) ? previous : '';
+  }
+}
+function updateAssetEditor() {
+  assetClassificationDirty = false;
+  const asset = selectedAsset(), form = $('#replication-classification-form'); form.hidden = !asset;
+  if (!asset) return;
+  $('#replication-classification-heading').textContent = `确认：${asset.character || asset.name} · ${asset.name}`;
+  $('#replication-material').value = Object.hasOwn(materialLabels, asset.material_group) ? asset.material_group : 'unknown';
+  $('#replication-subject').value = Object.hasOwn(subjectLabels, asset.subject_group) ? asset.subject_group : 'unknown';
+  $('#replication-apply-character').checked = false; $('#replication-apply-character').disabled = !asset.character;
+}
+function updateReferenceEditor() {
+  referenceClassificationDirty = false; const reference = selectedReference(); $('#replication-reference-classification-form').hidden = !reference;
+  if (!reference) return;
+  $('#replication-reference-classification-heading').textContent = `人工复核：${reference.title || reference.id}`;
+  $('#replication-reference-material').value = Object.hasOwn(materialLabels, reference.material_group) ? reference.material_group : 'unknown';
+  $('#replication-reference-subject').value = Object.hasOwn(subjectLabels, reference.subject_group) ? reference.subject_group : 'unknown';
+}
+function renderReplicationAssets() {
+  const list = replicationAssets.filter(asset => (!$('#replication-character').value || asset.character === $('#replication-character').value) && (!$('#replication-stage').value || asset.stage === $('#replication-stage').value));
+  $('#replication-asset-count').textContent = `${list.length} 张`;
+  $('#replication-assets').replaceChildren(...(list.length ? list.map(asset => {
+    const button = node('button', `replication-asset-card${asset.id === selectedAssetId ? ' selected' : ''}`), path = localAssetImage(asset.url); button.type = 'button'; button.setAttribute('aria-pressed', String(asset.id === selectedAssetId)); button.setAttribute('aria-label', `选择角色照片 ${asset.character || ''} ${asset.name}`);
+    if (path) { const image = node('img'); image.src = path; image.alt = asset.name || asset.character || '素材库角色图片'; image.loading = 'lazy'; button.append(image); } else button.append(node('span', 'asset-missing', '图片不可预览'));
+    button.append(node('strong', '', asset.character || asset.name), node('small', '', asset.name), node('span', 'replication-card-tags', `${materialLabel(asset.material_group)} · ${subjectLabel(asset.subject_group)}${asset.stage ? ' · ' + asset.stage : ''}`));
+    button.addEventListener('click', () => { if (selectedAssetId === asset.id) return; selectedAssetId = asset.id; invalidateReplication('角色图片已变化，请检查匹配参考并重新准备。'); updateAssetEditor(); renderReplicationAssets(); renderReplicationReferences(); if (!$('#draft-character').value.trim() && asset.character) $('#draft-character').value = asset.character; }); return button;
+  }) : [node('p', 'empty-inline', replicationAssets.length ? '没有符合筛选的角色照片。' : '素材库中暂无已批准的自有角色图片。请先到「我的素材」导入。')]));
+}
+function referenceCard(reference, blockers = []) {
+  const card = node('article', `replication-reference-card${reference.id === selectedReferenceId ? ' selected' : ''}${blockers.length ? ' blocked' : ''}`);
+  card.append(node('h4', '', reference.title || 'TikTok 原片参考'), node('p', 'reference-meta', `${materialLabel(reference.material_group)} · ${subjectLabel(reference.subject_group)} · ${reference.capture_date || date(reference.first_seen_at)} 抓到`));
+  if (typeof reference.motion_summary === 'string' && reference.motion_summary) card.append(node('p', 'reference-motion', reference.motion_summary));
+  if (blockers.length) card.append(node('p', 'reference-blockers', blockers.join(' ')));
+  const actions = node('div', 'job-actions'), choose = node('button', 'button small', reference.id === selectedReferenceId ? '已选择这条参考' : blockers.length ? '选择并复核分类' : '选择这条参考'); choose.type = 'button'; choose.addEventListener('click', () => { if (selectedReferenceId === reference.id) return; selectedReferenceId = reference.id; invalidateReplication('参考视频已变化，请核对动作文件并重新准备。'); $('#replication-video-confirmed').checked = false; updateReferenceEditor(); renderReplicationReferences(); }); actions.append(choose);
+  const url = safeSource(reference.url); if (url) { const source = node('a', 'text-button', '查看参考原片 ↗'); source.href = url; source.target = '_blank'; source.rel = 'noopener noreferrer'; actions.append(source); }
+  card.append(actions); return card;
+}
+function renderReplicationReferences() {
+  const sorted = [...replicationReferences].sort((a, b) => (new Date(b.first_seen_at || b.last_seen_at).getTime() || 0) - (new Date(a.first_seen_at || a.last_seen_at).getTime() || 0));
+  const matching = [], blocked = [];
+  for (const reference of sorted) { const blockers = matchingBlockers(reference); (blockers.length ? blocked : matching).push({ reference, blockers }); }
+  $('#replication-reference-count').textContent = `${matching.length} 条可匹配`;
+  const asset = selectedAsset(); $('#replication-match-note').textContent = !asset ? '先选择我们的角色照片。参考列表会按抓取日期由新到旧显示。' : asset.ready !== true ? '先在所选照片下方确认男女与人数标记，或处理图片提示，再匹配参考。' : `正在为 ${asset.character || asset.name} 匹配${materialLabel(asset.material_group)}的单人参考。未确认分类和不匹配的记录保留在下方。`;
+  $('#replication-references').replaceChildren(...(matching.length ? matching.map(item => referenceCard(item.reference)) : [node('p', 'empty-inline', !asset ? '选择一张角色照片，开始匹配。' : '暂无已确认同分组的单人参考。可同步最新参考，或先完成素材分类复核。')]));
+  $('#replication-blocked-summary').textContent = `待分类或不匹配的参考 · ${blocked.length} 条`;
+  $('#replication-blocked').hidden = !blocked.length; $('#replication-blocked-list').replaceChildren(...blocked.map(item => referenceCard(item.reference, item.blockers)));
+  if (blocked.some(item => item.reference.id === selectedReferenceId)) $('#replication-blocked').open = true;
+  updateReplicationButton();
+}
+async function loadReplicationCatalog(invalidate = false) {
+  try {
+    const result = await replicationApi('/catalog'); if (invalidate) invalidateReplication('目录已更新，请重新准备并确认素材。');
+    replicationAssets = (Array.isArray(result.assets) ? result.assets : []).filter(asset => asset && /^asset-[a-f0-9]{16}$/.test(asset.id) && asset.is_demo !== true);
+    replicationReferences = (Array.isArray(result.references) ? result.references : []).filter(reference => reference && /^tiktok-\d{10,25}$/.test(reference.id));
+    let requestedNote = '';
+    if (!requestedChoicesApplied) {
+      try {
+        const params = new URLSearchParams(location.search || ''), requestedAsset = params.get('asset_id'), requestedReference = params.get('reference');
+        if (requestedAsset && replicationAssets.some(asset => asset.id === requestedAsset)) selectedAssetId = requestedAsset;
+        if (requestedReference && replicationReferences.some(reference => reference.id === requestedReference)) { selectedReferenceId = requestedReference; requestedNote = '已带入你选择的参考原片。请继续选择我们的角色；不满足分类条件时会显示具体原因。'; }
+        else if (requestedReference) requestedNote = '这条参考尚未同步到本机。点击「同步最新参考」后再匹配。';
+        requestedChoicesApplied = !requestedReference || Boolean(selectedReferenceId);
+      } catch { requestedChoicesApplied = true; }
+    }
+    if (selectedAssetId && !selectedAsset()) selectedAssetId = ''; if (selectedReferenceId && !selectedReference()) selectedReferenceId = '';
+    populateReplicationFilters(); updateAssetEditor(); updateReferenceEditor(); renderReplicationAssets(); renderReplicationReferences();
+    const blockers = Array.isArray(result.blockers) ? result.blockers.filter(value => typeof value === 'string') : [];
+    message('#replication-catalog-message', requestedNote || blockers.join(' '), blockers.length ? 'error' : requestedNote ? 'success' : '');
+  } catch (error) { message('#replication-catalog-message', error.message, 'error'); }
+}
+async function syncReplication() {
+  $('#replication-sync').disabled = true; $('#replication-sync').textContent = '正在同步…';
+  try { await replicationApi('/sync', 'POST', {}); await loadReplicationCatalog(true); }
+  catch (error) { message('#replication-catalog-message', error.message, 'error'); }
+  finally { $('#replication-sync').disabled = false; $('#replication-sync').textContent = '同步最新参考'; }
+}
+async function saveReplicationClassification(event) {
+  event.preventDefault(); const asset = selectedAsset(); if (!asset) return;
+  $('#replication-save-classification').disabled = true;
+  try {
+    await replicationApi(`/assets/${encodeURIComponent(asset.id)}`, 'PATCH', { material_group: $('#replication-material').value, subject_group: $('#replication-subject').value, apply_character: $('#replication-apply-character').checked });
+    await loadReplicationCatalog(true); message('#replication-classification-message', '已保存你确认的角色标记。请重新选择或核对同分组参考。', 'success');
+  } catch (error) { message('#replication-classification-message', error.message, 'error'); }
+  finally { $('#replication-save-classification').disabled = false; }
+}
+async function saveReferenceClassification(event) {
+  event.preventDefault(); const reference = selectedReference(); if (!reference) return;
+  $('#replication-save-reference-classification').disabled = true;
+  try {
+    await replicationApi(`/references/${encodeURIComponent(reference.id)}`, 'PATCH', { material_group: $('#replication-reference-material').value, subject_group: $('#replication-reference-subject').value });
+    await loadReplicationCatalog(true); message('#replication-reference-classification-message', '已在本机保存这条参考的人工标记，未更改公开采集记录。请重新准备这组素材。', 'success');
+  } catch (error) { message('#replication-reference-classification-message', error.message, 'error'); }
+  finally { $('#replication-save-reference-classification').disabled = false; }
+}
+function renderReplicationReview() {
+  const plan = preparedReplication, review = $('#replication-pair-review'); if (!plan) return;
+  const pair = node('div', 'replication-review-pair'), asset = plan.asset, reference = plan.reference;
+  if (asset) { const card = node('div', 'review-input'), path = localAssetImage(asset.url); if (path) { const image = node('img'); image.src = path; image.alt = asset.name || '所选角色图片'; card.append(image); } card.append(node('strong', '', `角色图片：${asset.character || asset.name}`), node('p', '', `${asset.name} · ${materialLabel(asset.material_group)} · ${subjectLabel(asset.subject_group)}`)); pair.append(card); }
+  if (reference) { const card = node('div', 'review-input review-reference'); card.append(node('span', 'input-type', '动作参考视频'), node('strong', '', reference.title || '所选 TikTok 原片'), node('p', '', `${materialLabel(reference.material_group)} · ${subjectLabel(reference.subject_group)} · ${reference.capture_date || date(reference.first_seen_at)}`)); const source = safeSource(reference.url); if (source) { const link = node('a', 'text-button', '核对原片 ↗'); link.href = source; link.target = '_blank'; link.rel = 'noopener noreferrer'; card.append(link); } card.append(node('p', '', plan.has_reference_video === false ? '动作视频文件尚未准备好' : '已确认对应的 HTTPS MP4 动作文件')); pair.append(card); }
+  review.replaceChildren(pair);
+  const blockers = Array.isArray(plan.blockers) ? plan.blockers.filter(value => typeof value === 'string') : [];
+  if (blockers.length) review.append(node('p', 'job-error', blockers.join('\n')));
+  if (typeof plan.note === 'string') review.append(node('p', 'field-note', plan.note));
+  if (typeof plan.prompt === 'string') { const details = node('details', 'prepared-prompt'); details.append(node('summary', '', '查看这次角色与动作的生成说明'), node('p', '', plan.prompt)); review.append(details); }
+  if (plan.expires_at) review.append(node('p', 'field-note', `本次准备有效至 ${date(plan.expires_at)}（纽约时间）；超时后需重新准备。`));
+  updateReplicationButton();
+}
+async function prepareReplication(event) {
+  event.preventDefault(); if (replicationPreparing) return; replicationPreparing = true; updateReplicationButton();
+  try {
+    if (assetClassificationDirty || referenceClassificationDirty) throw new Error('请先保存角色与参考的男女和人数标记，再准备这组素材。');
+    const asset = selectedAsset(), reference = selectedReference(); if (!asset || !reference) throw new Error('请选择我们的角色照片和一条同分组参考。');
+    const blockers = matchingBlockers(reference); if (blockers.length) throw new Error(blockers.join(' '));
+    const media = referenceValue({ fileData: '', type: { value: 'video_url' }, url: $('#replication-video-url') }).url;
+    if (!$('#replication-video-confirmed').checked) throw new Error('请确认这个视频文件对应所选原片，并可用于本次生成。');
+    const selection = { asset_id: asset.id, reference_id: reference.id, reference_video_url: media, reference_video_confirmed: true, prompt: $('#replication-prompt').value.trim() };
+    invalidateReplication(); const selectionVersion = replicationSelectionVersion; message('#replication-prepare-message', '正在检查这组角色图和动作参考，不调用付费生成。');
+    const plan = await replicationApi('/prepare', 'POST', selection);
+    const currentMedia = referenceValue({ fileData: '', type: { value: 'video_url' }, url: $('#replication-video-url') }).url;
+    if (replicationSelectionVersion !== selectionVersion || selectedAssetId !== selection.asset_id || selectedReferenceId !== selection.reference_id || currentMedia !== selection.reference_video_url || !$('#replication-video-confirmed').checked || $('#replication-prompt').value.trim() !== selection.prompt) throw new Error('准备过程中选择、分类或描述已变化，请重新准备。');
+    preparedReplication = plan; renderReplicationReview();
+    message('#replication-prepare-message', plan.can_submit === true ? '角色图与动作参考已准备，请在下方确认模型和生成费用。' : '还有条件需要处理，请查看下方说明。', plan.can_submit === true ? 'success' : 'error');
+    $('#replication-review').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  } catch (error) { preparedReplication = null; message('#replication-prepare-message', error.message, 'error'); }
+  finally { replicationPreparing = false; updateReplicationButton(); }
+}
+function persistReplication(record) { replicationRecord = { key: record.key, fingerprint: record.fingerprint, outcome: record.outcome }; try { localStorage.setItem('idore-replication-submission-v1', JSON.stringify(replicationRecord)); } catch { /* No character images, video links, prompts or provider keys are stored. */ } }
+function replicationPayload() {
+  const problem = replicationPlanProblem(); if (problem) throw new Error(problem);
+  if (!$('#replication-consent').checked) throw new Error('请确认这组角色图片和动作视频的传输与 OpenRouter 额度使用。');
+  return { plan_id: preparedReplication.plan_id, model: currentModel().id, duration: Number($('#duration').value), resolution: $('#resolution').value, aspect_ratio: $('#aspect-ratio').value, generate_audio: false, consent: true };
+}
+function replicationIntent(payload) {
+  const parameters = { model: payload.model, duration: payload.duration, resolution: payload.resolution, aspect_ratio: payload.aspect_ratio, generate_audio: false };
+  const content = preparedReplication?.content_fingerprint || preparedReplication?.plan_fingerprint;
+  if (typeof content === 'string' && /^[a-f0-9]{64}$/.test(content)) return { content_fingerprint: content, ...parameters };
+  const media = referenceValue({ fileData: '', type: { value: 'video_url' }, url: $('#replication-video-url') }).url;
+  return { source_asset_id: preparedReplication.asset.id, source_reference_id: preparedReplication.reference.id, reference_video_url: media, canonical_prompt: typeof preparedReplication.prompt === 'string' ? preparedReplication.prompt : $('#replication-prompt').value.trim(), ...parameters };
+}
+async function submitReplication(event) {
+  event.preventDefault(); if (replicationSubmitting) return; replicationSubmitting = true; updateReplicationButton(); let key, hash;
+  try {
+    const payload = replicationPayload(), selectionVersion = replicationSelectionVersion; hash = await fingerprint(replicationIntent(payload));
+    if (replicationSelectionVersion !== selectionVersion || JSON.stringify(replicationPayload()) !== JSON.stringify(payload)) throw new Error('跟拍输入或模型参数已经变化，尚未提交生成，请重新检查。');
+    if (replicationRecord?.fingerprint === hash && replicationRecord.outcome === 'uncertain') { message('#replication-message', '上次这组跟拍的提交结果还不明确，已阻止重复提交。请先核对本机任务与 OpenRouter 记录。', 'error'); await loadJobs(false); return; }
+    if (replicationRecord?.fingerprint === hash && replicationRecord.outcome === 'accepted') { message('#replication-message', '这组跟拍已经提交，未再次扣费。生成记录在下方。', 'success'); $('#new-replication-button').hidden = false; await loadJobs(false); return; }
+    key = replicationRecord?.fingerprint === hash && replicationRecord.outcome === 'retryable' ? replicationRecord.key : crypto.randomUUID(); persistReplication({ key, fingerprint: hash, outcome: 'uncertain' });
+    message('#replication-message', '正在同时提交所选角色图和动作参考视频，请勿重复点击。'); $('#replication-button').textContent = '正在提交这组角色与视频…';
+    const result = await replicationApi('/jobs', 'POST', { ...payload, idempotency_key: key }), job = result.job || result;
+    persistReplication({ key, fingerprint: hash, outcome: job.status === 'submission_uncertain' ? 'uncertain' : 'accepted', job_id: job.id });
+    $('#new-replication-button').hidden = job.status === 'submission_uncertain';
+    message('#replication-message', job.status === 'submission_uncertain' ? '提交结果待核对，未自动重试。请先查看 OpenRouter 任务记录。' : '这组角色图片与动作视频已提交。可在生成记录中查看进度。', job.status === 'submission_uncertain' ? 'error' : 'success'); await loadJobs(false);
+  } catch (error) {
+    if (key) persistReplication({ key, fingerprint: hash, outcome: error.transport || error.status >= 500 ? 'uncertain' : 'retryable' });
+    if (error.status === 409) invalidateReplication('准备方案或素材已变化，请重新准备这组素材。');
+    message('#replication-message', `${error.message}${key && (error.transport || error.status >= 500) ? '\n已阻止相同请求重复提交，请先核对任务记录。' : ''}`, 'error'); if (key) await loadJobs(false);
+  } finally { replicationSubmitting = false; $('#replication-button').textContent = '用这张角色图跟拍参考视频（消耗 OpenRouter 额度）'; updateReplicationButton(); }
+}
+async function useSelectedAssetForStyle() {
+  const asset = selectedAsset(), path = localAssetImage(asset?.url); if (!asset || !path) { message('#replication-classification-message', '请先选择可读取的角色照片。', 'error'); return; }
+  try {
+    const response = await fetch(path, { credentials: 'same-origin', cache: 'no-store' }); if (!response.ok) throw new Error('无法读取所选角色照片。'); const blob = await response.blob();
+    styleReference = blob.size > imageLimit || !['image/png', 'image/jpeg', 'image/webp'].includes(blob.type) ? await compressImageBlob(blob) : await readImage(blob);
+    $('#style-reference-url').value = ''; $('#style-reference-file').value = ''; $('#style-reference-status').textContent = `来自我们的素材库：${asset.character || ''} · ${asset.name}`;
+    message('#style-message', '已选用这张真实角色照片。填写前后造型并确认费用后，才会调用 OpenAI。', 'success'); $('#style-step').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  } catch (error) { message('#replication-classification-message', error.message, 'error'); }
+}
 
 const creativeApi = (path, method = 'GET', body) => api(path, method, body, '/api/creative');
 for (const kind of ['images', 'draft']) {
@@ -471,6 +707,16 @@ async function loadCreativeJobs() {
 }
 
 $('#connection-form').addEventListener('submit', connect); $('#disconnect-button').addEventListener('click', disconnect);
+$('#replication-character').addEventListener('change', renderReplicationAssets); $('#replication-stage').addEventListener('change', renderReplicationAssets);
+$('#replication-sync').addEventListener('click', syncReplication); $('#replication-classification-form').addEventListener('submit', saveReplicationClassification); $('#replication-use-style').addEventListener('click', useSelectedAssetForStyle);
+$('#replication-reference-classification-form').addEventListener('submit', saveReferenceClassification);
+for (const selector of ['#replication-reference-material', '#replication-reference-subject']) $(selector).addEventListener('change', () => { referenceClassificationDirty = true; invalidateReplication('参考分类正在调整，请保存本机标记后重新准备。'); });
+$('#replication-prepare-form').addEventListener('submit', prepareReplication); $('#replication-submit-form').addEventListener('submit', submitReplication);
+for (const selector of ['#replication-material', '#replication-subject', '#replication-apply-character']) $(selector).addEventListener('change', () => { assetClassificationDirty = true; invalidateReplication('角色分类正在调整，请保存标记后重新准备。'); });
+for (const selector of ['#replication-video-url', '#replication-prompt']) $(selector).addEventListener('input', () => invalidateReplication('动作文件或描述已变化，请重新准备这组素材。'));
+$('#replication-video-confirmed').addEventListener('change', () => { if (!$('#replication-video-confirmed').checked) invalidateReplication('请重新确认动作文件来源，并重新准备。'); });
+for (const selector of ['#duration', '#resolution', '#aspect-ratio']) $(selector).addEventListener('change', updateReplicationButton);
+$('#new-replication-button').addEventListener('click', () => { if (replicationSubmitting || !$('#replication-submit-form').reportValidity()) return; if (replicationRecord?.outcome !== 'accepted') { message('#replication-message', '上次提交还未确认，不能新建同一组付费请求。请先核对任务记录。', 'error'); return; } replicationRecord = null; try { localStorage.removeItem('idore-replication-submission-v1'); } catch { /* In-memory paired request state is also cleared. */ } $('#new-replication-button').hidden = true; $('#replication-submit-form').requestSubmit(); });
 $('#generation-form').addEventListener('submit', generate); $('#model').addEventListener('change', configureModel); $('#mode').addEventListener('change', changeGenerationMode); $('#add-reference').addEventListener('click', addReference);
 $('#generation-form').addEventListener('input', () => { $('#new-generation-button').hidden = true; });
 $('#new-generation-button').addEventListener('click', () => { if (submitting || !$('#generation-form').reportValidity()) return; submissionRecord = null; try { localStorage.removeItem(submissionStorage); } catch { /* In-memory request state is also cleared. */ } $('#new-generation-button').hidden = true; $('#generation-form').requestSubmit(); });
@@ -504,4 +750,5 @@ for (const frame of ['first', 'last']) {
 }
 loadConnection().catch(error => { message('#connection-message', error.message, 'error'); paintConnection(); });
 loadCreativeConnection().catch(error => { message('#openai-message', error.message, 'error'); paintOpenAIConnection(); });
+loadReplicationCatalog();
 poll();

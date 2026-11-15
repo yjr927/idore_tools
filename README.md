@@ -48,6 +48,8 @@ GitHub Pages 只发布 `site/`，不会发布本地 Python 服务和角色素材
 
 ## 造型图 → 视频 → 英文文案与 hashtags
 
+本机 `/generate` 首先支持从现有角色素材库选一张真实图片，手动确认男女与人数，再选择已抓取的同组单人参考视频。准备方案后使用角色图片与实际参考视频一起生成；缺少媒体直链或分类不匹配时禁止提交。TikTok 分享页不能直接充当视频文件，本机视频托管尚未接入；私有角色图片不会上传到公开仓库。详细流程见 [自己的角色跟拍](docs/INTEGRATION.md)。
+
 同一个 `/generate` 页面可分别连接 OpenAI 与 OpenRouter，两个密钥仅在服务内存中使用。先选择角色参考图及前后造型，调用 OpenAI 生成一对图片；再一键填入 Seedance 首尾帧，检查后提交视频。成片完成可在本机抽取三张关键帧，交给 OpenAI 生成 3 版英文文案和 3–5 个标签。联网趋势选项会额外检索美国近期资料，保留真实来源与检索时间；缺乏来源时只给内容／品牌建议，不称实时热榜。
 
 GitHub 云端需要两个 Repository Secrets：**OPENROUTER_API_KEY**、**OPENAI_API_KEY**。`creative-generation.yml` 提供造型图、文案和完整视频链路的手动任务；完整链路还需在 Variables 配置文案模型 **OPENAI_MODEL**，图像与 Seedance 模型在任务表单中明确选择。生成都需勾选本次额度授权，不随每日采集、代码推送或刷新自动启动。
