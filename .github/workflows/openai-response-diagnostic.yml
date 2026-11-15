@@ -1,0 +1,61 @@
+name: Minimal OpenAI response diagnostic
+on:
+  push:
+    branches: [codex/api-key-smoke-20261115]
+    paths: [.github/workflows/openai-response-diagnostic.yml]
+permissions:
+  contents: read
+jobs:
+  probe:
+    if: github.run_attempt == 1
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: One tiny response, record only safe status and error codes
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          python3 - <<'PY'
+          import json, os, sys
+          from pathlib import Path
+          from urllib.request import Request, build_opener
+          from urllib.error import HTTPError
+          from creative_service import _NoRedirect
+          key=os.environ.get('OPENAI_API_KEY','').strip()
+          result={'model':'gpt-4.1-mini','max_output_tokens':16,'automatic_retries':0}
+          payload={'model':'gpt-4.1-mini','input':'Reply with only OK.','store':False,'max_output_tokens':16}
+          try:
+              request=Request('https://api.openai.com/v1/responses',method='POST',headers={'Authorization':'Bearer '+key,'Content-Type':'application/json','Accept':'application/json'},data=json.dumps(payload).encode())
+              try:
+                  with build_opener(_NoRedirect).open(request,timeout=90) as response:
+                      status, raw=response.status,response.read(1048576)
+              except HTTPError as exc:
+                  status, raw=exc.code,exc.read(1048576)
+              result['http_status']=status
+              result['status']='passed' if status==200 else 'rejected'
+              if status!=200:
+                  error=json.loads(raw).get('error',{})
+                  allowed={'insufficient_quota','rate_limit_exceeded','invalid_api_key','model_not_found','unsupported_parameter','invalid_value','invalid_request_error','billing_hard_limit_reached','billing_not_active','organization_verification_required','permission_denied','requests','tokens'}
+                  for field in ('code','type'):
+                      if error.get(field) in allowed: result['error_'+field]=error[field]
+                  if error.get('param') in {'model','max_output_tokens','input','store','text.format','text.format.schema'}: result['error_param']=error['param']
+          except Exception:
+              result['status']='response_uncertain'
+          Path('probe-output').mkdir(exist_ok=True)
+          Path('probe-output/openai-response-check.json').write_text(json.dumps(result,indent=2)+'\n')
+          print(json.dumps(result,separators=(',',':')))
+          sys.exit(0 if result['status']=='passed' else 1)
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: minimal-openai-response-${{ github.run_id }}
+          path: probe-output/openai-response-check.json
+          retention-days: 7
+          if-no-files-found: ignore
