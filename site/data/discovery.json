@@ -780,9 +780,186 @@
           "trend_verified": true
         }
       ]
+    },
+    {
+      "url": "https://www.tiktok.com/@silvernelmida_i2/video/7700888094974676244",
+      "title": "Love Options 单人上半身手势短舞",
+      "kind": "hands",
+      "original_watched": true,
+      "motion_summary": "约12秒，单人面对固定镜头，起始双手放腰侧；随后双臂抬到身前、手腕下垂并侧摆肩膀，另一关键画面双手在胸前展开翻动。背景位置保持稳定。已观察多个播放关键画面，完整手势顺序及重复周期未完全核验。",
+      "checks": {
+        "fixed_camera": true,
+        "repetitive": null,
+        "solo": true
+      },
+      "recreation_notes": "单人中景、背景稳定、动作集中于手臂和肩膀，适合尝试短段动作迁移；需留足手部画幅，注意翻掌时的手指和双手遮挡，以及胸前挂饰随动作的变化。尚未生成测试。",
+      "published_at": null,
+      "published_text": "10-26",
+      "metrics": {
+        "comments": 296,
+        "likes": 86700,
+        "shares": 5721,
+        "views": null
+      },
+      "related_videos": [
+        {
+          "url": "https://www.tiktok.com/@oofdiswrld/video/7703101447755336982",
+          "original_watched": true,
+          "same_pattern": null,
+          "note": "页面11-1；原片总长约60秒，本轮播放并观察开头部分：户外单人全身，向前迈步、侧摆身体，一手靠腰、一手抬起。与主片同音频，但未核验完整手势顺序一致；不能作为已确认同玩法的作者证据。"
+        },
+        {
+          "url": "https://www.tiktok.com/@ktuyen36_/video/7706547071368613140",
+          "original_watched": true,
+          "same_pattern": null,
+          "note": "页面4d ago；原片约39秒，本轮播放并观察开头部分：夜间户外两人前后换位，粉色上衣者抬双手在肩旁、屈膝侧摆，另一人在后方跟跳。与主片同音频，有抬手摆动但人数、走位和取景不同，完整动作匹配未核验。"
+        }
+      ],
+      "music_name": "Love Options - BESTie",
+      "id": "tiktok-7700888094974676244",
+      "video_id": "7700888094974676244",
+      "author": "silvernelmida_i2",
+      "kinds": [
+        "hands"
+      ],
+      "first_seen_at": "2026-11-15T13:59:00+00:00",
+      "last_seen_at": "2026-11-15T13:59:00+00:00",
+      "duration": null,
+      "music_id": "",
+      "source": "ChatGPT Work 云端浏览器",
+      "source_url": "https://www.tiktok.com/@silvernelmida_i2/video/7700888094974676244",
+      "source_kind": "chatgpt_work",
+      "search_query": "",
+      "assessment": "待核验候选",
+      "assessment_note": "约12秒，单人面对固定镜头，起始双手放腰侧；随后双臂抬到身前、手腕下垂并侧摆肩膀，另一关键画面双手在胸前展开翻动。背景位置保持稳定。已观察多个播放关键画面，完整手势顺序及重复周期未完全核验。",
+      "motion_verified": false,
+      "trend_verified": false,
+      "favorite": false,
+      "availability": "Work 已观看原片",
+      "observations": [
+        {
+          "run_id": "work-tiktok-58f0303583004adabe312c55789ab9b0",
+          "observed_at": "2026-11-15T13:59:00+00:00",
+          "metrics": {
+            "comments": 296,
+            "likes": 86700,
+            "shares": 5721,
+            "views": null
+          },
+          "original_watched": true,
+          "motion_summary": "约12秒，单人面对固定镜头，起始双手放腰侧；随后双臂抬到身前、手腕下垂并侧摆肩膀，另一关键画面双手在胸前展开翻动。背景位置保持稳定。已观察多个播放关键画面，完整手势顺序及重复周期未完全核验。",
+          "checks": {
+            "fixed_camera": true,
+            "repetitive": null,
+            "solo": true
+          },
+          "recreation_notes": "单人中景、背景稳定、动作集中于手臂和肩膀，适合尝试短段动作迁移；需留足手部画幅，注意翻掌时的手指和双手遮挡，以及胸前挂饰随动作的变化。尚未生成测试。",
+          "related_videos": [
+            {
+              "url": "https://www.tiktok.com/@oofdiswrld/video/7703101447755336982",
+              "original_watched": true,
+              "same_pattern": null,
+              "note": "页面11-1；原片总长约60秒，本轮播放并观察开头部分：户外单人全身，向前迈步、侧摆身体，一手靠腰、一手抬起。与主片同音频，但未核验完整手势顺序一致；不能作为已确认同玩法的作者证据。"
+            },
+            {
+              "url": "https://www.tiktok.com/@ktuyen36_/video/7706547071368613140",
+              "original_watched": true,
+              "same_pattern": null,
+              "note": "页面4d ago；原片约39秒，本轮播放并观察开头部分：夜间户外两人前后换位，粉色上衣者抬双手在肩旁、屈膝侧摆，另一人在后方跟跳。与主片同音频，有抬手摆动但人数、走位和取景不同，完整动作匹配未核验。"
+            }
+          ],
+          "motion_verified": false,
+          "trend_verified": false
+        }
+      ]
     }
   ],
   "runs": [
+    {
+      "id": "work-tiktok-58f0303583004adabe312c55789ab9b0",
+      "run_id": "work-tiktok-58f0303583004adabe312c55789ab9b0",
+      "payload_sha256": "033895ff0737f4a440632c2f0444bddb9fdf75ff1713e310b4c0f88a7236cb8b",
+      "collector": "chatgpt_work",
+      "status": "partial",
+      "kind": "all",
+      "query": "",
+      "started_at": "2026-11-15T13:59:00+00:00",
+      "finished_at": "2026-11-15T13:59:00+00:00",
+      "observed_at": "2026-11-15T13:59:00+00:00",
+      "found": 1,
+      "added": 1,
+      "message": "本轮新增1条单人固定机位短手势舞候选，页面日期10-26，已扩展至30天窗口。实际播放并观察主片关键画面及2名其他作者的部分原片；同音频不代表相同动作，尚未取得3名作者同玩法的充分证据。精确发布时间、播放量及完整重复动作周期未核验。点赞86.7K换算86700为页面近似取整观测值，并非精确计数。AI适配尚未生成测试。",
+      "ingestion_status": "imported",
+      "video_snapshots": [
+        {
+          "id": "tiktok-7700888094974676244",
+          "video_id": "7700888094974676244",
+          "url": "https://www.tiktok.com/@silvernelmida_i2/video/7700888094974676244",
+          "title": "Love Options 单人上半身手势短舞",
+          "author": "silvernelmida_i2",
+          "kind": "hands",
+          "original_watched": true,
+          "motion_summary": "约12秒，单人面对固定镜头，起始双手放腰侧；随后双臂抬到身前、手腕下垂并侧摆肩膀，另一关键画面双手在胸前展开翻动。背景位置保持稳定。已观察多个播放关键画面，完整手势顺序及重复周期未完全核验。",
+          "checks": {
+            "fixed_camera": true,
+            "repetitive": null,
+            "solo": true
+          },
+          "recreation_notes": "单人中景、背景稳定、动作集中于手臂和肩膀，适合尝试短段动作迁移；需留足手部画幅，注意翻掌时的手指和双手遮挡，以及胸前挂饰随动作的变化。尚未生成测试。",
+          "published_at": null,
+          "published_text": "10-26",
+          "metrics": {
+            "comments": 296,
+            "likes": 86700,
+            "shares": 5721,
+            "views": null
+          },
+          "related_videos": [
+            {
+              "url": "https://www.tiktok.com/@oofdiswrld/video/7703101447755336982",
+              "original_watched": true,
+              "same_pattern": null,
+              "note": "页面11-1；原片总长约60秒，本轮播放并观察开头部分：户外单人全身，向前迈步、侧摆身体，一手靠腰、一手抬起。与主片同音频，但未核验完整手势顺序一致；不能作为已确认同玩法的作者证据。"
+            },
+            {
+              "url": "https://www.tiktok.com/@ktuyen36_/video/7706547071368613140",
+              "original_watched": true,
+              "same_pattern": null,
+              "note": "页面4d ago；原片约39秒，本轮播放并观察开头部分：夜间户外两人前后换位，粉色上衣者抬双手在肩旁、屈膝侧摆，另一人在后方跟跳。与主片同音频，有抬手摆动但人数、走位和取景不同，完整动作匹配未核验。"
+            }
+          ],
+          "music_name": "Love Options - BESTie",
+          "motion_verified": false,
+          "trend_verified": false,
+          "source": "ChatGPT Work 云端浏览器",
+          "source_url": "https://www.tiktok.com/@silvernelmida_i2/video/7700888094974676244",
+          "source_kind": "chatgpt_work",
+          "assessment": "待核验候选",
+          "assessment_note": "约12秒，单人面对固定镜头，起始双手放腰侧；随后双臂抬到身前、手腕下垂并侧摆肩膀，另一关键画面双手在胸前展开翻动。背景位置保持稳定。已观察多个播放关键画面，完整手势顺序及重复周期未完全核验。",
+          "observed_at": "2026-11-15T13:59:00+00:00"
+        }
+      ],
+      "sources": [
+        {
+          "name": "ChatGPT Work 云端浏览器",
+          "url": "https://www.tiktok.com/@silvernelmida_i2/video/7700888094974676244",
+          "status": "ok",
+          "found": 1
+        },
+        {
+          "name": "ChatGPT Work 云端浏览器",
+          "url": "https://www.tiktok.com/@oofdiswrld/video/7703101447755336982",
+          "status": "ok",
+          "found": 1
+        },
+        {
+          "name": "ChatGPT Work 云端浏览器",
+          "url": "https://www.tiktok.com/@ktuyen36_/video/7706547071368613140",
+          "status": "ok",
+          "found": 1
+        }
+      ]
+    },
     {
       "id": "work-tiktok-42496ba06f294957b97fa8c6dd7d3ddc",
       "run_id": "work-tiktok-42496ba06f294957b97fa8c6dd7d3ddc",
@@ -1475,12 +1652,13 @@
       ]
     }
   ],
-  "last_attempt_at": "2026-11-14T14:01:27+00:00",
-  "last_success_at": "2026-11-14T14:01:27+00:00",
+  "last_attempt_at": "2026-11-15T13:59:00+00:00",
+  "last_success_at": "2026-11-15T13:59:00+00:00",
   "work_imports": {
     "work-tiktok-20261112T013104Z-7704859708200389902": "3f8b1c1e965c6bdb4e2aa62d5664177f4b4188cb0e4652526db2730fb82349c7",
     "work-tiktok-20261112T140658Z-d02c989e": "2f440e348273e22c41cb3b476aaf274262e138159e45dde53425844de921907c",
     "work-tiktok-50b2ab5b319448999ae70fc23c281d1f": "13f1e35e49f2b88a0e613c7255bddd7804b46e72fbcc034b7290212ccb3ff700",
-    "work-tiktok-42496ba06f294957b97fa8c6dd7d3ddc": "e7ef4bacfbd5a54872d6aee2266480cb1ba6d52fcadc83e19e6418b99b51fcd6"
+    "work-tiktok-42496ba06f294957b97fa8c6dd7d3ddc": "e7ef4bacfbd5a54872d6aee2266480cb1ba6d52fcadc83e19e6418b99b51fcd6",
+    "work-tiktok-58f0303583004adabe312c55789ab9b0": "033895ff0737f4a440632c2f0444bddb9fdf75ff1713e310b4c0f88a7236cb8b"
   }
 }
