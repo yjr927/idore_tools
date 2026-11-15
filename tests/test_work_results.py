@@ -1,5 +1,6 @@
 import copy
 import importlib.util
+import hashlib
 import json
 from pathlib import Path
 import tempfile
@@ -26,7 +27,153 @@ def payload():
         "related_videos": [], "music_name": "可见音乐名称"}]}
 
 
+def payload_v2(topic="kpop", ident="7699497385185119502", run_id="work-v2-1", stamp=STAMP):
+    raw = payload()
+    raw.update(schema_version=2, run_id=run_id, observed_at=stamp)
+    raw["videos"][0].update(url=f"https://www.tiktok.com/@original/video/{ident}",
+        trend_category=topic, material_group="male", transformation="none")
+    return raw
+
+
 class WorkResultsTests(unittest.TestCase):
+    def test_v1_five_video_legacy_payload_and_fingerprint_stay_compatible(self):
+        raw = payload()
+        raw["videos"] = [copy.deepcopy(raw["videos"][0]) for _ in range(5)]
+        for offset, video in enumerate(raw["videos"]):
+            video["url"] = f"https://www.tiktok.com/@original/video/{7699497385185119502 + offset}"
+        expected_fingerprint = hashlib.sha256(json.dumps(raw, sort_keys=True, ensure_ascii=False,
+            separators=(",", ":"), allow_nan=False).encode("utf-8")).hexdigest()
+        result = work.merge_work_results({}, raw)
+        self.assertEqual(len(result["videos"]), 5)
+        self.assertEqual(result["work_imports"][raw["run_id"]], expected_fingerprint)
+        self.assertEqual(work.merge_work_results(result, raw), result)
+        self.assertNotIn("work_daily_selections", result)
+        self.assertTrue(all("material_group" not in video for video in result["videos"]))
+
+    def test_v2_requires_bounded_classifications_and_watched_transformation(self):
+        mutations = [
+            lambda p: p["videos"][0].pop("trend_category"),
+            lambda p: p["videos"][0].pop("material_group"),
+            lambda p: p["videos"][0].pop("transformation"),
+            lambda p: p["videos"][0].update(trend_category="dance"),
+            lambda p: p["videos"][0].update(material_group=True),
+            lambda p: p["videos"][0].update(transformation="hand_dance"),
+            lambda p: p["videos"][0].update(original_watched=False, transformation="none"),
+            lambda p: p["videos"][0].update(gender="male"),
+            lambda p: p.update(schema_version=True),
+        ]
+        for mutate in mutations:
+            raw = payload_v2(); mutate(raw)
+            with self.subTest(mutation=mutate), self.assertRaises(work.WorkResultError):
+                work.merge_work_results({}, raw)
+        raw = payload_v2()
+        raw["videos"][0].update(original_watched=False, material_group="unknown", transformation="unknown")
+        result = work.merge_work_results({}, raw)
+        self.assertEqual(result["videos"][0]["material_group"], "unknown")
+        self.assertEqual(result["videos"][0]["transformation"], "unknown")
+        self.assertFalse(result["videos"][0]["motion_verified"])
+
+    def test_v2_batch_has_at_most_one_video_per_topic_and_two_total(self):
+        raw = payload_v2()
+        second = payload_v2("virtual_idol", "7699497385185119503")["videos"][0]
+        raw["videos"].append(second)
+        self.assertEqual(len(work.merge_work_results({}, raw)["videos"]), 2)
+        raw["videos"][1]["trend_category"] = "kpop"
+        with self.assertRaises(work.WorkResultError): work.merge_work_results({}, raw)
+        raw["videos"].append(payload_v2(ident="7699497385185119504")["videos"][0])
+        with self.assertRaises(work.WorkResultError): work.merge_work_results({}, raw)
+
+    def test_v2_classifications_are_preserved_in_observations_and_immutable_snapshots(self):
+        raw = payload_v2()
+        raw["videos"][0].update(material_group="female", transformation="makeup_and_outfit")
+        first = work.merge_work_results({}, raw)
+        snapshot = copy.deepcopy(first["runs"][0]["video_snapshots"][0])
+        for source in (first["videos"][0], first["videos"][0]["observations"][0], snapshot):
+            self.assertEqual(source["trend_category"], "kpop")
+            self.assertEqual(source["material_group"], "female")
+            self.assertEqual(source["transformation"], "makeup_and_outfit")
+        changed = copy.deepcopy(raw)
+        changed.update(run_id="work-v2-update", observed_at="2026-11-11T13:00:00Z")
+        changed["videos"][0].update(material_group="mixed", transformation="outfit")
+        result = work.merge_work_results(first, changed)
+        self.assertEqual(result["videos"][0]["material_group"], "mixed")
+        self.assertEqual(result["videos"][0]["observations"][-1]["transformation"], "outfit")
+        self.assertEqual(result["runs"][1]["video_snapshots"][0], snapshot)
+
+    def test_v2_same_day_reruns_cannot_add_another_video_in_reserved_topic(self):
+        first = work.merge_work_results({}, payload_v2())
+        update = payload_v2(run_id="same-url-recheck")
+        update["videos"][0]["metrics"]["views"] = 500
+        result = work.merge_work_results(first, update)
+        self.assertEqual(len(result["videos"]), 1)
+        self.assertEqual(result["videos"][0]["metrics"]["views"], 500)
+        self.assertEqual(work.merge_work_results(result, update), result)
+        before = copy.deepcopy(result)
+        with self.assertRaises(work.WorkResultError):
+            work.merge_work_results(result, payload_v2(ident="7699497385185119503", run_id="new-kpop"))
+        self.assertEqual(result, before)
+        result = work.merge_work_results(result, payload_v2("virtual_idol", "7699497385185119504", "new-idol"))
+        self.assertEqual(len(result["videos"]), 2)
+        with self.assertRaises(work.WorkResultError):
+            work.merge_work_results(result, payload_v2("virtual_idol", "7699497385185119505", "extra-idol"))
+
+    def test_v2_daily_slots_follow_new_york_midnight_instead_of_utc_midnight(self):
+        first = work.merge_work_results({}, payload_v2(stamp="2026-11-12T00:30:00Z"))
+        with self.assertRaises(work.WorkResultError):
+            work.merge_work_results(first, payload_v2(ident="7699497385185119503", run_id="same-ny-day",
+                stamp="2026-11-12T04:59:59Z"))
+        result = work.merge_work_results(first, payload_v2(ident="7699497385185119503", run_id="next-ny-day",
+            stamp="2026-11-12T05:00:00Z"))
+        self.assertEqual(set(result["work_daily_selections"]), {"2026-11-11", "2026-11-12"})
+
+    def test_v2_legacy_and_prior_day_rechecks_reserve_the_current_day(self):
+        legacy = work.merge_work_results({}, payload())
+        first = work.merge_work_results(legacy, payload_v2(run_id="classify-legacy"))
+        self.assertEqual(next(run for run in first["runs"] if run["run_id"] == "classify-legacy")["added"], 0)
+        with self.assertRaises(work.WorkResultError):
+            work.merge_work_results(first, payload_v2(ident="7699497385185119503", run_id="new-after-legacy"))
+        next_day = work.merge_work_results(first, payload_v2(run_id="next-day-recheck", stamp="2026-11-12T12:00:00Z"))
+        with self.assertRaises(work.WorkResultError):
+            work.merge_work_results(next_day, payload_v2(ident="7699497385185119503", run_id="new-after-recheck",
+                stamp="2026-11-12T13:00:00Z"))
+
+    def test_v2_reclassifying_a_video_does_not_free_its_original_topic_slot(self):
+        first = work.merge_work_results({}, payload_v2())
+        changed = work.merge_work_results(first, payload_v2("virtual_idol", run_id="change-topic"))
+        self.assertEqual(set(changed["work_daily_selections"]["2026-11-11"]), {"kpop", "virtual_idol"})
+        with self.assertRaises(work.WorkResultError):
+            work.merge_work_results(changed, payload_v2(ident="7699497385185119503", run_id="cannot-free-topic"))
+
+    def test_v2_daily_reservations_recover_from_snapshots_and_survive_run_trimming(self):
+        first = work.merge_work_results({}, payload_v2())
+        without_ledger = copy.deepcopy(first)
+        del without_ledger["work_daily_selections"]
+        with self.assertRaises(work.WorkResultError):
+            work.merge_work_results(without_ledger, payload_v2(ident="7699497385185119503", run_id="snapshot-limit"))
+        without_history = copy.deepcopy(first)
+        without_history["runs"] = []
+        without_history["videos"] = []
+        with self.assertRaises(work.WorkResultError):
+            work.merge_work_results(without_history, payload_v2(ident="7699497385185119503", run_id="retained-limit"))
+        restored = work.merge_work_results(without_history, payload_v2(run_id="restore-same-url"))
+        self.assertEqual(len(restored["videos"]), 1)
+
+    def test_v2_failed_and_overquota_cli_imports_preserve_prior_state(self):
+        first = work.merge_work_results({}, payload_v2())
+        failed = payload_v2(run_id="v2-blocked")
+        failed.update(status="blocked", videos=[])
+        result = work.merge_work_results(first, failed)
+        self.assertEqual(result["videos"], first["videos"])
+        self.assertEqual(result["work_daily_selections"], first["work_daily_selections"])
+        self.assertEqual(next(run for run in result["runs"] if run["run_id"] == "v2-blocked")["video_snapshots"], [])
+        with tempfile.TemporaryDirectory() as tmp:
+            output = Path(tmp) / "output.json"; source = Path(tmp) / "input.json"
+            original = json.dumps(first)
+            output.write_text(original)
+            source.write_text(json.dumps(payload_v2(ident="7699497385185119503", run_id="over-quota")))
+            self.assertEqual(work.main(["--input", str(source), "--output", str(output)]), 1)
+            self.assertEqual(output.read_text(), original)
+
     def test_normalizes_queries_and_derives_motion_checks(self):
         raw = payload(); raw["videos"][0]["url"] += "?tracking=1"
         result = work.merge_work_results({"videos": [], "runs": []}, raw)
