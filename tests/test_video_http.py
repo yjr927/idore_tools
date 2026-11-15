@@ -143,7 +143,7 @@ class VideoHTTPTests(unittest.TestCase):
         self.assertNotIn(private_key, (Path(self.tmp.name) / "state.json").read_text())
 
     def test_generated_result_serves_bounded_ranges_and_rejects_symlinks(self):
-        directory = Path(self.tmp.name) / "generated"; directory.mkdir()
+        directory = Path(self.tmp.name) / "generated"; directory.mkdir(exist_ok=True)
         raw_video = b"\x00\x00\x00\x18ftypmp42" + bytes(range(50))
         (directory / FILE_NAME).write_bytes(raw_video)
         path = "/generated/" + FILE_NAME

@@ -1,10 +1,10 @@
-# OpenRouter Seedance 接入与创作流程
+# 造型图、Seedance 视频与 OpenAI 发布草稿
 
-已实现独立的真实视频生成入口，旧的分镜任务继续使用模拟进度。批准旧分镜不会自动花费额度或生成视频。
+已实现造型图 → 视频 → 英文文案与 hashtags 的独立创作入口，旧的分镜任务继续使用模拟进度。批准旧分镜不会自动花费额度或生成视频。
 
 ## 本机连接页
 
-运行 `python3 server.py`，打开 `http://127.0.0.1:8765/generate`。在密码框输入 OpenRouter API Key，点击“验证并连接”。验证只读取账户密钥信息，不提交生成。密钥仅在本机服务内存中使用；不会保存到项目、浏览器存储、任务 JSON 或 GitHub，服务重启后需重新输入。断开连接会清除当前内存密钥。
+运行 `python3 server.py`，打开 `http://127.0.0.1:8765/generate`。在两个密码框分别连接 OpenRouter 与 OpenAI。OpenRouter 用于 Seedance 视频，OpenAI 同时用于造型图与文案／标签。验证只读取密钥或可用模型信息，不提交生成。密钥仅在本机服务内存中使用；不会保存到项目、浏览器存储、任务 JSON 或 GitHub，服务重启后需重新输入。断开连接会清除当前内存密钥。
 
 页面读取 OpenRouter 当前视频模型列表，供用户明确选择 Seedance 版本、时长、分辨率、画幅和生成方式；不自动换用另一个付费模型。填写描述和素材后，勾选本次传输与费用确认，再点击“开始生成”。仅有连接、页面刷新、查询或批准分镜不会启动付费生成。
 
@@ -12,7 +12,7 @@
 
 ## GitHub 云端密钥与生成
 
-在 [仓库 Actions Secrets](https://github.com/yjr927/idore_tools/settings/secrets/actions/new) 新增 **OPENROUTER_API_KEY**，只在 Secret 值中填写密钥，不能写进源码、网页、文案、工作流输入或聊天。GitHub Secrets 会加密保存，网站访客无法读取；有权改动工作流的人仍可能使用密钥，因此应控制仓库写入权限。[GitHub 官方说明](https://docs.github.com/en/actions/concepts/security/secrets)
+在 [仓库 Actions Secrets](https://github.com/yjr927/idore_tools/settings/secrets/actions/new) 分别新增 **OPENROUTER_API_KEY** 和 **OPENAI_API_KEY**，只在 Secret 值中填写密钥，不能写进源码、网页、文案、工作流输入或聊天。GitHub Secrets 会加密保存，网站访客无法读取；有权改动工作流的人仍可能使用密钥，因此应控制仓库写入权限。[GitHub 官方说明](https://docs.github.com/en/actions/concepts/security/secrets)
 
 然后打开 [Generate Seedance video](https://github.com/yjr927/idore_tools/actions/workflows/video-generation.yml)，点 Run workflow。明确选择模型、生成方式和参数，填写描述及所需媒体直链，勾选本次允许使用额度。它只手动触发，不随推送、每日采集或网站刷新自动生成。
 
@@ -32,12 +32,26 @@ TikTok／抖音分享链接是网页，不是媒体文件地址，不能直接�
 
 Seedance 的 `frame_images` 与 `input_references` 是不同模式；官方说明两者同时提交时首尾帧优先。本工具要求二选一，避免误以为同时填入就能获得精确首尾帧加动作迁移。[OpenRouter 视频 API](https://openrouter.ai/docs/guides/overview/multimodal/video-generation)
 
-妆前妆后的照片需要先用图像生成／编辑接口制作；这个步骤尚未自动接通。视频生成也不会自动剪辑、加平台音乐或发布 TikTok。生成完成后检查角色、手指、转场、画面与声音，再使用有权发布的音乐制作最终成片。
+造型图步骤使用 OpenAI Images Edits：以同一参考角色生成前后两张竖版图片，后一张同时参考原始角色图和已生成的前图。固定脸部、构图、背景与镜头，只改变所需妆容／服装。每组包含两次图片编辑；结果可下载，并可一键填入视频首尾帧。此按钮只准备素材，不会自动提交付费视频。视频生成也不会自动剪辑、加平台音乐或发布 TikTok。生成完成后检查角色、手指、转场、画面与声音，再使用有权发布的音乐制作最终成片。
 
 ## OpenAI 文案与 hashtags
 
-发布目标为 TikTok 美国市场，使用英文文案。可以把成片关键帧、内容说明和角色设定交给支持图像输入的 Responses API，生成 2–3 版短文案与 3–5 个相关标签。多个图像可以放在同一请求；分析只覆盖提供画面，不替代完整动作检查。[OpenAI 图像输入](https://developers.openai.com/api/docs/guides/images-vision)
+发布目标为 TikTok 美国市场，使用英文文案。可以把成片关键帧、内容说明和角色设定交给支持图像输入的 Responses API，生成 3 版短文案与 3–5 个相关标签。多个图像可以放在同一请求；分析只覆盖提供画面，不替代完整动作检查。[OpenAI 图像输入](https://developers.openai.com/api/docs/guides/images-vision)
 
 实时标签需要 Work 或合适的数据服务提供美国市场近期的来源 URL、观察时间和趋势内容，再由模型筛选。可用 Web search 补充带来源的信息，但它不等于 TikTok 全站实时热榜。缺少近期依据时只称“相关标签建议”，不能标成当前热门或保证涨播放量。[OpenAI Web search](https://developers.openai.com/api/docs/guides/tools-web-search)
 
-目前 `scripts/analyze_tiktok_candidates.py` 仍只整理候选文字资料；不会看成片、生成发布文案或实时标签。自动造型图、OpenAI 发布草稿和 TikTok 发布是后续独立接入；不因连接 OpenRouter 而自动启用。
+`scripts/analyze_tiktok_candidates.py` 仍只整理采集候选文字；发布草稿走独立 `creative_service.py`。在本机选择“用这条成片生成文案”，浏览器会在本机截取约 10%／50%／90% 三张画面；检查描述与关键帧后再明确提交。也可手选最多 4 张画面；没提供画面时仅按文字说明创作。关键帧分析不等于完整观看或逐帧动作核验。
+
+未勾选检索时，只调用一次 Responses API 生成结构化草稿；勾选后先检索再生成，共两次调用。趋势标签的链接必须来自实际检索返回的来源，且证据中明确出现该标签；缺失、虚构或不匹配的来源会降级为内容建议。来源的 observed_at 是取回资料的时间，不是原文发布日期。页面保留标签理由、来源与时间，支持复制文案及标签。输出草稿，不自动发布。
+
+## 云端完整链路
+
+打开 [Generate outfit images or English copy](https://github.com/yjr927/idore_tools/actions/workflows/creative-generation.yml)，选择 `styles`、`draft` 或 `full_video`，然后勾选本次额度授权。`styles` 使用图像模型，`draft` 使用文案模型；可以在任务 `model` 字段明确填写，或分别使用 Variables 中的 OPENAI_IMAGE_MODEL／OPENAI_MODEL。模型 ID 不是密钥，必须与你账户当前可用模型相符。
+
+`full_video` 同时需要两个 Secrets、图像模型、明确的 Seedance 版本，以及 Variables 的 **OPENAI_MODEL** 文案模型。流程为两张造型图 → 5 秒、720p、9:16、无生成音轨的首尾帧视频 → 英文文案与 hashtags；所选视频模型必须支持这些参数。所有必需配置先检查，避免生成一半才发现缺少另一服务的密钥。云端使用可公开读取且不含签名参数的角色图片直链；私人角色图片用本机页面。
+
+`full_video` 的 `model` 字段选择图像模型，留空使用 **OPENAI_IMAGE_MODEL**；文案模型始终取 **OPENAI_MODEL**。云端完整链路的文案依据是前后造型图和输入说明，`publication-draft.json` 的 `frame_basis` 会标明未分析成片画面。需要按成片画面写文案时，在本机页面使用“用这条成片生成文案”。
+
+本机及云端都保存已成功的部分结果；超时或提交结果不确定时不会自动继续、重试或重复扣费。云端任务重新运行会拒绝再提交付费步骤，需先核对已生成内容再明确新建任务。下载附件仅包含生成图片、视频、发布草稿及安全状态摘要，不包含密钥、输入参考地址或完整任务数据库。图片、视频和公开草稿本身仍受该公开仓库附件访问范围影响。
+
+TikTok 发布仍为人工步骤，连接两个 API 不会自动发帖。

@@ -1,0 +1,84 @@
+name: Generate outfit images, video or English copy
+on:
+  workflow_dispatch:
+    inputs:
+      task:
+        description: full_video uses both providers - 2 images, 1 video, English copy and optional search
+        type: choice
+        options: [styles, draft, full_video]
+        required: true
+      model:
+        description: Image model for styles/full_video or text model for draft; blank uses matching variable
+        type: string
+        required: false
+      character:
+        description: Public character name (workflow inputs are visible in this repository)
+        type: string
+        required: false
+      description:
+        description: Public creative brief or video description (required for English draft)
+        type: string
+        required: false
+      before_prompt:
+        description: Before-outfit instruction (required for styles)
+        type: string
+        required: false
+      after_prompt:
+        description: After-outfit instruction (required for styles)
+        type: string
+        required: false
+      reference_image_url:
+        description: Styles/full_video - unsigned public HTTPS character image; no private or signed URLs
+        type: string
+        required: false
+      search_trends:
+        description: Draft/full_video - search current sources before choosing English hashtags (extra API use)
+        type: boolean
+        default: false
+      allow_paid:
+        description: Allow this task to transmit public inputs and charge credits; full_video uses OpenAI AND OpenRouter
+        type: boolean
+        default: false
+      video_model:
+        description: full_video only - 5s, 720p, 9:16, no audio; OPENAI_MODEL variable is also required
+        type: choice
+        options: [bytedance/seedance-2.0, bytedance/seedance-2.0-fast, bytedance/seedance-2.5]
+        required: false
+permissions:
+  contents: read
+concurrency:
+  group: openai-creative-${{ github.actor }}
+  cancel-in-progress: false
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Generate only on explicit request
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          OPENAI_IMAGE_MODEL: ${{ vars.OPENAI_IMAGE_MODEL }}
+          OPENAI_MODEL: ${{ vars.OPENAI_MODEL }}
+          CREATIVE_INPUTS: ${{ toJSON(inputs) }}
+          CREATIVE_OUTPUT_DIR: generation-output
+        run: python3 scripts/run_creative_generation.py
+      - name: Save generated images or publication draft and safe summary
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: openai-creative-${{ github.run_id }}
+          path: |
+            generation-output/generated/style-*-before.png
+            generation-output/generated/style-*-after.png
+            generation-output/generated/video-*.mp4
+            generation-output/publication-draft.json
+            generation-output/creative-summary.json
+          if-no-files-found: ignore
+          retention-days: 7

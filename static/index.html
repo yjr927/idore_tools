@@ -18,13 +18,13 @@
       <a href="#discover" class="nav-link" data-route="discover"><span data-icon="search"></span>寻找真实视频<span class="nav-count">新</span></a>
       <a href="#trends" class="nav-link" data-route="trends"><span data-icon="compass"></span>趋势发现<span class="nav-count" id="trend-count">6</span></a>
       <a href="#assets" class="nav-link" data-route="assets"><span data-icon="layers"></span>我的素材<span class="nav-count" id="asset-count">0</span></a>
-      <a href="/generate" class="nav-link"><span data-icon="film"></span>真实视频生成<span class="nav-count">API</span></a>
+      <a href="/generate" class="nav-link"><span data-icon="film"></span>造型 · 视频 · 文案<span class="nav-count">API</span></a>
       <a href="#jobs" class="nav-link" data-route="jobs"><span data-icon="film"></span>创作任务<span class="nav-count" id="job-count">0</span></a>
       <a href="#review" class="nav-link" data-route="review"><span data-icon="check"></span>审核队列<span class="nav-count" id="review-count">0</span></a>
     </nav>
     <div class="nav-label second-label">工作空间</div>
     <nav><a href="#settings" class="nav-link" data-route="settings"><span data-icon="settings"></span>接口与设置</a></nav>
-    <div class="sidebar-bottom"><div class="seedance-mark">✳</div><strong>OpenRouter · Seedance</strong><p>选择模型和自有角色素材，<br>确认后提交真实视频生成。</p><a href="/generate">连接视频 API <span>↗</span></a></div>
+    <div class="sidebar-bottom"><div class="seedance-mark">✳</div><strong>OpenAI · Seedance</strong><p>角色造型、视频与英文文案，<br>按步骤确认生成。</p><a href="/generate">连接两个 API <span>↗</span></a></div>
     <div class="sidebar-foot"><span class="local-dot"></span>数据仅保存在本机 <span>v1.0</span></div>
   </aside>
   <div class="main-shell">
@@ -36,7 +36,7 @@
 <dialog id="planner-dialog" class="dialog planner-dialog" aria-labelledby="planner-title"></dialog>
 <dialog id="upload-dialog" class="dialog upload-dialog" aria-labelledby="upload-title"></dialog>
 <dialog id="review-dialog" class="dialog review-dialog" aria-labelledby="review-title"></dialog>
-<dialog id="help-dialog" class="dialog help-dialog" aria-labelledby="help-title"><div class="dialog-head"><div><span class="eyebrow">GET STARTED</span><h2 id="help-title">把第一条创作流程跑通</h2></div><button class="icon-button" data-close="help-dialog" aria-label="关闭">✕</button></div><div class="help-steps"><div><b>01</b><p><strong>挑选一个示例趋势</strong>查看抽象镜头结构，原参考视频不会进入成片。</p></div><div><b>02</b><p><strong>导入你的自有素材</strong>图片与视频只写入本地 data 文件夹。填写标签并确认使用权。</p></div><div><b>03</b><p><strong>匹配分镜，创建模拟任务</strong>可使用示例素材体验，也可关闭示例只使用自己的文件。当前为标签匹配。</p></div><div><b>04</b><p><strong>预演与人工审核</strong>查看分镜，批准、要求修改或退回任务。可导出 JSON 任务单。</p></div></div><div class="notice"><span data-icon="info"></span><p>这里的分镜任务使用示例趋势与模拟进度，批准分镜不会触发付费调用。真实生成请使用「真实视频生成」入口，连接 OpenRouter 后另行确认提交；不会自动发帖。</p></div><button class="button primary full" data-close="help-dialog">开始创作</button></dialog>
+<dialog id="help-dialog" class="dialog help-dialog" aria-labelledby="help-title"><div class="dialog-head"><div><span class="eyebrow">GET STARTED</span><h2 id="help-title">把第一条创作流程跑通</h2></div><button class="icon-button" data-close="help-dialog" aria-label="关闭">✕</button></div><div class="help-steps"><div><b>01</b><p><strong>挑选一个示例趋势</strong>查看抽象镜头结构，原参考视频不会进入成片。</p></div><div><b>02</b><p><strong>导入你的自有素材</strong>图片与视频只写入本地 data 文件夹。填写标签并确认使用权。</p></div><div><b>03</b><p><strong>匹配分镜，创建模拟任务</strong>可使用示例素材体验，也可关闭示例只使用自己的文件。当前为标签匹配。</p></div><div><b>04</b><p><strong>预演与人工审核</strong>查看分镜，批准、要求修改或退回任务。可导出 JSON 任务单。</p></div></div><div class="notice"><span data-icon="info"></span><p>这里的分镜任务使用示例趋势与模拟进度，批准分镜不会触发付费调用。真实生成请使用「造型 · 视频 · 文案」入口，连接相应 API 后另行确认提交；不会自动发帖。</p></div><button class="button primary full" data-close="help-dialog">开始创作</button></dialog>
 <div id="toast-region" aria-live="polite" aria-atomic="true"></div>
 <noscript><p>请启用 JavaScript，才能使用本地工作台。</p></noscript>
 </body></html>
