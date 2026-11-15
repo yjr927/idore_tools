@@ -63,3 +63,15 @@ Run tests: `python -m unittest discover -s tests -v`. Tests use temporary direct
 Submission is persisted before the potentially billable POST and never automatically retried. Ambiguous failures or interrupted submissions become `submission_uncertain`; repeated idempotency keys return the same job, and changed contents under the same key are rejected. The server does not trust provider-returned polling/download URLs: it constructs fixed OpenRouter routes from validated IDs. Restarting requires reentering the key; previous task records remain.
 
 Cloud generation is manual-only through `.github/workflows/video-generation.yml` using GitHub Secrets. It does not modify the viewer, reference-video history or planning simulation. No automatic publication endpoint exists.
+
+## OpenAI outfit pairs and publishing drafts
+
+`CreativeService` is independent from `VideoService`. `OPENAI_API_KEY` is retained only in memory, and only fixed `https://api.openai.com/v1/models`, `/images/edits`, and `/responses` routes can receive it. Job records are private `data/creative-jobs.json`; image outputs use `data/generated/style-<32hex>-before.png` and `-after.png`. No key or input image bytes/URLs are persisted.
+
+- `GET /api/creative/connection` returns `{connected,provider:"OpenAI",key_storage:"memory"}`; `POST` accepts `{api_key}` and verifies via model listing; `DELETE {}` disconnects.
+- `GET /api/creative/models` returns `{image_models:[{id}],text_models:[{id}]}` from the actual account list, excluding retired GPT Image1 and unsuitable text modalities; no automatic model substitution. `GET /api/creative/jobs` returns safe local job metadata and outputs. Reads do not submit paid jobs.
+- `POST /api/creative/images` accepts `{idempotency_key,model,reference_image,before_prompt,after_prompt,consent:true}`. Reference is validated local PNG/JPEG/WebP data (max5MiB) or public HTTPS. It makes two image edits at1024x1536, mediumquality; after references both original character and generatedbefore. Pair status is completed, partial, failed or submission_uncertain, preserving completed output.
+- `POST /api/creative/drafts` accepts `{idempotency_key,model,description,character,frames:[],trend_context,search_trends,consent:true}`. Up to4 local image frames, US market, English output. No-search uses one Responses call; search uses web_search then a structured-output call. Output has three captions,3–5 hashtags with reasons, category, actualsourceURL/retrievaltime, plus trend_note. Unverified source/hashtag evidence is downgraded to content; input context alone cannot establish a current trend.
+- Generated image GET/HEAD uses the same local file and range restrictions as videos. No raw job/config/key file is served.
+
+Every paid step is recorded before transmission; identical request tokens never automatically retry or continue partial/uncertain work. Both provider keys and explicit consent remain independent. `.github/workflows/creative-generation.yml` uses RepositorySecrets for manual cloud operations and refuses paid reruns. The static viewer receives no key or private job record.

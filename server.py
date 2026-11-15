@@ -19,6 +19,7 @@ import uuid
 from discovery import DiscoveryError
 from discovery_store import DiscoveryLibrary
 from video_service import VideoService, VideoError
+from creative_service import CreativeService, CreativeError
 
 ROOT = Path(__file__).resolve().parent
 CONFIG = dict(region='ALL', category='all', minimum_owned_ratio=.8,
@@ -324,6 +325,19 @@ class Handler(BaseHTTPRequestHandler):
             path=unquote(urlsplit(self.path).path)
             if '..' in path or '\\' in path or '\x00' in path:raise APIError('Invalid path.',400)
             store=self.server.store
+            if path.startswith('/api/creative'):
+                creative=self.server.creative_service
+                if not write:
+                    if path=='/api/creative/connection': return self.respond(creative.connection())
+                    if path=='/api/creative/models': return self.respond(creative.models())
+                    if path=='/api/creative/jobs': return self.respond(creative.jobs())
+                else:
+                    body=self.body()
+                    if self.command=='POST' and path=='/api/creative/connection': return self.respond(creative.connect(body))
+                    if self.command=='DELETE' and path=='/api/creative/connection': return self.respond(creative.disconnect())
+                    if self.command=='POST' and path=='/api/creative/images': return self.respond(creative.generate_images(body),201)
+                    if self.command=='POST' and path=='/api/creative/drafts': return self.respond(creative.generate_draft(body),201)
+                raise APIError('Creative endpoint not found.',404)
             if path.startswith('/api/video'):
                 service=self.server.video_service
                 if not write:
@@ -341,7 +355,7 @@ class Handler(BaseHTTPRequestHandler):
                 raise APIError('Video endpoint not found.',404)
             if not write and path.startswith('/generated/'):
                 filename=path[len('/generated/'):]
-                if not re.fullmatch(r'video-[a-f0-9]{32}\.mp4',filename): raise APIError('Video not found.',404)
+                if not re.fullmatch(r'(?:video-[a-f0-9]{32}\.mp4|style-[a-f0-9]{32}-(?:before|after)\.png)',filename): raise APIError('Generated file not found.',404)
                 file=store.directory/'generated'/filename
                 if not file.is_file() or file.is_symlink(): raise APIError('Video not found.',404)
                 return self.serve_media(file)
@@ -403,6 +417,7 @@ class Handler(BaseHTTPRequestHandler):
                                   'duration':lambda:number(v,'duration',.1,3600),'aspect_ratio':lambda:ratio(v)}[k]()
                     asset.update(clean);store.save();return self.respond(asset)
                 raise APIError('Endpoint or method not found.',404)
+        except CreativeError as exc:self.respond({'error':str(exc)},exc.status)
         except VideoError as exc:self.respond({'error':str(exc)},exc.status)
         except DiscoveryError as exc:self.respond({'error':str(exc)},400)
         except APIError as exc:self.respond({'error':str(exc)},exc.status)
@@ -414,10 +429,11 @@ class Handler(BaseHTTPRequestHandler):
 
 class Server(ThreadingHTTPServer):
     daemon_threads=True
-    def __init__(self, address, store, video_service=None):
+    def __init__(self, address, store, video_service=None, creative_service=None):
         self.store=store
         self.discovery=DiscoveryLibrary(store)
         self.video_service=video_service or VideoService(store.directory)
+        self.creative_service=creative_service or CreativeService(store.directory)
         super().__init__(address, Handler)
 
 def main():

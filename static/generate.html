@@ -4,12 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
-  <meta name="description" content="idore 本机视频生成。使用你选择的 OpenRouter Seedance 模型创建真实视频。">
+  <meta name="description" content="idore 角色创作：生成前后造型图、Seedance 视频及美国 TikTok 英文文案和标签。">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; media-src 'self'; base-uri 'self'; form-action 'self'">
-  <title>idore · 视频生成</title>
+  <title>idore · 角色创作</title>
   <link rel="icon" type="image/svg+xml" href="/mark.svg">
-  <link rel="stylesheet" href="/generate.css?v=20261115-1">
-  <script defer src="/generate.js?v=20261115-1"></script>
+  <link rel="stylesheet" href="/generate.css?v=20261115-creative-3">
+  <script defer src="/generate.js?v=20261115-creative-3"></script>
 </head>
 <body>
   <header class="topbar">
@@ -17,10 +17,26 @@
     <nav aria-label="创作导航"><a href="/#assets">我的素材</a><a href="https://yjr927.github.io/idore_tools/" target="_blank" rel="noopener noreferrer">趋势参考 ↗</a><span class="local-badge">本机生成工作台</span></nav>
   </header>
   <main>
-    <section class="page-heading"><span class="eyebrow">CREATE YOUR NEXT STORY</span><h1>让角色，动起来。</h1><p>选择 Seedance 模型，准备角色照片或动作参考，生成一条真实视频。</p></section>
+    <section class="page-heading"><span class="eyebrow">CREATE YOUR NEXT STORY</span><h1>从角色造型，到下一条作品。</h1><p>OpenAI 准备前后造型图 → Seedance 生成视频 → OpenAI 匹配英文文案与标签。</p></section>
+    <nav class="creative-steps" aria-label="创作步骤"><a href="#style-step"><span>01</span>准备造型图<small>变装可选</small></a><a href="#video-step"><span>02</span>生成视频<small>OpenRouter · Seedance</small></a><a href="#draft-step"><span>03</span>文案与 hashtags<small>TikTok · 美国 · 英文</small></a></nav>
     <div class="studio-layout">
-      <section class="panel compose-panel" aria-labelledby="compose-heading">
-        <div class="panel-heading"><span class="step-number">01</span><div><h2 id="compose-heading">准备这次创作</h2><p>模型版本由你选择，每次提交都会使用 OpenRouter 额度。</p></div></div>
+      <div class="creation-column">
+      <section class="panel style-panel" id="style-step" aria-labelledby="style-heading">
+        <div class="panel-heading"><span class="step-number">01</span><div><h2 id="style-heading">为同一角色，准备前后造型</h2><p>使用角色参考图，分别生成变妆或换装前后的两张图片。</p></div></div>
+        <form id="style-form">
+          <label class="field"><span>OpenAI 图片模型</span><select id="image-model" required><option value="">连接 OpenAI 后选择模型</option></select></label>
+          <label class="field"><span>角色参考图</span><input id="style-reference-url" type="url" placeholder="HTTPS 图片直链，或选择本机角色照片"></label>
+          <label class="file-label">选择角色参考图<input id="style-reference-file" type="file" accept="image/png,image/jpeg,image/webp"></label><span class="file-status" id="style-reference-status"></span><button class="text-button" id="clear-style-reference" type="button">清除参考图</button>
+          <p class="field-note">PNG、JPEG、WebP，单张最多 5 MB。两张图会沿用同一角色；请分别描述前后妆容、服装和构图。</p>
+          <label class="field"><span>变装前的造型</span><textarea id="before-look" rows="3" maxlength="6000" required placeholder="例如：保留角色五官与发型，清淡妆容，白色日常上衣，正面半身，固定机位。"></textarea></label>
+          <label class="field"><span>变装后的造型</span><textarea id="after-look" rows="3" maxlength="6000" required placeholder="例如：同一人物和姿势，改成银色舞台服与闪亮眼妆，背景、镜头位置保持一致。"></textarea></label>
+          <div class="submit-area"><label class="checkbox consent"><input id="style-consent" type="checkbox" required><span>我同意将参考图和描述发送给 OpenAI，使用 OpenAI 额度生成两张造型图。</span></label><p class="form-message" id="style-message" role="status" aria-live="polite"></p><button class="button primary submit-button" id="style-button" type="submit" disabled>生成两张造型图（消耗 OpenAI 额度）</button><button class="button submit-button" id="new-style-button" type="button" hidden>同一造型再生成一组（另计费）</button><p class="field-note">每组包含两次图片生成。完成后可一键放入下方视频首尾帧；不会自动提交视频生成。</p></div>
+        </form>
+        <div class="creative-results" id="style-results" aria-live="polite"><p class="empty-inline">造型图会显示在这里。</p></div>
+      </section>
+      <section class="panel compose-panel" id="video-step" aria-labelledby="compose-heading">
+        <div class="panel-heading"><span class="step-number">02</span><div><h2 id="compose-heading">让角色动起来</h2><p>模型版本由你选择，每次提交都会使用 OpenRouter 额度。</p></div></div>
+        <p class="handoff-note" id="style-handoff-note" hidden></p>
         <form id="generation-form">
           <label class="field"><span>Seedance 模型</span><select id="model" name="model" required><option value="">连接后读取可用模型</option></select></label>
           <p class="field-note" id="model-note">先连接 OpenRouter，再选择账号可用的模型。</p>
@@ -48,15 +64,17 @@
           <div class="submit-area"><label class="checkbox consent"><input id="consent" type="checkbox" required><span>我同意将本次描述与所选素材发送给 OpenRouter 及其模型服务商，并使用 OpenRouter 额度生成视频。</span></label><p class="form-message" id="generation-message" role="status" aria-live="polite"></p><button class="button primary submit-button" id="generate-button" type="submit" disabled>开始生成（消耗 OpenRouter 额度）</button><button class="button submit-button" id="new-generation-button" type="button" hidden>同一方案再生成一条（另计费）</button><p class="field-note">点击后才会提交付费生成。完成的视频可保存到本机，再预览和下载。</p></div>
         </form>
       </section>
+      </div>
       <aside class="setup-column">
-        <section class="panel connection-panel" aria-labelledby="connection-heading"><div class="panel-heading"><span class="step-number">↗</span><div><h2 id="connection-heading">连接 OpenRouter</h2><p class="connection-status" id="connection-status" role="status" aria-live="polite">正在读取连接状态…</p></div></div><form id="connection-form" autocomplete="off"><label class="field"><span>OpenRouter API Key</span><input id="api-key" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="1000" placeholder="仅在本机连接时使用" required></label><button class="button primary full" id="connect-button" type="submit">验证并连接</button></form><button class="button full" id="disconnect-button" type="button" hidden>断开本机连接</button><p class="form-message" id="connection-message" role="status" aria-live="polite"></p><p class="field-note">密钥只在当前本机服务内存中使用，不写入网页、浏览器存储或项目文件。服务重启后需重新输入。</p></section>
-        <section class="panel cloud-panel"><span class="eyebrow">KEEP IT IN THE CLOUD</span><h2>也可以用 GitHub 云端生成</h2><p>将密钥保存为 GitHub Secret <strong>OPENROUTER_API_KEY</strong>，再手动启动云端视频生成任务。</p><a class="button full" href="https://github.com/yjr927/idore_tools/settings/secrets/actions/new" target="_blank" rel="noopener noreferrer">在 GitHub 保存密钥 ↗</a><a class="button full" href="https://github.com/yjr927/idore_tools/actions/workflows/video-generation.yml" target="_blank" rel="noopener noreferrer">打开云端生成任务 ↗</a><p class="field-note">GitHub 保存的密钥只供云端任务使用。本机页面无法读取 GitHub Secret；本机生成需在上方另行连接。</p></section>
+        <section class="panel connection-panel" aria-labelledby="keys-heading"><div class="panel-heading"><span class="step-number">↗</span><div><h2 id="keys-heading">连接创作服务</h2><p>两个服务使用各自的密钥与额度。</p></div></div><div class="provider-block"><h3 id="openai-heading">OpenAI · 造型图与文案</h3><p class="connection-status" id="openai-status" role="status" aria-live="polite">正在读取连接状态…</p><form id="openai-connection-form" autocomplete="off"><label class="field"><span>OpenAI API Key</span><input id="openai-key" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="1000" placeholder="用于图片、文案和标签" required></label><button class="button primary full" id="openai-connect-button" type="submit">验证并连接 OpenAI</button></form><button class="button full" id="openai-disconnect-button" type="button" hidden>断开 OpenAI 连接</button><p class="form-message" id="openai-message" role="status" aria-live="polite"></p></div><div class="provider-block"><h3 id="connection-heading">OpenRouter · Seedance 视频</h3><p class="connection-status" id="connection-status" role="status" aria-live="polite">正在读取连接状态…</p><form id="connection-form" autocomplete="off"><label class="field"><span>OpenRouter API Key</span><input id="api-key" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="1000" placeholder="用于 Seedance 视频生成" required></label><button class="button primary full" id="connect-button" type="submit">验证并连接 OpenRouter</button></form><button class="button full" id="disconnect-button" type="button" hidden>断开 OpenRouter 连接</button><p class="form-message" id="connection-message" role="status" aria-live="polite"></p></div><p class="field-note">密钥分别保存在当前本机服务内存，不写入网页、浏览器存储或项目文件。服务重启后需重新输入。</p></section>
+        <section class="panel cloud-panel"><span class="eyebrow">KEEP IT IN THE CLOUD</span><h2>也可以用 GitHub 云端创作</h2><p>分别保存 GitHub Secrets：<strong>OPENAI_API_KEY</strong> 用于造型图与文案，<strong>OPENROUTER_API_KEY</strong> 用于视频。</p><a class="button full" href="https://github.com/yjr927/idore_tools/settings/secrets/actions/new" target="_blank" rel="noopener noreferrer">在 GitHub 保存密钥 ↗</a><a class="button full" href="https://github.com/yjr927/idore_tools/actions/workflows/creative-generation.yml" target="_blank" rel="noopener noreferrer">打开造型图 / 文案云端任务 ↗</a><a class="button full" href="https://github.com/yjr927/idore_tools/actions/workflows/video-generation.yml" target="_blank" rel="noopener noreferrer">打开视频云端任务 ↗</a><p class="field-note">模型 ID 可单独设为任务参数或 GitHub Variables；模型 ID 不是密钥。GitHub Secret 只供云端任务使用，本机页面需另行连接。</p></section>
         <section class="workflow-note"><span class="note-spark">✳</span><h2>先选素材，再选方式。</h2><p><strong>手势 / 舞蹈</strong>角色照片加动作参考。是否支持动作参考取决于所选模型。</p><p><strong>变妆 / 换装</strong>先准备同一角色的前后造型图，再使用支持首尾帧的模型生成。</p><p>这里生成视频，不会自动发布到 TikTok。</p></section>
       </aside>
     </div>
     <section class="jobs-section" aria-labelledby="jobs-heading"><div class="section-top"><div><span class="eyebrow">YOUR CREATIONS</span><h2 id="jobs-heading">生成记录</h2></div><button class="button small" id="reload-jobs" type="button">刷新本机记录</button></div><p class="section-description">任务提交后保留在本机。生成中每 30 秒查询一次远端进度；页面每 5 秒读取本机记录。</p><p class="form-message" id="jobs-message" role="status" aria-live="polite"></p><div id="jobs-list" class="jobs-grid"><p class="empty-state">尚未读取生成记录。</p></div></section>
+    <section class="panel draft-panel" id="draft-step" aria-labelledby="draft-heading"><div class="panel-heading"><span class="step-number">03</span><div><h2 id="draft-heading">为作品写英文文案与 hashtags</h2><p>面向美国 TikTok，生成 3 个英文文案，并说明标签为什么适合这条内容。</p></div></div><div class="draft-layout"><form id="draft-form"><label class="field"><span>OpenAI 文案模型</span><select id="text-model" required><option value="">连接 OpenAI 后选择模型</option></select></label><label class="field"><span>角色名与设定</span><input id="draft-character" type="text" maxlength="1000" placeholder="例如：小鹿，一个喜欢 K-pop 的虚拟偶像"></label><label class="field"><span>这条作品拍了什么</span><textarea id="draft-description" rows="5" maxlength="6000" required placeholder="描述最终画面、动作、音乐氛围和希望观众如何回应。"></textarea></label><button class="text-button" id="use-video-description" type="button">使用上方视频的动作描述</button><p class="field-note" id="draft-input-note">可添加成片关键帧；不添加时会根据你的文字描述创作。</p><label class="file-label">选择成片关键帧（最多 4 张）<input id="draft-frames" type="file" accept="image/png,image/jpeg,image/webp" multiple></label><div id="draft-frame-list" class="draft-frame-list"></div><label class="field"><span>已收集的趋势线索（可选）</span><textarea id="trend-context" rows="3" maxlength="6000" placeholder="例如：今天抓到的玩法、音乐、相关公开标签或来源链接。"></textarea></label><label class="checkbox search-choice"><input id="search-trends" type="checkbox"><span>联网查近期美国趋势（额外费用）<span class="field-note">结合公开检索结果提供有来源的趋势候选；不代表 TikTok 全站实时热榜。</span></span></label><div class="submit-area"><label class="checkbox consent"><input id="draft-consent" type="checkbox" required><span>我同意将描述与所选图片发送给 OpenAI，使用 OpenAI 额度生成英文文案和标签；勾选联网查询时另含检索费用。</span></label><p class="form-message" id="draft-message" role="status" aria-live="polite"></p><button class="button primary submit-button" id="draft-button" type="submit" disabled>生成英文文案与标签（消耗 OpenAI 额度）</button><button class="button submit-button" id="new-draft-button" type="button" hidden>同一描述再生成一组（另计费）</button><p class="field-note">普通文案生成调用一次；联网查询再生成文案会调用两次。</p></div></form><div class="draft-output"><div class="draft-output-heading"><h3>可直接使用的文案</h3><button class="button small" id="reload-creative" type="button">刷新记录</button></div><div id="draft-results" aria-live="polite"><p class="empty-inline">英文文案与标签会显示在这里。</p></div></div></div></section>
   </main>
-  <footer>idore · Create your next story.<span>OpenRouter · 本机保存结果 · 发布前自行检查成片</span></footer>
+  <footer>idore · Create your next story.<span>OpenAI + OpenRouter · 本机保存结果 · 不自动发布</span></footer>
   <noscript><p>请启用 JavaScript，以连接 OpenRouter 和生成视频。</p></noscript>
 </body>
 </html>

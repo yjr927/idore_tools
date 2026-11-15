@@ -38,13 +38,19 @@ GitHub Pages 只发布 `site/`，不会发布本地 Python 服务和角色素材
 2. 同一页面 **Variables**：新增 `OPENAI_MODEL`，填写你账号中可用、支持结构化输出的模型 ID。
 3. 手动运行采集，勾选 `analyze`。
 
-这项现有分析只根据已获得的文字元数据提供玩法分类建议，尚未接入角色照片分析、实时 hashtags 匹配、文案生成或真实视频生成接口。没有观看视频时，不会标记人数、动作或热度已核验。没有密钥／模型配置时明确显示未配置，不会伪装调用成功。密钥不写入源码、浏览器、结果或日志。
+这项采集分析仅根据文字元数据提供玩法分类建议；造型图、成片文案与 hashtags 使用下方独立创作入口，不会随采集自动付费调用。没有观看视频时，不会标记人数、动作或热度已核验。没有密钥／模型配置时明确显示未配置，不会伪装调用成功。密钥不写入源码、浏览器、结果或日志。
 
 ## 真实视频生成入口
 
 已提供独立的 [OpenRouter Seedance 连接与生成说明](docs/INTEGRATION.md)。本机启动后打开 `http://127.0.0.1:8765/generate`，在密码框连接 OpenRouter；密钥只保留在服务内存中。模型与参数读取实时列表，支持文字、首尾帧和角色／动作参考三种方式，明确确认后才提交付费生成，完成后保存、播放与下载 MP4。旧的分镜计划仍为模拟，不会因批准计划而调用生成。
 
-也可把 **OPENROUTER_API_KEY** 保存到 GitHub Actions Secrets，再手动运行 **Generate Seedance video**。密钥不进入公开网站；结果以任务附件保存，不自动发布。公开仓库的工作流输入可见，私人素材请用本机入口。当前尚未自动接通造型图、OpenAI 发布文案或 TikTok 发帖。
+也可把 **OPENROUTER_API_KEY** 保存到 GitHub Actions Secrets，再手动运行 **Generate Seedance video**。密钥不进入公开网站；结果以任务附件保存，不自动发布。公开仓库的工作流输入可见，私人素材请用本机入口。造型图、英文文案与 hashtags 也已接入，使用单独的 OPENAI_API_KEY；TikTok 发帖仍需人工完成。
+
+## 造型图 → 视频 → 英文文案与 hashtags
+
+同一个 `/generate` 页面可分别连接 OpenAI 与 OpenRouter，两个密钥仅在服务内存中使用。先选择角色参考图及前后造型，调用 OpenAI 生成一对图片；再一键填入 Seedance 首尾帧，检查后提交视频。成片完成可在本机抽取三张关键帧，交给 OpenAI 生成 3 版英文文案和 3–5 个标签。联网趋势选项会额外检索美国近期资料，保留真实来源与检索时间；缺乏来源时只给内容／品牌建议，不称实时热榜。
+
+GitHub 云端需要两个 Repository Secrets：**OPENROUTER_API_KEY**、**OPENAI_API_KEY**。`creative-generation.yml` 提供造型图、文案和完整视频链路的手动任务；完整链路还需在 Variables 配置文案模型 **OPENAI_MODEL**，图像与 Seedance 模型在任务表单中明确选择。生成都需勾选本次额度授权，不随每日采集、代码推送或刷新自动启动。
 
 ## 本机工作台
 
