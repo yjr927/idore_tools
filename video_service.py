@@ -21,7 +21,7 @@ import socket
 import threading
 import time
 from urllib.error import HTTPError, URLError
-from urllib.parse import unquote, urlsplit
+from urllib.parse import unquote, urlsplit, parse_qs
 from urllib.request import HTTPRedirectHandler, Request, build_opener
 import uuid
 
@@ -125,12 +125,18 @@ def _media_url(value, kind):
     try:
         parsed = urlsplit(value)
         host = (parsed.hostname or '').lower().rstrip('.')
+        # Official player CDN links can be MP4 without a filename extension.
+        # Keep this exception narrower than TikTok share pages.
+        tiktok_cdn_video = (kind == 'video_url'
+            and re.fullmatch(r'v[0-9]+(?:-[a-z0-9]+)*\.(?:[a-z]{2}\.)?tiktok\.com', host) is not None
+            and re.fullmatch(r'/video/tos/[A-Za-z0-9/_-]+/?', unquote(parsed.path)) is not None
+            and parse_qs(parsed.query).get('mime_type') == ['video_mp4'])
         if (parsed.scheme != 'https' or not host or parsed.username or parsed.password
                 or parsed.port not in (None, 443) or parsed.fragment):
             raise ValueError()
         if ('.' not in host or host == 'localhost' or host.endswith(('.localhost', '.local', '.internal'))
-                or any(host == domain or host.endswith('.' + domain)
-                       for domain in ('tiktok.com', 'douyin.com', 'iesdouyin.com'))):
+                or (not tiktok_cdn_video and any(host == domain or host.endswith('.' + domain)
+                       for domain in ('tiktok.com', 'douyin.com', 'iesdouyin.com')))):
             raise ValueError()
         try:
             address = ipaddress.ip_address(host)
@@ -140,7 +146,7 @@ def _media_url(value, kind):
             raise ValueError()
         if address and not address.is_global:
             raise ValueError()
-        if kind == 'video_url' and not unquote(parsed.path).lower().endswith(('.mp4', '.webm', '.mov')):
+        if kind == 'video_url' and not tiktok_cdn_video and not unquote(parsed.path).lower().endswith(('.mp4', '.webm', '.mov')):
             raise VideoError('参考视频须使用 .mp4、.webm 或 .mov 的 HTTPS 文件直链，不能使用分享页。')
     except ValueError:
         raise VideoError('请使用公开 HTTPS 素材直链；不支持分享页、本机或私有网络地址。') from None

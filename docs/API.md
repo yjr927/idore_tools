@@ -4,7 +4,7 @@ Python 3.10+ standard library only. Start with `python server.py --open`; option
 
 ## Truthful scope
 
-All six trend rows are labeled synthetic examples, not TikTok observations or validated popularity rankings. Six demo asset rows contain metadata only; they have no playable video. Uploaded media bytes are stored locally and can be previewed, but this app does not transcode, inspect visual content, render a finished film, call Seedance, or publish. “Approved” means the user approved a simulated plan. The only export is a JSON manifest. `Seedance 2.5` is a requested product label, not a verified API model identifier.
+The original six trend rows are synthetic examples, and six demo asset rows contain metadata only. Real Work observations and private uploaded character media are separate. Original planning endpoints remain simulated; “Approved” approves a plan and does not spend credits. The separate creative endpoints make explicit OpenAI/OpenRouter requests and save their actual results. No endpoint publishes a post to TikTok.
 
 Matching is a deterministic tag-overlap heuristic, constrained by ownership, approval, aspect ratio, selected assets, and video source duration without overlapping source ranges. Still images can cover planned time. The returned `minimum_generation_seconds` equals unmatched seconds in this heuristic plan; it is **not a globally optimized lower bound**. Recorded video durations are user-supplied, not probed from media. Upload validation checks allowed MIME type, base64 integrity, and file signatures, not complete decodability. Browser preview support varies by format (particularly MOV).
 
@@ -75,3 +75,14 @@ Cloud generation is manual-only through `.github/workflows/video-generation.yml`
 - Generated image GET/HEAD uses the same local file and range restrictions as videos. No raw job/config/key file is served.
 
 Every paid step is recorded before transmission; identical request tokens never automatically retry or continue partial/uncertain work. Both provider keys and explicit consent remain independent. `.github/workflows/creative-generation.yml` uses RepositorySecrets for manual cloud operations and refuses paid reruns. The static viewer receives no key or private job record.
+
+## Owned-character reference-video replication
+
+- `GET /api/replication/catalog` returns eligible real owned/approved character images and effective watched Work reference classifications. Candidate order uses first capture, newest first. Unknown labels are not inferred from appearance or names.
+- `PATCH /api/replication/assets/:id` accepts `{material_group:"male"|"female"|"mixed"|"unknown",subject_group:"solo"|"group"|"unknown",apply_character:false}`. Applying to all eligible images with the same explicit character ID/name is opt-in.
+- `PATCH /api/replication/references/:id` accepts `{material_group,subject_group}` for a user-confirmed local reference override. It preserves public capture data, dates, history, and daily slots. Known labels require an existing watched reference; an unknown override blocks generation. Overrides are private local IDs/labels/timestamps.
+- `POST /api/replication/sync {}` reads only the fixed public GitHub candidate JSON, validates it, and atomically preserves/replaces the local snapshot. It sends no key and submits no generation.
+- `POST /api/replication/prepare` accepts `{asset_id,reference_id,reference_video_url,reference_video_confirmed,prompt?}`. It returns a 15-minute opaque `plan_id`, stable `content_fingerprint`, `can_submit`, `blockers`, selected metadata, and `required_inputs:["character_image","reference_video"]`. Preparation is nonpaid. Same known male/female group and confirmed solo cast are required. The actual reference must be an HTTPS video file, not a TikTok share page. A narrow official-player CDN MP4 exception requires its known host/path and explicit `mime_type=video_mp4`; no page/cookie bypass is performed.
+- `POST /api/replication/jobs` accepts `{plan_id,idempotency_key,model,duration,resolution,aspect_ratio,generate_audio:false,consent:true}` and returns `{job,asset_id,reference_id,plan_id}`. It revalidates classifications and the exact image content before a references-mode submission containing both the private character image and actual action video. Missing/changed inputs, unsupported models/parameters, expired plans, and absent consent block submission. It never falls back to text or first/last frames.
+
+Reference URLs and plan inputs stay in memory; the image is encoded only for the explicit generation request. This entry point does not host local MP4 files or upload character images to the public repository. GitHub Secrets cannot be read back to supply a local connection.

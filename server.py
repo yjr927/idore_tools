@@ -20,6 +20,7 @@ from discovery import DiscoveryError
 from discovery_store import DiscoveryLibrary
 from video_service import VideoService, VideoError
 from creative_service import CreativeService, CreativeError
+from replication_service import ReplicationService, ReplicationError
 
 ROOT = Path(__file__).resolve().parent
 CONFIG = dict(region='ALL', category='all', minimum_owned_ratio=.8,
@@ -57,7 +58,7 @@ def boolean(value, field):
     return value
 
 def ratio(value):
-    if value not in ('9:16', '16:9', '1:1', '4:5'):
+    if value not in ('9:16', '16:9', '1:1', '4:5', '3:4'):
         raise APIError('Unsupported aspect_ratio.')
     return value
 
@@ -183,6 +184,12 @@ class Store:
                    tags=tags(body.get('tags')),rights='owned',approved=boolean(body.get('approved',False),'approved'),
                    is_demo=False,tone='blue',created_at=now())
         if asset['kind'] not in ('image','video'): raise APIError('kind must be image or video.')
+        for field in ('character','stage'):
+            if field in body: asset[field]=string(body[field],field,200,True)
+        for field,choices in (('material_group',('male','female','mixed','unknown')),('subject_group',('solo','group','unknown'))):
+            if field in body:
+                if body[field] not in choices: raise APIError('Invalid asset classification.')
+                asset[field]=body[field]
         data=body.get('data_url')
         if not isinstance(data,str): raise APIError('An image or video data_url is required.')
         match=re.fullmatch(r'data:(image/(?:png|jpeg|webp|gif)|video/(?:mp4|webm|quicktime));base64,([A-Za-z0-9+/=\r\n]+)',data)
@@ -325,6 +332,19 @@ class Handler(BaseHTTPRequestHandler):
             path=unquote(urlsplit(self.path).path)
             if '..' in path or '\\' in path or '\x00' in path:raise APIError('Invalid path.',400)
             store=self.server.store
+            if path.startswith('/api/replication'):
+                replication=self.server.replication_service
+                if not write and path=='/api/replication/catalog': return self.respond(replication.catalog())
+                if write:
+                    body=self.body()
+                    if self.command=='POST' and path=='/api/replication/sync': return self.respond(replication.sync())
+                    if self.command=='POST' and path=='/api/replication/prepare': return self.respond(replication.prepare(body))
+                    if self.command=='POST' and path=='/api/replication/jobs': return self.respond(replication.submit(body),202)
+                    match=re.fullmatch(r'/api/replication/assets/(asset-[a-f0-9]{16})',path)
+                    if self.command=='PATCH' and match: return self.respond(replication.classify_asset(match[1],body))
+                    match=re.fullmatch(r'/api/replication/references/(tiktok-\d{10,25})',path)
+                    if self.command=='PATCH' and match: return self.respond(replication.classify_reference(match[1],body))
+                raise APIError('Replication endpoint not found.',404)
             if path.startswith('/api/creative'):
                 creative=self.server.creative_service
                 if not write:
@@ -343,7 +363,7 @@ class Handler(BaseHTTPRequestHandler):
                 if not write:
                     if path=='/api/video/connection': return self.respond(service.connection())
                     if path=='/api/video/models': return self.respond(service.models())
-                    if path=='/api/video/jobs': return self.respond(service.jobs())
+                    if path=='/api/video/jobs': return self.respond(self.server.replication_service.annotate_jobs(service.jobs()))
                 else:
                     body=self.body()
                     if self.command=='POST' and path=='/api/video/connection': return self.respond(service.connect(body))
@@ -417,6 +437,7 @@ class Handler(BaseHTTPRequestHandler):
                                   'duration':lambda:number(v,'duration',.1,3600),'aspect_ratio':lambda:ratio(v)}[k]()
                     asset.update(clean);store.save();return self.respond(asset)
                 raise APIError('Endpoint or method not found.',404)
+        except ReplicationError as exc:self.respond({'error':str(exc)},exc.status)
         except CreativeError as exc:self.respond({'error':str(exc)},exc.status)
         except VideoError as exc:self.respond({'error':str(exc)},exc.status)
         except DiscoveryError as exc:self.respond({'error':str(exc)},400)
@@ -429,11 +450,12 @@ class Handler(BaseHTTPRequestHandler):
 
 class Server(ThreadingHTTPServer):
     daemon_threads=True
-    def __init__(self, address, store, video_service=None, creative_service=None):
+    def __init__(self, address, store, video_service=None, creative_service=None, replication_service=None):
         self.store=store
         self.discovery=DiscoveryLibrary(store)
         self.video_service=video_service or VideoService(store.directory)
         self.creative_service=creative_service or CreativeService(store.directory)
+        self.replication_service=replication_service or ReplicationService(store,self.video_service)
         super().__init__(address, Handler)
 
 def main():

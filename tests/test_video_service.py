@@ -406,3 +406,15 @@ class BoundaryTests(unittest.TestCase):
                       'data:image/png;base64,' + 'A' * ((MAX_IMAGE_BYTES // 3 + 1) * 4 + 4)):
             with self.assertRaises(VideoError):
                 _media_url(value, 'image_url')
+
+    def test_official_tiktok_cdn_mp4_is_distinct_from_share_pages(self):
+        url = 'https://v16-webapp-prime.us.tiktok.com/video/tos/alisg/clip123/?mime_type=video_mp4&signature=example'
+        self.assertEqual(_media_url(url, 'video_url'), url)
+        for invalid in (
+                url.replace('.us.tiktok.com', '.us.tiktok.com.evil.example'),
+                url.replace('v16-webapp-prime.us.tiktok.com', 'www.tiktok.com'),
+                url.replace('/video/tos/alisg/clip123/', '/@bizzyboom/video/7706633304702848276'),
+                url.replace('mime_type=video_mp4', 'mime_type=text_html'),
+                url.replace('mime_type=video_mp4', 'mime_type=video_mp4&mime_type=text_html')):
+            with self.subTest(invalid=invalid), self.assertRaises(VideoError):
+                _media_url(invalid, 'video_url')
