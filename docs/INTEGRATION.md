@@ -22,6 +22,8 @@
 
 GitHub Pages 是静态看板，不能读取 Secrets 或自行执行后台接口。本机工作台也不能读回 GitHub 的密钥。两个入口分别使用本机内存密钥和 GitHub Secrets；不要把 GitHub Secret 注入前端构建产物。
 
+保存密钥后，可手动运行 [Check API connections (no generation)](https://github.com/yjr927/idore_tools/actions/workflows/check-api-connections.yml)。它只读取密钥验证与可用模型信息，分别报告两个服务，不调用图片、视频、文案或检索生成；结果不会显示密钥或账户余额。连接验证通过不代表有足够生成额度。OpenAI 返回 `429`／`insufficient_quota` 时需检查 API 账单余额、组织及项目使用限额，再明确新建测试，不能靠反复重跑恢复。
+
 ## 素材与生成模式
 
 - **文字生成视频**：使用画面、动作、镜头提示词，不包含图片或视频素材。

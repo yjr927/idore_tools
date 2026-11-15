@@ -18,8 +18,8 @@ import time
 from urllib.parse import urlsplit
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from creative_service import CreativeService
-from video_service import VideoService
+from creative_service import CreativeService, CreativeError
+from video_service import VideoService, VideoError
 
 
 INPUT_KEYS = {"task", "model", "character", "description", "before_prompt", "after_prompt",
@@ -77,6 +77,59 @@ def safe_summary(job, task):
         result["kind"] = job["kind"]
     if isinstance(job.get("status"), str) and job["status"] in STATUSES:
         result["status"] = job["status"]
+    model = job.get("model")
+    if (isinstance(model, str) and re.fullmatch(r"gpt-[A-Za-z0-9._-]{1,160}", model)
+            and not any(key and key in model for key in (os.environ.get("OPENAI_API_KEY"), os.environ.get("OPENROUTER_API_KEY")))):
+        result["model"] = model
+    if isinstance(job.get("steps"), dict):
+        steps = {name: value for name, value in job["steps"].items()
+                 if name in ("before", "after", "search", "draft") and isinstance(value, str)
+                 and value in ("submitting", "completed", "failed", "submission_uncertain")}
+        if steps:
+            result["steps"] = steps
+    return result
+
+
+def current_local_job(service, token):
+    """Read only this submission's in-memory/on-disk journal, never the API."""
+    if service is None or not token:
+        return None
+    try:
+        journal = service.jobs()
+        rows = journal.get("jobs", []) if isinstance(journal, dict) else []
+        return next((row for row in rows if isinstance(row, dict) and row.get("idempotency_key") == token), None)
+    except Exception:
+        return None
+
+
+def safe_diagnostics(exc, local_job, task):
+    result = {}
+    if local_job is not None:
+        state = safe_summary(local_job, task)
+        result["local_job_state"] = state
+        result["paid_step_recorded"] = bool(state.get("steps"))
+    status = getattr(exc, "status", None)
+    if isinstance(exc, (CreativeError, VideoError)) and type(status) is int and status in (
+            400, 401, 402, 403, 404, 409, 413, 415, 422, 429, 500, 502, 503, 504):
+        result["provider_or_validation_status"] = status
+    else:
+        status = None
+    state = result.get("local_job_state", {})
+    steps = state.get("steps", {})
+    if steps and all(value == "completed" for value in steps.values()) and status in (500, 502):
+        reason = "completed_step_result_validation_failed"
+    elif any(value == "submission_uncertain" for value in steps.values()):
+        reason = "submission_uncertain"
+    elif isinstance(exc, CloudCreativeError):
+        reason = "local_preflight_or_output_check"
+    else:
+        reason = {400: "invalid_request_or_configuration", 401: "authentication_failed",
+            402: "quota_or_billing_rejected", 403: "permission_denied", 404: "model_or_endpoint_unavailable",
+            409: "request_conflict", 413: "input_too_large", 415: "unsupported_media_type",
+            422: "input_rejected", 429: "quota_or_rate_limited", 500: "local_or_provider_failure",
+            502: "transport_or_result_validation_failed", 503: "provider_unavailable",
+            504: "provider_timeout"}.get(status, "unclassified_failure")
+    result["failure_reason"] = reason
     return result
 
 
@@ -219,6 +272,7 @@ def main():
     output = Path(os.environ.get("CREATIVE_OUTPUT_DIR", "generation-output"))
     task, job = "unknown", None
     image_job = video_job = draft_job = None
+    service, active_creative_token = None, ""
     stage = "preflight"
     try:
         output.mkdir(parents=True, exist_ok=True)
@@ -277,11 +331,13 @@ def main():
             full_preflight(service, video, model, text_model, video_model)
             stage = "images"
             body["idempotency_key"] += "-styles"
+            active_creative_token = body["idempotency_key"]
             image_job = service.generate_images(body)
             if image_job.get("status") != "completed":
                 raise CloudCreativeError("前后造型图片尚未全部完成；已有图片保留，不会继续扣费提交视频或自动重试。")
             frames = [frame_data(path) for path in image_pair(output, image_job)]
             stage = "video"
+            active_creative_token = ""
             video_job = video.submit({"idempotency_key": "github-creative-" + os.environ.get("GITHUB_RUN_ID", "manual") + "-video",
                 "model": video_model, "mode": "frames", "prompt": description,
                 "first_frame": frames[0], "last_frame": frames[1], "duration": 5, "resolution": "720p",
@@ -296,7 +352,8 @@ def main():
             video_job = video.download(video_job["id"])
             downloaded_video(output, video_job)
             stage = "draft"
-            draft_job = service.generate_draft({"idempotency_key": "github-creative-" + os.environ.get("GITHUB_RUN_ID", "manual") + "-draft",
+            active_creative_token = "github-creative-" + os.environ.get("GITHUB_RUN_ID", "manual") + "-draft"
+            draft_job = service.generate_draft({"idempotency_key": active_creative_token,
                 "model": text_model, "character": character, "description": description +
                     "\nVisual inputs are generated before/after style images only, not frames extracted from the finished movie. Do not claim the finished movie was visually reviewed.",
                 "frames": frames, "search_trends": search, "consent": True})
@@ -310,6 +367,8 @@ def main():
             write_json(output / "creative-summary.json", summary)
             print("Creative task status: completed", flush=True)
             return 0
+        stage = "images" if task == "styles" else "draft"
+        active_creative_token = body["idempotency_key"]
         job = service.generate_images(body) if task == "styles" else service.generate_draft(body)
         summary = safe_summary(job, task)
         if task == "draft" and summary["status"] == "completed":
@@ -326,16 +385,27 @@ def main():
         # Provider exceptions may contain raw payloads. Only our own fixed
         # preflight messages are suitable for logs and artifact summaries.
         message = str(exc) if isinstance(exc, CloudCreativeError) else "OpenAI 创作任务未完成，请检查账户与已有任务记录；不会自动重试或重复提交。"
+        local_job = current_local_job(service, active_creative_token)
+        if local_job is not None:
+            if task == "full_video":
+                if stage == "images" and image_job is None:
+                    image_job = local_job
+                elif stage == "draft" and draft_job is None:
+                    draft_job = local_job
+            elif job is None:
+                job = local_job
         summary = full_summary(image_job, video_job, draft_job, stage, output) if task == "full_video" else safe_summary(job, task if task in ("styles", "draft") else "unknown")
         if summary["status"] != "not_completed":
             summary["last_known_status"] = summary["status"]
         summary.update(status="not_completed", message=message)
+        summary.update(safe_diagnostics(exc, local_job, "styles" if stage == "images" else "draft"))
         try:
             output.mkdir(parents=True, exist_ok=True)
             write_json(output / "creative-summary.json", summary)
         except OSError:
             pass
         print(message, file=sys.stderr)
+        print("Creative safe summary: " + json.dumps(summary, ensure_ascii=False, separators=(",", ":"), allow_nan=False), flush=True)
         return 1
 
 
