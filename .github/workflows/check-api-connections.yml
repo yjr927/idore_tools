@@ -1,0 +1,36 @@
+name: Check API connections (no generation)
+on:
+  workflow_dispatch:
+  push:
+    branches: [codex/api-key-smoke-20261115]
+    paths: [.github/workflows/check-api-connections.yml]
+permissions:
+  contents: read
+concurrency:
+  group: api-connection-check-${{ github.actor }}
+  cancel-in-progress: false
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify saved keys and available models without generating content
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          API_CHECK_OUTPUT_DIR: generation-output
+        run: python3 scripts/check_api_connections.py
+      - name: Save safe connection report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: api-connection-check-${{ github.run_id }}
+          path: generation-output/api-check-summary.json
+          if-no-files-found: ignore
+          retention-days: 7
