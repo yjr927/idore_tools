@@ -33,6 +33,7 @@ class FakeCreative:
         self.image_error = self.draft_error = None
         self.oversized = False
         self.available_text = True
+        self.journal = []
 
     def bind(self, directory):
         self.directory = Path(directory)
@@ -42,6 +43,9 @@ class FakeCreative:
         self.timeline.append("creative-models")
         return {"image_models": [{"id": IMAGE_MODEL}],
                 "text_models": [{"id": TEXT_MODEL}] if self.available_text else []}
+
+    def jobs(self):
+        return {"jobs": copy.deepcopy(self.journal)}
 
     def generate_images(self, body):
         self.timeline.append("images")
@@ -216,6 +220,35 @@ class CloudCreativeTests(unittest.TestCase):
         self.assertEqual(status, 1); self.assertEqual(len(self.creative.calls), 1)
         self.assert_safe(summary, logs)
         self.assertNotIn("Traceback", logs)
+
+    def test_provider_rejection_recovers_only_current_safe_journal_state_without_retry(self):
+        self.creative.draft_error = cloud.CreativeError("private-openai-key " + REFERENCE, 429)
+        self.creative.journal = [{"id": CREATIVE_ID, "kind": "draft", "model": TEXT_MODEL,
+            "idempotency_key": "github-creative-12345", "status": "failed", "steps": {"draft": "failed"},
+            "error": "private-openai-key " + REFERENCE, "description": "private-input-prompt"}]
+        status, summary, logs, _, _, _ = self.run_cloud({"task": "draft", "model": TEXT_MODEL, "reference_image_url": ""})
+        self.assertEqual(status, 1)
+        self.assertEqual(summary["id"], CREATIVE_ID)
+        self.assertEqual(summary["last_known_status"], "failed")
+        self.assertEqual(summary["provider_or_validation_status"], 429)
+        self.assertEqual(summary["failure_reason"], "quota_or_rate_limited")
+        self.assertEqual(summary["local_job_state"]["model"], TEXT_MODEL)
+        self.assertEqual(summary["local_job_state"]["steps"], {"draft": "failed"})
+        self.assertTrue(summary["paid_step_recorded"])
+        self.assertEqual([call[0] for call in self.creative.calls], ["draft"])
+        self.assert_safe(summary, logs)
+
+    def test_completed_api_step_with_invalid_result_has_distinct_safe_diagnostic(self):
+        self.creative.draft_error = cloud.CreativeError("private-input-prompt private-openai-key", 502)
+        self.creative.journal = [{"id": CREATIVE_ID, "kind": "draft", "model": TEXT_MODEL,
+            "idempotency_key": "github-creative-12345", "status": "submission_uncertain", "steps": {"draft": "completed"}}]
+        status, summary, logs, _, _, _ = self.run_cloud({"task": "draft", "model": TEXT_MODEL, "reference_image_url": ""})
+        self.assertEqual(status, 1)
+        self.assertEqual(summary["failure_reason"], "completed_step_result_validation_failed")
+        self.assertEqual(summary["provider_or_validation_status"], 502)
+        self.assertEqual(summary["last_known_status"], "submission_uncertain")
+        self.assertEqual(len(self.creative.calls), 1)
+        self.assert_safe(summary, logs)
 
     def test_partial_style_pair_preserves_existing_image_and_reports_failure(self):
         self.creative.image_status = "partial"
