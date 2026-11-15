@@ -295,7 +295,7 @@ function videoCard(video) {
     body.append(note);
   }
   const route = el('div', 'generation-route');
-  route.append(el('strong', '', '生成准备'), el('p', '', generationRoute(video)), el('small', '', '流程建议 · 视频接口尚未接入'));
+  route.append(el('strong', '', '生成准备'), el('p', '', generationRoute(video)), el('small', '', '流程建议 · 生成前需连接账户并确认素材'));
   body.append(route);
   if (!watched || video.assessment_note !== video.motion_summary) body.append(el('p', 'assessment', video.assessment_note || (watched ? 'Work 已记录原片观察。观看记录不代表当前热门，也不代表 AI 复刻效果已经试做。' : '已记录公开视频链接。单人、动作重复性与跟拍一致性仍待看原片核验。')));
   if (typeof video.motion_summary === 'string' && video.motion_summary.trim()) {

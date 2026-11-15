@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta name="description" content="idore 本机视频生成。使用你选择的 OpenRouter Seedance 模型创建真实视频。">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; media-src 'self'; base-uri 'self'; form-action 'self'">
+  <title>idore · 视频生成</title>
+  <link rel="icon" type="image/svg+xml" href="/mark.svg">
+  <link rel="stylesheet" href="/generate.css?v=20261115-1">
+  <script defer src="/generate.js?v=20261115-1"></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/" aria-label="idore 工作台"><span class="brand-mark">i<span>↗</span></span><span>idore<small>YOUR CHARACTER, IN MOTION</small></span></a>
+    <nav aria-label="创作导航"><a href="/#assets">我的素材</a><a href="https://yjr927.github.io/idore_tools/" target="_blank" rel="noopener noreferrer">趋势参考 ↗</a><span class="local-badge">本机生成工作台</span></nav>
+  </header>
+  <main>
+    <section class="page-heading"><span class="eyebrow">CREATE YOUR NEXT STORY</span><h1>让角色，动起来。</h1><p>选择 Seedance 模型，准备角色照片或动作参考，生成一条真实视频。</p></section>
+    <div class="studio-layout">
+      <section class="panel compose-panel" aria-labelledby="compose-heading">
+        <div class="panel-heading"><span class="step-number">01</span><div><h2 id="compose-heading">准备这次创作</h2><p>模型版本由你选择，每次提交都会使用 OpenRouter 额度。</p></div></div>
+        <form id="generation-form">
+          <label class="field"><span>Seedance 模型</span><select id="model" name="model" required><option value="">连接后读取可用模型</option></select></label>
+          <p class="field-note" id="model-note">先连接 OpenRouter，再选择账号可用的模型。</p>
+          <div class="field-row">
+            <label class="field"><span>生成方式</span><select id="mode" name="mode"><option value="text">文字生成视频</option><option value="frames" disabled>首尾帧生成视频</option><option value="references" disabled>角色 / 动作参考</option></select></label>
+            <label class="field"><span>时长</span><select id="duration" name="duration" required><option value="">先选择模型</option></select></label>
+          </div>
+          <p class="field-note" id="mode-note">输入画面、动作与镜头描述。</p>
+          <div id="frames-fields" class="media-fields" hidden>
+            <div class="media-field"><label class="field"><span>首帧图片</span><input id="first-frame-url" type="url" placeholder="图片 HTTPS 直链，或选择本机图片"></label><label class="file-label">选择首帧图片<input id="first-frame-file" type="file" accept="image/png,image/jpeg,image/webp"></label><span class="file-status" id="first-frame-status"></span><button type="button" class="text-button" id="clear-first-frame">清除图片</button></div>
+            <div class="media-field" id="last-frame-field"><label class="field"><span>尾帧图片（可选）</span><input id="last-frame-url" type="url" placeholder="变装后的角色图片 HTTPS 直链"></label><label class="file-label">选择尾帧图片<input id="last-frame-file" type="file" accept="image/png,image/jpeg,image/webp"></label><span class="file-status" id="last-frame-status"></span><button type="button" class="text-button" id="clear-last-frame">清除图片</button></div>
+            <p class="field-note">变装可用同一角色的前、后造型作为首尾帧。图片支持 PNG、JPEG、WebP，单张最多 5 MB。</p>
+          </div>
+          <div id="references-fields" class="media-fields" hidden>
+            <div class="reference-heading"><strong>参考素材</strong><button type="button" class="button small" id="add-reference">＋ 添加参考</button></div>
+            <div id="reference-list"></div>
+            <p class="field-note">最多 4 份参考。图片可用本机文件或 HTTPS 直链；动作视频需 HTTPS 的 MP4 文件直链。TikTok / 抖音分享链接不能直接用于生成。</p>
+          </div>
+          <label class="field"><span>画面和动作描述</span><textarea id="prompt" name="prompt" rows="6" maxlength="12000" required placeholder="例如：保持参考角色的面部、发型和服装一致，正面固定机位，跟随参考中的手势节奏，动作自然连贯……"></textarea></label>
+          <div class="field-row">
+            <label class="field"><span>分辨率</span><select id="resolution" name="resolution" required><option value="">先选择模型</option></select></label>
+            <label class="field"><span>画幅</span><select id="aspect-ratio" name="aspect_ratio" required><option value="">先选择模型</option></select></label>
+          </div>
+          <label class="checkbox audio-choice"><input id="generate-audio" type="checkbox" disabled><span>同时生成声音<span class="field-note" id="audio-note">以所选模型能力为准</span></span></label>
+          <div class="submit-area"><label class="checkbox consent"><input id="consent" type="checkbox" required><span>我同意将本次描述与所选素材发送给 OpenRouter 及其模型服务商，并使用 OpenRouter 额度生成视频。</span></label><p class="form-message" id="generation-message" role="status" aria-live="polite"></p><button class="button primary submit-button" id="generate-button" type="submit" disabled>开始生成（消耗 OpenRouter 额度）</button><button class="button submit-button" id="new-generation-button" type="button" hidden>同一方案再生成一条（另计费）</button><p class="field-note">点击后才会提交付费生成。完成的视频可保存到本机，再预览和下载。</p></div>
+        </form>
+      </section>
+      <aside class="setup-column">
+        <section class="panel connection-panel" aria-labelledby="connection-heading"><div class="panel-heading"><span class="step-number">↗</span><div><h2 id="connection-heading">连接 OpenRouter</h2><p class="connection-status" id="connection-status" role="status" aria-live="polite">正在读取连接状态…</p></div></div><form id="connection-form" autocomplete="off"><label class="field"><span>OpenRouter API Key</span><input id="api-key" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="1000" placeholder="仅在本机连接时使用" required></label><button class="button primary full" id="connect-button" type="submit">验证并连接</button></form><button class="button full" id="disconnect-button" type="button" hidden>断开本机连接</button><p class="form-message" id="connection-message" role="status" aria-live="polite"></p><p class="field-note">密钥只在当前本机服务内存中使用，不写入网页、浏览器存储或项目文件。服务重启后需重新输入。</p></section>
+        <section class="panel cloud-panel"><span class="eyebrow">KEEP IT IN THE CLOUD</span><h2>也可以用 GitHub 云端生成</h2><p>将密钥保存为 GitHub Secret <strong>OPENROUTER_API_KEY</strong>，再手动启动云端视频生成任务。</p><a class="button full" href="https://github.com/yjr927/idore_tools/settings/secrets/actions/new" target="_blank" rel="noopener noreferrer">在 GitHub 保存密钥 ↗</a><a class="button full" href="https://github.com/yjr927/idore_tools/actions/workflows/video-generation.yml" target="_blank" rel="noopener noreferrer">打开云端生成任务 ↗</a><p class="field-note">GitHub 保存的密钥只供云端任务使用。本机页面无法读取 GitHub Secret；本机生成需在上方另行连接。</p></section>
+        <section class="workflow-note"><span class="note-spark">✳</span><h2>先选素材，再选方式。</h2><p><strong>手势 / 舞蹈</strong>角色照片加动作参考。是否支持动作参考取决于所选模型。</p><p><strong>变妆 / 换装</strong>先准备同一角色的前后造型图，再使用支持首尾帧的模型生成。</p><p>这里生成视频，不会自动发布到 TikTok。</p></section>
+      </aside>
+    </div>
+    <section class="jobs-section" aria-labelledby="jobs-heading"><div class="section-top"><div><span class="eyebrow">YOUR CREATIONS</span><h2 id="jobs-heading">生成记录</h2></div><button class="button small" id="reload-jobs" type="button">刷新本机记录</button></div><p class="section-description">任务提交后保留在本机。生成中每 30 秒查询一次远端进度；页面每 5 秒读取本机记录。</p><p class="form-message" id="jobs-message" role="status" aria-live="polite"></p><div id="jobs-list" class="jobs-grid"><p class="empty-state">尚未读取生成记录。</p></div></section>
+  </main>
+  <footer>idore · Create your next story.<span>OpenRouter · 本机保存结果 · 发布前自行检查成片</span></footer>
+  <noscript><p>请启用 JavaScript，以连接 OpenRouter 和生成视频。</p></noscript>
+</body>
+</html>

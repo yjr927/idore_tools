@@ -1,4 +1,4 @@
-"""Loopback-only offline planning app. Python 3.10+, no third-party dependencies."""
+"""Loopback-only planner and explicit OpenRouter video workspace. Stdlib only."""
 from __future__ import annotations
 import argparse
 import base64
@@ -18,6 +18,7 @@ from urllib.parse import urlsplit, unquote
 import uuid
 from discovery import DiscoveryError
 from discovery_store import DiscoveryLibrary
+from video_service import VideoService, VideoError
 
 ROOT = Path(__file__).resolve().parent
 CONFIG = dict(region='ALL', category='all', minimum_owned_ratio=.8,
@@ -323,6 +324,27 @@ class Handler(BaseHTTPRequestHandler):
             path=unquote(urlsplit(self.path).path)
             if '..' in path or '\\' in path or '\x00' in path:raise APIError('Invalid path.',400)
             store=self.server.store
+            if path.startswith('/api/video'):
+                service=self.server.video_service
+                if not write:
+                    if path=='/api/video/connection': return self.respond(service.connection())
+                    if path=='/api/video/models': return self.respond(service.models())
+                    if path=='/api/video/jobs': return self.respond(service.jobs())
+                else:
+                    body=self.body()
+                    if self.command=='POST' and path=='/api/video/connection': return self.respond(service.connect(body))
+                    if self.command=='DELETE' and path=='/api/video/connection': return self.respond(service.disconnect())
+                    if self.command=='POST' and path=='/api/video/jobs': return self.respond(service.submit(body),202)
+                    match=re.fullmatch(r'/api/video/jobs/(video-[a-f0-9]{32})/(?P<action>refresh|download)',path)
+                    if self.command=='POST' and match:
+                        return self.respond(getattr(service,match['action'])(match[1]))
+                raise APIError('Video endpoint not found.',404)
+            if not write and path.startswith('/generated/'):
+                filename=path[len('/generated/'):]
+                if not re.fullmatch(r'video-[a-f0-9]{32}\.mp4',filename): raise APIError('Video not found.',404)
+                file=store.directory/'generated'/filename
+                if not file.is_file() or file.is_symlink(): raise APIError('Video not found.',404)
+                return self.serve_media(file)
             if path.startswith('/api/discovery'):
                 library=self.server.discovery
                 if not write and path=='/api/discovery':
@@ -340,7 +362,7 @@ class Handler(BaseHTTPRequestHandler):
             with store.lock:
                 store.progress()
                 if not write:
-                    if path=='/api/health':return self.respond(dict(status='ok',mode='simulation',network_calls=0))
+                    if path=='/api/health':return self.respond(dict(status='ok',planning_mode='simulation',video_generation_configured=self.server.video_service.connection()['connected']))
                     if path=='/api/state':return self.respond(store.data)
                     m=re.fullmatch(r'/api/jobs/([a-zA-Z0-9-]+)(/export)?',path)
                     if m:
@@ -353,7 +375,8 @@ class Handler(BaseHTTPRequestHandler):
                         if not re.fullmatch(r'asset-[a-f0-9]{16}\.(png|jpg|webp|gif|mp4|webm|mov)',filename):raise APIError('Media not found.',404)
                         file=store.media/filename
                     else:
-                        paths={'/':'index.html','/index.html':'index.html','/discovery.js':'discovery.js','/app.js':'app.js','/styles.css':'styles.css','/mark.svg':'mark.svg'}
+                        paths={'/':'index.html','/index.html':'index.html','/discovery.js':'discovery.js','/app.js':'app.js','/styles.css':'styles.css','/mark.svg':'mark.svg',
+                               '/generate':'generate.html','/generate.html':'generate.html','/generate.js':'generate.js','/generate.css':'generate.css'}
                         if path not in paths:raise APIError('Not found.',404)
                         file=ROOT/'static'/paths[path]
                     if not file.is_file() or file.is_symlink():raise APIError('File not found.',404)
@@ -380,6 +403,7 @@ class Handler(BaseHTTPRequestHandler):
                                   'duration':lambda:number(v,'duration',.1,3600),'aspect_ratio':lambda:ratio(v)}[k]()
                     asset.update(clean);store.save();return self.respond(asset)
                 raise APIError('Endpoint or method not found.',404)
+        except VideoError as exc:self.respond({'error':str(exc)},exc.status)
         except DiscoveryError as exc:self.respond({'error':str(exc)},400)
         except APIError as exc:self.respond({'error':str(exc)},exc.status)
         except (BrokenPipeError,ConnectionResetError):pass
@@ -390,9 +414,10 @@ class Handler(BaseHTTPRequestHandler):
 
 class Server(ThreadingHTTPServer):
     daemon_threads=True
-    def __init__(self, address, store):
+    def __init__(self, address, store, video_service=None):
         self.store=store
         self.discovery=DiscoveryLibrary(store)
+        self.video_service=video_service or VideoService(store.directory)
         super().__init__(address, Handler)
 
 def main():
@@ -402,7 +427,7 @@ def main():
     parser.add_argument('--open',action='store_true',help='Open this localhost page in your default browser')
     args=parser.parse_args()
     server=Server(('127.0.0.1',args.port),Store(args.data_dir))
-    print(f'Local planner: http://127.0.0.1:{server.server_port}\nSimulation only. Ctrl+C to stop.',flush=True)
+    print(f'Local workspace: http://127.0.0.1:{server.server_port}\nVideo connection: http://127.0.0.1:{server.server_port}/generate\nPaid video generation starts only from the generation page. Ctrl+C to stop.',flush=True)
     if args.open:
         import webbrowser
         threading.Timer(.3,lambda:webbrowser.open(f'http://127.0.0.1:{server.server_port}')).start()
