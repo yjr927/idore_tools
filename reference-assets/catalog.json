@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "publication": "User explicitly approved public upload of this selected KAI photo for GitHub cloud generation.",
+  "characters": [
+    {
+      "id": "kai",
+      "name": "KAI",
+      "material_group": "male",
+      "subject_group": "solo",
+      "stage": "整体",
+      "image": "kai-full.png"
+    }
+  ]
+}
