@@ -115,6 +115,43 @@ class KaiMotionCloudTests(unittest.TestCase):
         with patch.object(kai, "build_opener", return_value=opener), self.assertRaises(kai.PreflightStopped):
             kai.range_preflight(REFERENCE, "video_url")
 
+    def test_play_button_hydrating_after_first_poll_is_clicked_before_video_resolves(self):
+        class Video:
+            @property
+            def first(self): return self
+            async def count(self): return 1 if page.clicked else 0
+            async def evaluate(self, *args, **kwargs):
+                return {"url": REFERENCE, "duration": 6.22, "networkState": 1}
+        class Play:
+            def __init__(self, label): self.label = label
+            @property
+            def first(self): return self
+            async def count(self): return 1 if page.poll >= 1 and self.label == page.label and not page.clicked else 0
+            async def is_visible(self): return True
+            async def is_enabled(self, **kwargs): return True
+            async def click(self, **kwargs):
+                page.clicked = True
+                page.clicks += 1
+        class Page:
+            url = kai.PLAYER_URL
+            def __init__(self, label): self.poll = 0; self.clicked = False; self.clicks = 0; self.label = label
+            def locator(self, selector): return Video()
+            def get_by_role(self, role, name, exact): return Play(name)
+            async def wait_for_timeout(self, duration): self.poll += 1
+        for label in ("Play video", "Play"):
+            page = Page(label)
+            diagnostics = kai.player_ui_state()
+            with self.subTest(label=label), patch.object(kai, "access_blocked", AsyncMock(return_value=False)), \
+                    patch.object(kai.time, "monotonic", side_effect=lambda: page.poll * .5):
+                url, duration = asyncio.run(kai._poll_player(page, 5, diagnostics))
+            self.assertEqual(url, REFERENCE); self.assertEqual(duration, 6.22)
+            self.assertEqual(page.clicks, 1)
+            self.assertTrue(diagnostics["play_seen"]); self.assertTrue(diagnostics["play_clicked"])
+            self.assertTrue(diagnostics["page_on_public_player"])
+            self.assertEqual(diagnostics["visible_video_count"], 1)
+            self.assertEqual(diagnostics["src_kind"], "https")
+            self.assertNotIn(REFERENCE, json.dumps(diagnostics))
+
     def test_runner_failure_restores_environment_and_cannot_leak_transient_reference(self):
         def fail():
             self.assertIn(REFERENCE, os.environ["GENERATION_INPUTS"])
