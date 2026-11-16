@@ -1072,9 +1072,310 @@
         "source": "ChatGPT Work 素材分类复核",
         "note": "已播放复看：室内只有一位表演者，白色短袖衬衫、浅色内搭、深色长裤及挂绳，做胸前手势、手掌翻转与侧摆动作。服装与动作不明确限定男女角色素材，分组待确认；不凭脸、短发或姓名判断真实性别。"
       }
+    },
+    {
+      "trend_category": "kpop",
+      "material_group": "female",
+      "transformation": "unknown",
+      "url": "https://www.tiktok.com/@patriciamulyana/video/7703568479311416583",
+      "title": "JISOO ADDICTED — solo hand-gesture dance",
+      "kind": "hands",
+      "original_watched": true,
+      "motion_summary": "已播放约24秒原片并观察多个关键画面：一位表演者穿黑色短裤、修身上衣和徽章帽，向镜头伸拳、转动上身，随后双手在胸前比心。背景墙与架子位置稳定。页面明确标注JISOO与jisooaddicted，属于K-pop舞蹈候选。按这套女装造型的角色素材用途分组，不判断原片人物真实性别。已观察片段未见换装，但未完整核验全片造型变化和动作重复周期。",
+      "checks": {
+        "fixed_camera": true,
+        "repetitive": null,
+        "solo": true
+      },
+      "recreation_notes": "单人中景且背景稳定，适合短段手势参考；建议保留帽子与服装轮廓，检查伸拳透视、比心手指接触及躯干摆动。尚未生成测试。",
+      "published_at": null,
+      "published_text": "11-2",
+      "metrics": {
+        "comments": 22,
+        "likes": 3072,
+        "shares": 195,
+        "views": null
+      },
+      "related_videos": [
+        {
+          "url": "https://www.tiktok.com/@kkgee00/video/7706922233561632020",
+          "original_watched": true,
+          "same_pattern": null,
+          "note": "页面4d ago；已播放部分原片：分屏上方为歌曲表演画面，下方为镜前舞蹈，观察到下蹲、起身、手靠头侧与另一臂横伸。与主片属于同曲相关内容，但完整手势顺序未证明相同，不计为确认同玩法。"
+        },
+        {
+          "url": "https://www.tiktok.com/@midozinha/video/7708406452343393556",
+          "original_watched": true,
+          "same_pattern": null,
+          "note": "页面23h ago；已播放部分原片，紫色长发造型的单人面对镜头抬手经过脸侧并对口型，画面叠加文字和通知展示。未确认主片的伸拳、胸前比心顺序一致；同曲不等于同玩法。"
+        }
+      ],
+      "music_name": "الصوت الأصلي - ♡゛فَتومهہ 🎀",
+      "id": "tiktok-7703568479311416583",
+      "video_id": "7703568479311416583",
+      "author": "patriciamulyana",
+      "kinds": [
+        "hands"
+      ],
+      "first_seen_at": "2026-11-16T14:31:12.979000+00:00",
+      "last_seen_at": "2026-11-16T14:31:12.979000+00:00",
+      "duration": null,
+      "music_id": "",
+      "source": "ChatGPT Work 云端浏览器",
+      "source_url": "https://www.tiktok.com/@patriciamulyana/video/7703568479311416583",
+      "source_kind": "chatgpt_work",
+      "search_query": "",
+      "assessment": "待核验候选",
+      "assessment_note": "已播放约24秒原片并观察多个关键画面：一位表演者穿黑色短裤、修身上衣和徽章帽，向镜头伸拳、转动上身，随后双手在胸前比心。背景墙与架子位置稳定。页面明确标注JISOO与jisooaddicted，属于K-pop舞蹈候选。按这套女装造型的角色素材用途分组，不判断原片人物真实性别。已观察片段未见换装，但未完整核验全片造型变化和动作重复周期。",
+      "motion_verified": false,
+      "trend_verified": false,
+      "favorite": false,
+      "availability": "Work 已观看原片",
+      "observations": [
+        {
+          "run_id": "work-tiktok-20261116T143112979Z-v2",
+          "observed_at": "2026-11-16T14:31:12.979000+00:00",
+          "metrics": {
+            "comments": 22,
+            "likes": 3072,
+            "shares": 195,
+            "views": null
+          },
+          "original_watched": true,
+          "motion_summary": "已播放约24秒原片并观察多个关键画面：一位表演者穿黑色短裤、修身上衣和徽章帽，向镜头伸拳、转动上身，随后双手在胸前比心。背景墙与架子位置稳定。页面明确标注JISOO与jisooaddicted，属于K-pop舞蹈候选。按这套女装造型的角色素材用途分组，不判断原片人物真实性别。已观察片段未见换装，但未完整核验全片造型变化和动作重复周期。",
+          "checks": {
+            "fixed_camera": true,
+            "repetitive": null,
+            "solo": true
+          },
+          "recreation_notes": "单人中景且背景稳定，适合短段手势参考；建议保留帽子与服装轮廓，检查伸拳透视、比心手指接触及躯干摆动。尚未生成测试。",
+          "related_videos": [
+            {
+              "url": "https://www.tiktok.com/@kkgee00/video/7706922233561632020",
+              "original_watched": true,
+              "same_pattern": null,
+              "note": "页面4d ago；已播放部分原片：分屏上方为歌曲表演画面，下方为镜前舞蹈，观察到下蹲、起身、手靠头侧与另一臂横伸。与主片属于同曲相关内容，但完整手势顺序未证明相同，不计为确认同玩法。"
+            },
+            {
+              "url": "https://www.tiktok.com/@midozinha/video/7708406452343393556",
+              "original_watched": true,
+              "same_pattern": null,
+              "note": "页面23h ago；已播放部分原片，紫色长发造型的单人面对镜头抬手经过脸侧并对口型，画面叠加文字和通知展示。未确认主片的伸拳、胸前比心顺序一致；同曲不等于同玩法。"
+            }
+          ],
+          "motion_verified": false,
+          "trend_verified": false,
+          "trend_category": "kpop",
+          "material_group": "female",
+          "transformation": "unknown"
+        }
+      ]
+    },
+    {
+      "trend_category": "virtual_idol",
+      "material_group": "male",
+      "transformation": "unknown",
+      "url": "https://www.tiktok.com/@just.some.dude.online/video/7708583073859915029",
+      "title": "Saja Boys character — solo eight-second dance",
+      "kind": "hands",
+      "original_watched": true,
+      "motion_summary": "已播放约8秒原片并观察关键画面：夜间游乐设施与路灯前仅一位风格化角色，红色发型、绿色贴身图案上衣和宽松牛仔裤，双脚分开，一臂屈肘将手放在颈肩附近，配合躯干与髋部侧摆。背景位置稳定。页面标注Saja Boys/Abby，按虚拟男团角色用途归男生素材，不推断真人性别或生成工具。已观察片段造型一致，但全片变化及完整重复周期未完全核验。",
+      "checks": {
+        "fixed_camera": true,
+        "repetitive": null,
+        "solo": true
+      },
+      "recreation_notes": "单角色全身构图、背景稳定、短时长适合尝试姿态参考；注意颈肩手部遮挡、宽裤摆动及逆光脸部细节。同一作者的多人版本动作复杂，未作为本条同玩法证据。尚未生成测试。",
+      "published_at": null,
+      "published_text": "12h ago",
+      "metrics": {
+        "comments": 6,
+        "likes": 194,
+        "shares": 2,
+        "views": null
+      },
+      "related_videos": [],
+      "music_name": "original sound - just.some.dude.online",
+      "id": "tiktok-7708583073859915029",
+      "video_id": "7708583073859915029",
+      "author": "just.some.dude.online",
+      "kinds": [
+        "hands"
+      ],
+      "first_seen_at": "2026-11-16T14:31:12.979000+00:00",
+      "last_seen_at": "2026-11-16T14:31:12.979000+00:00",
+      "duration": null,
+      "music_id": "",
+      "source": "ChatGPT Work 云端浏览器",
+      "source_url": "https://www.tiktok.com/@just.some.dude.online/video/7708583073859915029",
+      "source_kind": "chatgpt_work",
+      "search_query": "",
+      "assessment": "待核验候选",
+      "assessment_note": "已播放约8秒原片并观察关键画面：夜间游乐设施与路灯前仅一位风格化角色，红色发型、绿色贴身图案上衣和宽松牛仔裤，双脚分开，一臂屈肘将手放在颈肩附近，配合躯干与髋部侧摆。背景位置稳定。页面标注Saja Boys/Abby，按虚拟男团角色用途归男生素材，不推断真人性别或生成工具。已观察片段造型一致，但全片变化及完整重复周期未完全核验。",
+      "motion_verified": false,
+      "trend_verified": false,
+      "favorite": false,
+      "availability": "Work 已观看原片",
+      "observations": [
+        {
+          "run_id": "work-tiktok-20261116T143112979Z-v2",
+          "observed_at": "2026-11-16T14:31:12.979000+00:00",
+          "metrics": {
+            "comments": 6,
+            "likes": 194,
+            "shares": 2,
+            "views": null
+          },
+          "original_watched": true,
+          "motion_summary": "已播放约8秒原片并观察关键画面：夜间游乐设施与路灯前仅一位风格化角色，红色发型、绿色贴身图案上衣和宽松牛仔裤，双脚分开，一臂屈肘将手放在颈肩附近，配合躯干与髋部侧摆。背景位置稳定。页面标注Saja Boys/Abby，按虚拟男团角色用途归男生素材，不推断真人性别或生成工具。已观察片段造型一致，但全片变化及完整重复周期未完全核验。",
+          "checks": {
+            "fixed_camera": true,
+            "repetitive": null,
+            "solo": true
+          },
+          "recreation_notes": "单角色全身构图、背景稳定、短时长适合尝试姿态参考；注意颈肩手部遮挡、宽裤摆动及逆光脸部细节。同一作者的多人版本动作复杂，未作为本条同玩法证据。尚未生成测试。",
+          "related_videos": [],
+          "motion_verified": false,
+          "trend_verified": false,
+          "trend_category": "virtual_idol",
+          "material_group": "male",
+          "transformation": "unknown"
+        }
+      ]
     }
   ],
   "runs": [
+    {
+      "id": "work-tiktok-20261116T143112979Z-v2",
+      "run_id": "work-tiktok-20261116T143112979Z-v2",
+      "payload_sha256": "3e2ca714238977a7aa19d01100e6ee39277e4d28e0c930e41c2e69e639d44d6e",
+      "collector": "chatgpt_work",
+      "status": "partial",
+      "kind": "all",
+      "query": "",
+      "started_at": "2026-11-16T14:31:12.979000+00:00",
+      "finished_at": "2026-11-16T14:31:12.979000+00:00",
+      "observed_at": "2026-11-16T14:31:12.979000+00:00",
+      "found": 2,
+      "added": 2,
+      "message": "本轮按纽约当日名额收录K-pop与虚拟偶像各1条。已播放主片关键画面，K-pop主片页面11-2，扩展至30天窗口；虚拟角色主片12h ago。JISOO相关2名作者已查看部分原片，但动作未证明一致；虚拟角色原声页仅1条视频，未找到其他作者证据。均不足3名作者同玩法核验，美国受众参与度未核验，不宣称美国热榜或新趋势。记录主片页面直接显示的整数指标，未使用搜索卡片或关联片K/M计数作为主片指标。完整动作重复周期及全片造型变化未完全核验。AI适配尚未生成测试。",
+      "ingestion_status": "imported",
+      "video_snapshots": [
+        {
+          "id": "tiktok-7703568479311416583",
+          "video_id": "7703568479311416583",
+          "url": "https://www.tiktok.com/@patriciamulyana/video/7703568479311416583",
+          "title": "JISOO ADDICTED — solo hand-gesture dance",
+          "author": "patriciamulyana",
+          "kind": "hands",
+          "original_watched": true,
+          "motion_summary": "已播放约24秒原片并观察多个关键画面：一位表演者穿黑色短裤、修身上衣和徽章帽，向镜头伸拳、转动上身，随后双手在胸前比心。背景墙与架子位置稳定。页面明确标注JISOO与jisooaddicted，属于K-pop舞蹈候选。按这套女装造型的角色素材用途分组，不判断原片人物真实性别。已观察片段未见换装，但未完整核验全片造型变化和动作重复周期。",
+          "checks": {
+            "fixed_camera": true,
+            "repetitive": null,
+            "solo": true
+          },
+          "recreation_notes": "单人中景且背景稳定，适合短段手势参考；建议保留帽子与服装轮廓，检查伸拳透视、比心手指接触及躯干摆动。尚未生成测试。",
+          "published_at": null,
+          "published_text": "11-2",
+          "metrics": {
+            "comments": 22,
+            "likes": 3072,
+            "shares": 195,
+            "views": null
+          },
+          "related_videos": [
+            {
+              "url": "https://www.tiktok.com/@kkgee00/video/7706922233561632020",
+              "original_watched": true,
+              "same_pattern": null,
+              "note": "页面4d ago；已播放部分原片：分屏上方为歌曲表演画面，下方为镜前舞蹈，观察到下蹲、起身、手靠头侧与另一臂横伸。与主片属于同曲相关内容，但完整手势顺序未证明相同，不计为确认同玩法。"
+            },
+            {
+              "url": "https://www.tiktok.com/@midozinha/video/7708406452343393556",
+              "original_watched": true,
+              "same_pattern": null,
+              "note": "页面23h ago；已播放部分原片，紫色长发造型的单人面对镜头抬手经过脸侧并对口型，画面叠加文字和通知展示。未确认主片的伸拳、胸前比心顺序一致；同曲不等于同玩法。"
+            }
+          ],
+          "music_name": "الصوت الأصلي - ♡゛فَتومهہ 🎀",
+          "motion_verified": false,
+          "trend_verified": false,
+          "source": "ChatGPT Work 云端浏览器",
+          "source_url": "https://www.tiktok.com/@patriciamulyana/video/7703568479311416583",
+          "source_kind": "chatgpt_work",
+          "assessment": "待核验候选",
+          "assessment_note": "已播放约24秒原片并观察多个关键画面：一位表演者穿黑色短裤、修身上衣和徽章帽，向镜头伸拳、转动上身，随后双手在胸前比心。背景墙与架子位置稳定。页面明确标注JISOO与jisooaddicted，属于K-pop舞蹈候选。按这套女装造型的角色素材用途分组，不判断原片人物真实性别。已观察片段未见换装，但未完整核验全片造型变化和动作重复周期。",
+          "trend_category": "kpop",
+          "material_group": "female",
+          "transformation": "unknown",
+          "observed_at": "2026-11-16T14:31:12.979000+00:00"
+        },
+        {
+          "id": "tiktok-7708583073859915029",
+          "video_id": "7708583073859915029",
+          "url": "https://www.tiktok.com/@just.some.dude.online/video/7708583073859915029",
+          "title": "Saja Boys character — solo eight-second dance",
+          "author": "just.some.dude.online",
+          "kind": "hands",
+          "original_watched": true,
+          "motion_summary": "已播放约8秒原片并观察关键画面：夜间游乐设施与路灯前仅一位风格化角色，红色发型、绿色贴身图案上衣和宽松牛仔裤，双脚分开，一臂屈肘将手放在颈肩附近，配合躯干与髋部侧摆。背景位置稳定。页面标注Saja Boys/Abby，按虚拟男团角色用途归男生素材，不推断真人性别或生成工具。已观察片段造型一致，但全片变化及完整重复周期未完全核验。",
+          "checks": {
+            "fixed_camera": true,
+            "repetitive": null,
+            "solo": true
+          },
+          "recreation_notes": "单角色全身构图、背景稳定、短时长适合尝试姿态参考；注意颈肩手部遮挡、宽裤摆动及逆光脸部细节。同一作者的多人版本动作复杂，未作为本条同玩法证据。尚未生成测试。",
+          "published_at": null,
+          "published_text": "12h ago",
+          "metrics": {
+            "comments": 6,
+            "likes": 194,
+            "shares": 2,
+            "views": null
+          },
+          "related_videos": [],
+          "music_name": "original sound - just.some.dude.online",
+          "motion_verified": false,
+          "trend_verified": false,
+          "source": "ChatGPT Work 云端浏览器",
+          "source_url": "https://www.tiktok.com/@just.some.dude.online/video/7708583073859915029",
+          "source_kind": "chatgpt_work",
+          "assessment": "待核验候选",
+          "assessment_note": "已播放约8秒原片并观察关键画面：夜间游乐设施与路灯前仅一位风格化角色，红色发型、绿色贴身图案上衣和宽松牛仔裤，双脚分开，一臂屈肘将手放在颈肩附近，配合躯干与髋部侧摆。背景位置稳定。页面标注Saja Boys/Abby，按虚拟男团角色用途归男生素材，不推断真人性别或生成工具。已观察片段造型一致，但全片变化及完整重复周期未完全核验。",
+          "trend_category": "virtual_idol",
+          "material_group": "male",
+          "transformation": "unknown",
+          "observed_at": "2026-11-16T14:31:12.979000+00:00"
+        }
+      ],
+      "sources": [
+        {
+          "name": "ChatGPT Work 云端浏览器",
+          "url": "https://www.tiktok.com/@patriciamulyana/video/7703568479311416583",
+          "status": "ok",
+          "found": 1
+        },
+        {
+          "name": "ChatGPT Work 云端浏览器",
+          "url": "https://www.tiktok.com/@kkgee00/video/7706922233561632020",
+          "status": "ok",
+          "found": 1
+        },
+        {
+          "name": "ChatGPT Work 云端浏览器",
+          "url": "https://www.tiktok.com/@midozinha/video/7708406452343393556",
+          "status": "ok",
+          "found": 1
+        },
+        {
+          "name": "ChatGPT Work 云端浏览器",
+          "url": "https://www.tiktok.com/@just.some.dude.online/video/7708583073859915029",
+          "status": "ok",
+          "found": 1
+        }
+      ]
+    },
     {
       "id": "work-tiktok-58f0303583004adabe312c55789ab9b0",
       "run_id": "work-tiktok-58f0303583004adabe312c55789ab9b0",
@@ -1852,16 +2153,23 @@
       ]
     }
   ],
-  "last_attempt_at": "2026-11-15T13:59:00+00:00",
-  "last_success_at": "2026-11-15T13:59:00+00:00",
+  "last_attempt_at": "2026-11-16T14:31:12.979000+00:00",
+  "last_success_at": "2026-11-16T14:31:12.979000+00:00",
   "work_imports": {
     "work-tiktok-20261112T013104Z-7704859708200389902": "3f8b1c1e965c6bdb4e2aa62d5664177f4b4188cb0e4652526db2730fb82349c7",
     "work-tiktok-20261112T140658Z-d02c989e": "2f440e348273e22c41cb3b476aaf274262e138159e45dde53425844de921907c",
     "work-tiktok-50b2ab5b319448999ae70fc23c281d1f": "13f1e35e49f2b88a0e613c7255bddd7804b46e72fbcc034b7290212ccb3ff700",
     "work-tiktok-42496ba06f294957b97fa8c6dd7d3ddc": "e7ef4bacfbd5a54872d6aee2266480cb1ba6d52fcadc83e19e6418b99b51fcd6",
-    "work-tiktok-58f0303583004adabe312c55789ab9b0": "033895ff0737f4a440632c2f0444bddb9fdf75ff1713e310b4c0f88a7236cb8b"
+    "work-tiktok-58f0303583004adabe312c55789ab9b0": "033895ff0737f4a440632c2f0444bddb9fdf75ff1713e310b4c0f88a7236cb8b",
+    "work-tiktok-20261116T143112979Z-v2": "3e2ca714238977a7aa19d01100e6ee39277e4d28e0c930e41c2e69e639d44d6e"
   },
   "material_classification_imports": {
     "2026-11-15T22:22:39.724000+00:00": "8cd3e17433a336f4ee0bcc3b43c3920f593ebf1d3c38b5039ecfc571ac1215ed"
+  },
+  "work_daily_selections": {
+    "2026-11-16": {
+      "kpop": "tiktok-7703568479311416583",
+      "virtual_idol": "tiktok-7708583073859915029"
+    }
   }
 }
