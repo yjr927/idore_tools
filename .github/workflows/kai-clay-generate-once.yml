@@ -1,49 +1,12 @@
-name: KAI from reviewed clay - one generation
+name: Archived - KAI clay generation completed
 on:
-  push:
-    branches: [codex/kai-clay-motion-20261115]
-    paths: [.github/workflows/kai-clay-generate-once.yml]
+  workflow_dispatch:
 permissions:
   contents: read
-concurrency:
-  group: kai-clay-final-generation
-  cancel-in-progress: false
 jobs:
-  generate:
-    if: ${{ github.run_number == '1' && github.run_attempt == '1' }}
+  receipt:
     runs-on: ubuntu-24.04
-    timeout-minutes: 32
+    timeout-minutes: 2
     steps:
-      - uses: actions/checkout@v4
-        with:
-          persist-credentials: false
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-      - name: Ensure video validation tools are available
-        run: |
-          if ! command -v ffmpeg >/dev/null || ! command -v ffprobe >/dev/null; then
-            sudo apt-get update -qq
-            sudo apt-get install -y -qq ffmpeg
-          fi
-      - name: Generate the authorized KAI video once
-        env:
-          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
-          CLAY_REFERENCE_URL: 'https://raw.githubusercontent.com/yjr927/idore_tools/cce63dabd044b1a8131fc49158479bffa31aaee5/reference-assets/clay-bizzyboom.mp4'
-          CLAY_REFERENCE_SHA256: '56c856b3d1f4187573caafdb3c71126aa6e95c2a9eafc52c9df8581fdf2219f2'
-          CLAY_REVIEWED: 'true'
-          CLAY_ALLOW_PAID: 'true'
-          VIDEO_OUTPUT_DIR: generation-output
-          PYTHONUNBUFFERED: '1'
-        run: python scripts/run_clay_video_generation.py
-      - name: Save the result and safe generation receipt
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: kai-clay-generated-video
-          path: |
-            generation-output/clay-generation-summary.json
-            generation-output/video-*.mp4
-          if-no-files-found: warn
-          compression-level: 0
-          retention-days: 7
+      - name: Show the completed generation receipt
+        run: echo 'KAI clay generation completed at https://github.com/yjr927/idore_tools/actions/runs/43790641550. This archived workflow makes no API calls.'
