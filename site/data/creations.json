@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "items": [
+    {
+      "id": "video-36dc967ec3fc7e4cd1060f94",
+      "title": "KAI · Bizzyboom 手势舞",
+      "character": "KAI",
+      "material_group": "male",
+      "cast_type": "solo",
+      "created_at": "2026-11-16T02:15:10Z",
+      "model": "bytedance/seedance-2.5",
+      "duration": 6.042,
+      "resolution": "720p",
+      "aspect_ratio": "9:16",
+      "video_path": "generated/video-36dc967ec3fc7e4cd1060f94.mp4",
+      "poster_path": "generated/video-36dc967ec3fc7e4cd1060f94.jpg",
+      "workflow_url": "https://github.com/yjr927/idore_tools/actions/runs/43790641550",
+      "kind": "character",
+      "sha256": "36dc967ec3fc7e4cd1060f94cf9572ee4a1a7e2def4c2bcdeb6d9648518a3b68"
+    },
+    {
+      "id": "video-0dce843b11792bab97eecf8e",
+      "title": "API 视频生成测试",
+      "character": "测试小鹿",
+      "material_group": "unknown",
+      "cast_type": "unknown",
+      "created_at": "2026-11-15T23:08:59Z",
+      "model": "bytedance/seedance-2.0-fast",
+      "duration": 5.042,
+      "resolution": "720p",
+      "aspect_ratio": "9:16",
+      "video_path": "generated/video-0dce843b11792bab97eecf8e.mp4",
+      "poster_path": "generated/video-0dce843b11792bab97eecf8e.jpg",
+      "workflow_url": "https://github.com/yjr927/idore_tools/actions/runs/43772946438",
+      "kind": "api_test",
+      "sha256": "0dce843b11792bab97eecf8e1e995edb399a81f6bbae971502b862e3d7d13503"
+    }
+  ],
+  "updated_at": "2026-11-16T02:36:56.343078Z"
+}

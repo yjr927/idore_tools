@@ -30,6 +30,10 @@ GitHub Pages 只发布 `site/`，不会发布本地 Python 服务和角色素材
 
 “采集记录”按纽约时间展示最近 90 次尝试，展开可看当次采到的具体视频、主题、男／女素材分组、单人／多人观察、变装类型、玩法、动作观察、原片链接和当时的指标。每轮保存独立快照，后续更新不会改写旧记录；没有结果或访问失败也会记录。
 
+## 生成作品展示区
+
+[打开生成作品](https://yjr927.github.io/idore_tools/gallery.html)。已完成的 KAI 手势舞与小鹿接口测试视频保存在仓库 `site/generated/`，可直接播放、下载并按生成时间倒序查看；首页与创作页面均有入口。后续指定 GitHub 云端生成任务完成后自动检查成片、保存封面、去重入库并发布网站。归档不调用付费生成 API。浏览器直接生成的作品尚不自动同步到 GitHub。详情和容量限制见 [长期归档说明](docs/CREATIONS_ARCHIVE.md)。
+
 ## 可选 OpenAI 分析
 
 直接读取公开页面不需要 OpenAI。只有手动运行任务时选择 `analyze=true` 才会调用模型，并可能产生 API 费用。
@@ -44,7 +48,7 @@ GitHub Pages 只发布 `site/`，不会发布本地 Python 服务和角色素材
 
 已提供独立的 [OpenRouter Seedance 连接与生成说明](docs/INTEGRATION.md)。本机启动后打开 `http://127.0.0.1:8765/generate`，在密码框连接 OpenRouter；密钥只保留在服务内存中。模型与参数读取实时列表，支持文字、首尾帧和角色／动作参考三种方式，明确确认后才提交付费生成，完成后保存、播放与下载 MP4。旧的分镜计划仍为模拟，不会因批准计划而调用生成。
 
-也可把 **OPENROUTER_API_KEY** 保存到 GitHub Actions Secrets，再手动运行 **Generate Seedance video**。密钥不进入公开网站；结果以任务附件保存，不自动发布。公开仓库的工作流输入可见，私人素材请用本机入口。造型图、英文文案与 hashtags 也已接入，使用单独的 OPENAI_API_KEY；TikTok 发帖仍需人工完成。
+也可把 **OPENROUTER_API_KEY** 保存到 GitHub Actions Secrets，再手动运行 **Generate Seedance video**。密钥不进入公开网站；main 分支人工触发的已完成视频会自动归档到仓库与网站“生成作品”展示区。公开仓库的工作流输入可见，私人素材请用本机入口。造型图、英文文案与 hashtags 也已接入，使用单独的 OPENAI_API_KEY；TikTok 发帖仍需人工完成。
 
 ## 造型图 → 视频 → 英文文案与 hashtags
 
