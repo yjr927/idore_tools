@@ -118,6 +118,11 @@ class ClayVideoGenerationTests(unittest.TestCase):
             {"type": "image_url", "image_url": {"url": clay.IMAGE_URL}},
             {"type": "video_url", "video_url": {"url": REFERENCE}}])
         self.assertEqual(payload["prompt"], clay.PROMPT)
+        self.assertIn("new reference-to-video generation", payload["prompt"])
+        self.assertIn("Image 1", payload["prompt"])
+        self.assertIn("Video 1", payload["prompt"])
+        self.assertNotIn("video 2", payload["prompt"].lower())
+        self.assertNotIn("replace", payload["prompt"].lower())
         self.assertNotIn("frame_images", payload)
         self.assertEqual(summary["remote_id"], REMOTE)
         self.assertEqual(summary["status"], "completed")

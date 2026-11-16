@@ -35,18 +35,21 @@ MAX_ERROR_BYTES = 64 * 1024
 POLL_SECONDS = 30
 POLL_DEADLINE_SECONDS = 25 * 60
 PROMPT = (
-    "Create a 6-second, 9:16 video of KAI, the fictional male character in reference image 1. "
-    "Reference image 1 is the sole source of the character's identity and appearance: preserve KAI's "
+    "Task: new reference-to-video generation using a motion-only video reference. "
+    "Create a new 6-second, 9:16 video of KAI, the fictional male character in Image 1. "
+    "Image 1 is the sole source of the character's identity and appearance: preserve KAI's "
     "face, facial proportions, hair, skin, clothing, sheer black fabric, light-colored trousers, "
     "and butterfly accessories exactly as shown. Keep the same character and wardrobe throughout. "
-    "Reference video 2 is an approved faceless clay motion study. Use it only for the visible body "
+    "Video 1 is the single approved faceless clay motion study. Use Video 1 only for the visible body "
     "and finger movements, their order, timing, rhythm, orientation, framing, and camera movement. "
     "Reproduce only movements actually visible in that video; do not invent choreography or a transformation. "
-    "Render every frame as KAI from image 1. Do not transfer the clay figure's faceless head, white plastic "
-    "material, simplified body, missing details, proportions, or background into KAI's appearance. "
+    "Render every frame as KAI from Image 1. The clay figure supplies motion only; KAI's face, natural skin, "
+    "detailed body proportions and complete costume come exclusively from Image 1. "
+    "Keep the clay figure's faceless head, white plastic "
+    "material, simplified body, missing details, proportions, and background out of KAI's appearance. "
     "Maintain coherent anatomy and natural, stable hands with five distinct fingers, believable joints "
     "and continuous contact/occlusion. Keep the face, hair, clothing and butterflies consistent during motion. "
-    "No morphing into the clay figure, no face replacement, no costume change, no added text, and no audio."
+    "KAI's identity and complete outfit remain consistent. No morphing into the clay figure. No subtitles. No audio."
 )
 KNOWN_REJECTIONS = {
     "InputVideoSensitiveContentDetected.PrivacyInformation": (
