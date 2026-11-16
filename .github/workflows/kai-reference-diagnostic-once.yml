@@ -1,0 +1,42 @@
+name: Diagnose and generate KAI from the selected TikTok link
+run-name: KAI - explicit provider diagnostic
+on:
+  push:
+    branches: [codex/kai-bizzyboom-cloud-20261115]
+    paths: [.github/workflows/kai-reference-diagnostic-once.yml]
+permissions:
+  contents: read
+concurrency:
+  group: kai-bizzyboom-one-generation
+  cancel-in-progress: false
+jobs:
+  generate:
+    if: github.run_attempt == 1
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Resolve public link, verify full source MP4, then generate KAI once
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          KAI_ALLOW_PAID: 'true'
+          VIDEO_OUTPUT_DIR: generation-output
+        run: python3 scripts/run_kai_reference_diagnostic.py
+      - name: Save KAI output and safe summaries only
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: kai-reference-diagnostic-${{ github.run_id }}
+          path: |
+            generation-output/generated/*.mp4
+            generation-output/generation-summary.json
+            generation-output/cloud-generation-summary.json
+            generation-output/tiktok-resolution-summary.json
+            generation-output/provider-rejection-summary.json
+          retention-days: 7
+          if-no-files-found: ignore
