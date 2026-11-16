@@ -1,45 +1,74 @@
 {
-  "schema_version": 1,
-  "run_id": "work-tiktok-58f0303583004adabe312c55789ab9b0",
-  "observed_at": "2026-11-15T08:59:00-05:00",
+  "schema_version": 2,
+  "run_id": "work-tiktok-20261116T143112979Z-v2",
+  "observed_at": "2026-11-16T14:31:12.979Z",
   "status": "partial",
-  "message": "本轮新增1条单人固定机位短手势舞候选，页面日期10-26，已扩展至30天窗口。实际播放并观察主片关键画面及2名其他作者的部分原片；同音频不代表相同动作，尚未取得3名作者同玩法的充分证据。精确发布时间、播放量及完整重复动作周期未核验。点赞86.7K换算86700为页面近似取整观测值，并非精确计数。AI适配尚未生成测试。",
+  "message": "本轮按纽约当日名额收录K-pop与虚拟偶像各1条。已播放主片关键画面，K-pop主片页面11-2，扩展至30天窗口；虚拟角色主片12h ago。JISOO相关2名作者已查看部分原片，但动作未证明一致；虚拟角色原声页仅1条视频，未找到其他作者证据。均不足3名作者同玩法核验，美国受众参与度未核验，不宣称美国热榜或新趋势。记录主片页面直接显示的整数指标，未使用搜索卡片或关联片K/M计数作为主片指标。完整动作重复周期及全片造型变化未完全核验。AI适配尚未生成测试。",
   "videos": [
     {
-      "url": "https://www.tiktok.com/@silvernelmida_i2/video/7700888094974676244",
-      "title": "Love Options 单人上半身手势短舞",
+      "url": "https://www.tiktok.com/@patriciamulyana/video/7703568479311416583",
+      "title": "JISOO ADDICTED — solo hand-gesture dance",
+      "trend_category": "kpop",
+      "material_group": "female",
       "kind": "hands",
+      "transformation": "unknown",
       "original_watched": true,
-      "motion_summary": "约12秒，单人面对固定镜头，起始双手放腰侧；随后双臂抬到身前、手腕下垂并侧摆肩膀，另一关键画面双手在胸前展开翻动。背景位置保持稳定。已观察多个播放关键画面，完整手势顺序及重复周期未完全核验。",
+      "motion_summary": "已播放约24秒原片并观察多个关键画面：一位表演者穿黑色短裤、修身上衣和徽章帽，向镜头伸拳、转动上身，随后双手在胸前比心。背景墙与架子位置稳定。页面明确标注JISOO与jisooaddicted，属于K-pop舞蹈候选。按这套女装造型的角色素材用途分组，不判断原片人物真实性别。已观察片段未见换装，但未完整核验全片造型变化和动作重复周期。",
       "checks": {
         "solo": true,
         "repetitive": null,
         "fixed_camera": true
       },
-      "recreation_notes": "单人中景、背景稳定、动作集中于手臂和肩膀，适合尝试短段动作迁移；需留足手部画幅，注意翻掌时的手指和双手遮挡，以及胸前挂饰随动作的变化。尚未生成测试。",
+      "recreation_notes": "单人中景且背景稳定，适合短段手势参考；建议保留帽子与服装轮廓，检查伸拳透视、比心手指接触及躯干摆动。尚未生成测试。",
       "published_at": null,
-      "published_text": "10-26",
+      "published_text": "11-2",
       "metrics": {
         "views": null,
-        "likes": 86700,
-        "comments": 296,
-        "shares": 5721
+        "likes": 3072,
+        "comments": 22,
+        "shares": 195
       },
       "related_videos": [
         {
-          "url": "https://www.tiktok.com/@oofdiswrld/video/7703101447755336982",
+          "url": "https://www.tiktok.com/@kkgee00/video/7706922233561632020",
           "original_watched": true,
           "same_pattern": null,
-          "note": "页面11-1；原片总长约60秒，本轮播放并观察开头部分：户外单人全身，向前迈步、侧摆身体，一手靠腰、一手抬起。与主片同音频，但未核验完整手势顺序一致；不能作为已确认同玩法的作者证据。"
+          "note": "页面4d ago；已播放部分原片：分屏上方为歌曲表演画面，下方为镜前舞蹈，观察到下蹲、起身、手靠头侧与另一臂横伸。与主片属于同曲相关内容，但完整手势顺序未证明相同，不计为确认同玩法。"
         },
         {
-          "url": "https://www.tiktok.com/@ktuyen36_/video/7706547071368613140",
+          "url": "https://www.tiktok.com/@midozinha/video/7708406452343393556",
           "original_watched": true,
           "same_pattern": null,
-          "note": "页面4d ago；原片约39秒，本轮播放并观察开头部分：夜间户外两人前后换位，粉色上衣者抬双手在肩旁、屈膝侧摆，另一人在后方跟跳。与主片同音频，有抬手摆动但人数、走位和取景不同，完整动作匹配未核验。"
+          "note": "页面23h ago；已播放部分原片，紫色长发造型的单人面对镜头抬手经过脸侧并对口型，画面叠加文字和通知展示。未确认主片的伸拳、胸前比心顺序一致；同曲不等于同玩法。"
         }
       ],
-      "music_name": "Love Options - BESTie"
+      "music_name": "الصوت الأصلي - ♡゛فَتومهہ 🎀"
+    },
+    {
+      "url": "https://www.tiktok.com/@just.some.dude.online/video/7708583073859915029",
+      "title": "Saja Boys character — solo eight-second dance",
+      "trend_category": "virtual_idol",
+      "material_group": "male",
+      "kind": "hands",
+      "transformation": "unknown",
+      "original_watched": true,
+      "motion_summary": "已播放约8秒原片并观察关键画面：夜间游乐设施与路灯前仅一位风格化角色，红色发型、绿色贴身图案上衣和宽松牛仔裤，双脚分开，一臂屈肘将手放在颈肩附近，配合躯干与髋部侧摆。背景位置稳定。页面标注Saja Boys/Abby，按虚拟男团角色用途归男生素材，不推断真人性别或生成工具。已观察片段造型一致，但全片变化及完整重复周期未完全核验。",
+      "checks": {
+        "solo": true,
+        "repetitive": null,
+        "fixed_camera": true
+      },
+      "recreation_notes": "单角色全身构图、背景稳定、短时长适合尝试姿态参考；注意颈肩手部遮挡、宽裤摆动及逆光脸部细节。同一作者的多人版本动作复杂，未作为本条同玩法证据。尚未生成测试。",
+      "published_at": null,
+      "published_text": "12h ago",
+      "metrics": {
+        "views": null,
+        "likes": 194,
+        "comments": 6,
+        "shares": 2
+      },
+      "related_videos": [],
+      "music_name": "original sound - just.some.dude.online"
     }
   ]
 }
