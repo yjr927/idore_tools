@@ -5,6 +5,7 @@ const OPENROUTER = 'https://openrouter.ai';
 const TIKWM = 'https://www.tikwm.com/api/';
 const KAI_IMAGE = 'https://raw.githubusercontent.com/yjr927/idore_tools/bd19680c2f14b89be1a1025b7825d9e49bd4b433/reference-assets/kai-full.png';
 const APPROVED_SOURCE = { author: 'bizzyboom', id: '7706633304702848276' };
+const CLAY_MODEL = 'bytedance/seedance-2.5';
 const JOURNAL_KEY = 'idore-create-journal-v1';
 const OAUTH_KEY = 'idore-create-pkce-v1';
 const LOCK_NAME = 'idore-openrouter-paid-video-v1';
@@ -16,6 +17,7 @@ const CASTS = new Set(['solo', 'group', 'unknown']);
 const PRIVACY_REJECTION = '模型服务商拒绝了参考视频中的真人输入。此版本/路由需要其支持的授权人像流程；修改提示词或重新下载不能解决。';
 let sessionKey = '', models = [], preparedReference = null, sourceVersion = 0, submitting = false, resolving = false, polling = false, oauthBusy = false, storageReady = false;
 let journal = [], incomingClassification = null, incomingSource = '', pendingExtraGeneration = null;
+let clayPreset = null, activeClayPreset = null, clayModelRequested = false;
 const mediaResults = new Map(), jobBusy = new Set();
 
 function node(tag, className, content) { const element = document.createElement(tag); if (className) element.className = className; if (content !== undefined) element.textContent = String(content); return element; }
@@ -51,6 +53,63 @@ function videoFile(value, allowResolvedCdn = false) {
 function selectedModel() { return models.find(model => model.id === $('#model').value); }
 function eligibleModel(model) { return model && typeof model.id === 'string' && /^bytedance\/seedance-[2-9][0-9]*(?:\.[0-9]+)*(?:-[a-z0-9-]+)?$/.test(model.id); }
 function values(model, field, type) { return Array.isArray(model?.[field]) ? [...new Set(model[field].filter(value => typeof value === type && (type !== 'number' || Number.isInteger(value) && value > 0)))] : []; }
+
+function validateClayPreset(value) {
+  if (!value || value.status !== 'reviewed' || value.character !== 'KAI' || value.source_id !== APPROVED_SOURCE.id || value.model !== CLAY_MODEL || value.duration !== 6 || typeof value.sha256 !== 'string' || !/^[a-f0-9]{64}$/.test(value.sha256) || typeof value.media_url !== 'string') return null;
+  try {
+    const url = new URL(value.media_url);
+    if (url.protocol !== 'https:' || url.host !== 'raw.githubusercontent.com' || url.username || url.password || url.search || url.hash || !/^\/yjr927\/idore_tools\/[a-f0-9]{40}\/reference-assets\/clay-bizzyboom\.mp4$/.test(url.pathname)) return null;
+    return { status: 'reviewed', character: 'KAI', source_id: APPROVED_SOURCE.id, model: CLAY_MODEL, duration: 6, media_url: url.href, sha256: value.sha256 };
+  } catch { return null; }
+}
+async function readClayPreset() {
+  try {
+    const url = new URL('./clay-reference.json', location.href);
+    const response = await fetch(url.href, { credentials: 'omit', cache: 'no-store', redirect: 'error', referrerPolicy: 'no-referrer' });
+    if (!response.ok || response.url && response.url !== url.href || Number(response.headers?.get('Content-Length')) > 8192) return null;
+    const text = await response.text(); if (text.length > 8192) return null;
+    return validateClayPreset(JSON.parse(text));
+  } catch { return null; }
+}
+async function loadClayPreset() { clayPreset = await readClayPreset(); $('#clay-preset').hidden = !clayPreset; return clayPreset; }
+function clayPresetProblem() {
+  if (!activeClayPreset) return '';
+  if ($('#reference-input').value.trim() !== activeClayPreset.media_url) return '动作参考已变化，请重新选择白模并预览。';
+  if ($('#model').value !== CLAY_MODEL || Number($('#duration').value) !== 6 || $('#resolution').value !== '720p' || $('#aspect').value !== '9:16') return '这套白模方案请使用 Seedance 2.5、6 秒、720p、9:16；不会自动改用其他版本。';
+  return '';
+}
+function applyClayParameters() {
+  if (!activeClayPreset) return;
+  $('#model').value = models.some(model => model.id === CLAY_MODEL) ? CLAY_MODEL : ''; configureModel();
+  const model = selectedModel();
+  for (const [selector, field, type, wanted] of [['#duration', 'supported_durations', 'number', 6], ['#resolution', 'supported_resolutions', 'string', '720p'], ['#aspect', 'supported_aspect_ratios', 'string', '9:16']]) $(selector).value = values(model, field, type).includes(wanted) ? String(wanted) : '';
+  clayModelRequested = false; updateControls();
+}
+async function useClayPreset() {
+  if (!clayPreset || submitting || resolving) return;
+  invalidateReference(); activeClayPreset = { ...clayPreset }; clayModelRequested = true;
+  $('#reference-input').value = activeClayPreset.media_url; classifySource();
+  if (models.length) applyClayParameters();
+  await prepareReference({ preventDefault() {} });
+}
+async function resolveClayReference() {
+  const selected = activeClayPreset, current = await readClayPreset();
+  if (!selected || !current || JSON.stringify(current) !== JSON.stringify(selected)) throw error('白模动作已更新或暂不可用，请重新选择并预览。');
+  let response;
+  try { response = await fetch(current.media_url, { credentials: 'omit', cache: 'force-cache', redirect: 'error', referrerPolicy: 'no-referrer' }); }
+  catch { throw error('暂时无法读取白模动作，请稍后重新预览。'); }
+  if (!response.ok || response.url && response.url !== current.media_url || Number(response.headers?.get('Content-Length')) > 50 * 1024 * 1024 || !response.body?.getReader) throw error('白模动作暂时无法核对，没有提交生成。');
+  const reader = response.body.getReader(), chunks = []; let length = 0;
+  try {
+    while (true) { const part = await reader.read(); if (part.done) break; length += part.value.byteLength; if (length > 50 * 1024 * 1024) throw error('白模文件超过支持大小，没有提交生成。'); chunks.push(part.value); }
+  } finally { try { await reader.cancel(); } catch { /* A completed stream may already be closed. */ } }
+  const bytes = new Uint8Array(length); let offset = 0; for (const chunk of chunks) { bytes.set(chunk, offset); offset += chunk.byteLength; }
+  const digest = Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', bytes)), byte => byte.toString(16).padStart(2, '0')).join('');
+  if (length < 12 || String.fromCharCode(...bytes.subarray(4, 8)) !== 'ftyp' || digest !== current.sha256) throw error('白模动作与已审核版本不一致，已停止生成。');
+  const duration = await directVideoMetadata(current.media_url);
+  if (Math.abs(duration - current.duration) > .12) throw error('白模动作时长与审核版本不一致，已停止生成。');
+  return { kind: 'clay', sourceKey: `clay:${current.source_id}:${current.sha256}`, source: null, url: current.media_url, duration, title: '已审核的白模动作 · KAI 单人跟拍', resolvedAt: Date.now() };
+}
 
 function readJournal() {
   try {
@@ -109,7 +168,8 @@ async function connect() {
   try {
     const verifier = randomToken(), state = randomToken(), challenge = base64url(new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(verifier))));
     const callback = new URL(location.origin + location.pathname), source = tikTokSource($('#reference-input').value.trim());
-    if (source) { callback.searchParams.set('reference', source.url); callback.searchParams.set('material', $('#reference-material').value); callback.searchParams.set('cast', $('#reference-cast').value); }
+    if (activeClayPreset) callback.searchParams.set('clay', activeClayPreset.sha256);
+    else if (source) { callback.searchParams.set('reference', source.url); callback.searchParams.set('material', $('#reference-material').value); callback.searchParams.set('cast', $('#reference-cast').value); }
     sessionStorage.setItem(OAUTH_KEY, JSON.stringify({ verifier, state, issuedAt: Date.now(), callback: callback.href }));
     const target = new URL('/auth', OPENROUTER); target.search = new URLSearchParams({ callback_url: callback.href, code_challenge: challenge, code_challenge_method: 'S256', state, key_label: 'idore character video' }).toString();
     location.assign(target.href);
@@ -141,6 +201,10 @@ function incoming() {
   classifySource();
 }
 function classifySource() {
+  if (activeClayPreset && $('#reference-input').value.trim() === activeClayPreset.media_url) {
+    $('#reference-material').value = 'male'; $('#reference-cast').value = 'solo'; $('#reference-material').disabled = true; $('#reference-cast').disabled = true;
+    $('#classification-note').textContent = '已审核的白模动作：男生、单人。白模只提供动作，形象使用 KAI。'; return;
+  }
   const source = tikTokSource($('#reference-input').value.trim()), approved = source && source.id === APPROVED_SOURCE.id && source.author.toLowerCase() === APPROVED_SOURCE.author;
   const originalContext = source && source.url === incomingSource ? incomingClassification : null;
   const material = originalContext && originalContext.material !== 'unknown' ? originalContext.material : approved ? 'male' : 'unknown', cast = originalContext && originalContext.cast !== 'unknown' ? originalContext.cast : approved ? 'solo' : 'unknown';
@@ -149,7 +213,7 @@ function classifySource() {
   $('#classification-note').textContent = approved && material === 'male' && cast === 'solo' ? '这条指定的 Bizzyboom 原片已确认：男生、单人。' : originalContext && (material !== 'unknown' || cast !== 'unknown') ? '沿用素材库已有标记；女生、混合或多人参考不能用于这次 KAI 单人跟拍。' : '分类尚未确认。请先看原片，再明确选择男生与单人，不会自动猜测。';
 }
 function classificationProblem() { if ($('#reference-material').value !== 'male') return $('#reference-material').value === 'unknown' ? '请先确认参考素材分组；不会自动把未知素材判为男生。' : '这条参考与 KAI 的男生角色分组不匹配，请选择男生单人参考。'; if ($('#reference-cast').value !== 'solo') return '这次只生成 KAI 单人，请选择并确认单人参考。'; return ''; }
-function invalidateReference() { sourceVersion++; preparedReference = null; pendingExtraGeneration = null; $('#new-generation-button').hidden = true; $('#source-consent').checked = false; $('#paid-consent').checked = false; $('#reference-preview').hidden = true; $('#source-video').removeAttribute('src'); $('#source-video').load(); message('#reference-message'); message('#generation-message'); updateControls(); }
+function invalidateReference() { sourceVersion++; preparedReference = null; activeClayPreset = null; clayModelRequested = false; pendingExtraGeneration = null; $('#new-generation-button').hidden = true; $('#source-consent').checked = false; $('#paid-consent').checked = false; $('#reference-preview').hidden = true; $('#source-video').removeAttribute('src'); $('#source-video').load(); message('#reference-message'); message('#generation-message'); message('#clay-preset-message'); updateControls(); }
 
 async function resolveTikTok(source) {
   let response;
@@ -174,6 +238,10 @@ function directVideoMetadata(url) {
 }
 async function resolveReference() {
   const problem = classificationProblem(); if (problem) throw error(problem);
+  if (activeClayPreset) {
+    if ($('#reference-input').value.trim() !== activeClayPreset.media_url) throw error('动作参考已变化，请重新选择白模并预览。');
+    return resolveClayReference();
+  }
   const value = $('#reference-input').value.trim(), source = tikTokSource(value);
   if (source) return resolveTikTok(source);
   const url = videoFile(value); if (!url) throw error('请使用完整的公开 TikTok 原片链接，或 HTTPS MP4 / WebM / MOV 文件直链；不支持登录、私密视频或短链接。');
@@ -181,11 +249,12 @@ async function resolveReference() {
 }
 function paintReference(reference) {
   $('#reference-preview').hidden = false; $('#reference-title').textContent = reference.title; $('#reference-original').href = reference.source?.url || reference.url;
-  $('#source-video').src = reference.url; $('#source-video').load(); $('#reference-facts').textContent = `${reference.source ? '@' + reference.source.author + ' · ' : ''}${reference.duration} 秒 · 男生 · 单人 · 视频地址仅在当前页面使用`;
+  $('#reference-original').textContent = reference.kind === 'clay' ? '打开白模视频 ↗' : '打开原片 ↗';
+  $('#source-video').src = reference.url; $('#source-video').load(); $('#reference-facts').textContent = `${reference.source ? '@' + reference.source.author + ' · ' : ''}${reference.duration} 秒 · 男生 · 单人 · ${reference.kind === 'clay' ? '白模只提供动作，成片使用 KAI 形象' : '视频地址仅在当前页面使用'}`;
 }
 async function prepareReference(event) {
-  event.preventDefault(); if (resolving || submitting) return; resolving = true; const version = sourceVersion; $('#prepare-reference').disabled = true; message('#reference-message', '正在读取原片与动作文件，不消耗 OpenRouter 余额…');
-  try { const reference = await resolveReference(); reference.sourceHash = await hash(reference.sourceKey); if (version !== sourceVersion) throw error('原片或分类已变化，请重新读取。'); preparedReference = reference; paintReference(reference); message('#reference-message', '动作参考已准备。生成前会再刷新一次文件地址。', 'success'); }
+  event.preventDefault(); if (resolving || submitting) return; resolving = true; const version = sourceVersion; $('#prepare-reference').disabled = true; message('#reference-message', activeClayPreset ? '正在核对白模动作，不消耗 OpenRouter 余额…' : '正在读取原片与动作文件，不消耗 OpenRouter 余额…'); updateControls();
+  try { const reference = await resolveReference(); reference.sourceHash = await hash(reference.sourceKey); if (version !== sourceVersion) throw error('原片或分类已变化，请重新读取。'); preparedReference = reference; paintReference(reference); message('#reference-message', reference.kind === 'clay' ? '白模动作已准备。请预览并确认，再决定是否生成 KAI 视频。' : '动作参考已准备。生成前会再刷新一次文件地址。', 'success'); }
   catch (failure) { preparedReference = null; message('#reference-message', failure.message, 'error'); }
   finally { resolving = false; $('#prepare-reference').disabled = false; updateControls(); }
 }
@@ -207,19 +276,23 @@ async function loadModels({ fresh = false } = {}) {
     if (fresh) { models = next; return; }
     const previous = $('#model').value; models = next; const placeholder = node('option', '', next.length ? '选择本次使用的模型版本' : '暂无可用 Seedance 2+ 模型'); placeholder.value = ''; $('#model').replaceChildren(placeholder);
     for (const model of next) { const option = node('option', '', model.name || model.id); option.value = model.id; $('#model').append(option); }
-    $('#model').value = next.some(model => model.id === previous) ? previous : ''; configureModel();
+    $('#model').value = next.some(model => model.id === previous) ? previous : ''; if (clayModelRequested && activeClayPreset) applyClayParameters(); else configureModel();
   } catch (failure) { if (fresh) throw failure; message('#generation-message', failure.message, 'error'); }
   finally { $('#reload-models').disabled = false; updateControls(); }
 }
 function motionPrompt() {
   const duration = Number($('#duration').value) || 6, aspect = $('#aspect').value || '9:16', extra = $('#extra-prompt').value.trim();
+  if (activeClayPreset) return ['Task: new reference-to-video generation using a motion-only video reference. Create a new 6-second, 9:16 video of one fictional male character, KAI.', "Image 1 is the sole source of KAI's identity and appearance. Preserve the face, facial proportions, hair, natural skin, body proportions, complete clothing and butterfly accessories shown in Image 1. Retain the sheer black fabric and light-colored trousers. KAI's identity and outfit remain consistent throughout.", 'Video 1 is the single reviewed faceless clay motion study. Use Video 1 only for visible body and finger movements, their order, timing, rhythm, orientation, framing and camera movement. Follow the actual visible sequence without invented choreography or transformations.', 'Set the new video in a bright room with white walls and a warm wood floor, lit by soft daylight.', 'Render every frame as KAI from Image 1. The clay figure supplies motion only. Keep its faceless head, white plastic material, simplified body and background out of the appearance of KAI. Preserve coherent anatomy, natural stable hands with five distinct fingers, believable joints and continuous contact and occlusion.', extra ? 'Additional preferences, subordinate to the reference roles: ' + extra : '', 'Exactly one KAI character. No morphing into the clay figure. No subtitles. No audio.'].filter(Boolean).join('\n\n');
   return [`Create a ${duration}-second video in ${aspect} format with one male character, KAI. Use the two supplied references for distinct roles.`, "IMAGE reference defines character identity and wardrobe only. Preserve the same face, facial structure, hairstyle, body proportions, gender presentation, clothing fit, colors and accessories throughout. Retain the butterfly accessories, black sheer fabric and light-colored trousers visible in the supplied image. Do not copy the image's still pose as the animation or freeze the character in that pose.", 'VIDEO reference supplies the actual motion, timing, rhythm, pose changes, framing and camera movement. Animate KAI through the visible gesture/dance sequence, following the observed order, directions, movement size, hand shapes, wrist angles, arm paths and pauses. Transfer only what is visible. Do not invent a second-by-second action schedule, extra choreography, hidden gestures or new camera moves.', `Use the opening ${duration} seconds of the video reference, retaining its visible order and pacing rather than looping gestures or adding a closing pose.`, "Keep KAI's identity and outfit. Do not copy the video performer's face, hair, clothing or accessories. Follow the video's camera behavior without importing player controls, captions or watermarks.", 'Hands and fingers must stay anatomically plausible with natural wrist and knuckle articulation, stable finger shapes, believable contact and occlusion. Avoid extra, missing or fused fingers, warped arms, duplicate hands, flicker and motion trails.', extra ? 'Additional preferences, subordinate to the reference roles: ' + extra : '', 'Keep exactly one character. No additional people, duplicate bodies, outfit or makeup transformation, costume reveal, identity morph, hairstyle change or new accessories. Keep the source-image look throughout. No added text or logos. Do not generate audio.'].filter(Boolean).join('\n\n');
 }
 function updateControls() {
   const model = selectedModel(), supported = model && values(model, 'supported_durations', 'number').includes(Number($('#duration').value)) && values(model, 'supported_resolutions', 'string').includes($('#resolution').value) && values(model, 'supported_aspect_ratios', 'string').includes($('#aspect').value);
   const blocked = knownSourceRejection();
-  $('#generate-button').disabled = submitting || resolving || !sessionKey || !preparedReference || Boolean(classificationProblem()) || Boolean(blocked) || !supported || !storageReady || !navigator.locks?.request;
+  const clayProblem = clayPresetProblem();
+  $('#generate-button').disabled = submitting || resolving || !sessionKey || !preparedReference || Boolean(classificationProblem()) || Boolean(blocked) || Boolean(clayProblem) || !supported || !storageReady || !navigator.locks?.request;
   $('#connect-button').disabled = submitting || oauthBusy; $('#disconnect-button').disabled = submitting;
+  $('#use-clay-reference').disabled = submitting || resolving;
+  message('#clay-preset-message', activeClayPreset ? clayProblem || '已选定白模方案。预览与连接不会开始付费生成。' : '', clayProblem ? 'error' : 'success');
   message('#provider-policy-note', blocked, blocked ? 'error' : '');
   $('#prompt-preview').textContent = motionPrompt();
 }
@@ -232,6 +305,7 @@ function knownSourceRejection() {
 function intentSnapshot() {
   const model = selectedModel(), problem = classificationProblem(); if (problem) throw error(problem);
   if (knownSourceRejection()) throw error(knownSourceRejection());
+  if (clayPresetProblem()) throw error(clayPresetProblem());
   if (!sessionKey) throw error('请先连接 OpenRouter。'); if (!preparedReference) throw error('请先读取原片。');
   if (!eligibleModel(model)) throw error('请选择明确的 Seedance 2 或更新模型。');
   const duration = Number($('#duration').value), resolution = $('#resolution').value, aspect = $('#aspect').value;
@@ -328,12 +402,17 @@ async function init() {
   $('#character-image').src = KAI_IMAGE; incoming(); readJournal(); paintConnection();
   if (!storageReady) message('#generation-message', '请允许本站保存任务记录后再生成，防止中断时重复扣费。', 'error');
   else if (!navigator.locks?.request) message('#generation-message', '当前浏览器缺少安全任务锁，请使用最新版 Chrome 或 Safari。', 'error');
+  await loadClayPreset();
+  const requestedClay = new URLSearchParams(location.search).get('clay');
+  if (requestedClay && clayPreset?.sha256 === requestedClay) await useClayPreset();
+  else if (requestedClay) message('#reference-message', '之前选择的白模暂不可用，请重新选择动作参考。', 'error');
   await handleOAuth(); await loadModels(); renderJobs(); if (sessionKey) await pollJobs(); setInterval(() => pollJobs(), 30000);
 }
 $('#connect-button').addEventListener('click', connect); $('#disconnect-button').addEventListener('click', disconnect); $('#reference-form').addEventListener('submit', prepareReference); $('#generation-form').addEventListener('submit', event => submit(event));
+$('#use-clay-reference').addEventListener('click', useClayPreset);
 $('#reference-input').addEventListener('input', () => { invalidateReference(); classifySource(); updateControls(); });
 for (const selector of ['#reference-material', '#reference-cast']) $(selector).addEventListener('change', invalidateReference);
-$('#model').addEventListener('change', configureModel); $('#reload-models').addEventListener('click', () => loadModels());
+$('#model').addEventListener('change', () => { clayModelRequested = false; configureModel(); }); $('#reload-models').addEventListener('click', () => loadModels());
 for (const selector of ['#duration', '#resolution', '#aspect', '#extra-prompt']) $(selector).addEventListener('input', () => { pendingExtraGeneration = null; $('#new-generation-button').hidden = true; updateControls(); });
 $('#new-generation-button').addEventListener('click', () => { if (!pendingExtraGeneration) return; submit(null, pendingExtraGeneration); }); $('#refresh-jobs').addEventListener('click', () => pollJobs(true));
 window.addEventListener('storage', event => { if (event.key === JOURNAL_KEY && !submitting) { readJournal(); renderJobs(); updateControls(); } });

@@ -1,0 +1,9 @@
+{
+  "status": "reviewed",
+  "character": "KAI",
+  "source_id": "7706633304702848276",
+  "model": "bytedance/seedance-2.5",
+  "duration": 6,
+  "media_url": "https://raw.githubusercontent.com/yjr927/idore_tools/cce63dabd044b1a8131fc49158479bffa31aaee5/reference-assets/clay-bizzyboom.mp4",
+  "sha256": "56c856b3d1f4187573caafdb3c71126aa6e95c2a9eafc52c9df8581fdf2219f2"
+}

@@ -1,0 +1,12 @@
+name: Archived - KAI clay generation completed
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  receipt:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 2
+    steps:
+      - name: Show the completed generation receipt
+        run: echo 'KAI clay generation completed at https://github.com/yjr927/idore_tools/actions/runs/43790641550. This archived workflow makes no API calls.'

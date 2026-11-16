@@ -1,0 +1,31 @@
+# 离线动作白模渲染
+
+`scripts/render_motion_clay.py` 读取提取器的关节 JSON，在 Blender 中生成全新的无脸、无头发、无衣服灰白人形。身体骨长、头部和手掌比例固定；参考片只提供关节方向与时间顺序，不使用原片像素或真人外观。三维深度是单目估计，不能当成标定后的动捕数据。
+
+输入为 `schema_version: 1`、24 fps、6 秒、576×1024、144 帧。`body` 使用左右 shoulder/elbow/wrist/hip/knee/ankle 和 `head_center`；每点为 `[x,y,z,confidence]`，x/y 为原图归一化坐标，y 向下。`hands.left/right` 各为 21 点或 null；不得保存脸部细节。观测到的手腕位置独立保留；缺肘时用最近有效肘平面做双骨 IK，不因单个肘缺失而丢掉已有手腕和手指。报告列出推断肘帧；不可达目标所需的最小骨段伸展／近距离折叠调整也逐帧披露。缺手只显示中性掌形，不编造手指运动。不可见的下肢保持标准中性姿势，报告中明确说明。
+
+```sh
+python3 scripts/render_motion_clay.py --input motion.json --validate-only
+blender -b --python-exit-code 1 --python scripts/render_motion_clay.py -- \
+  --input motion.json --output-dir clay-frames
+ffmpeg -framerate 24 -i clay-frames/frame-%06d.png -frames:v 144 \
+  -c:v libx264 -pix_fmt yuv420p -an -movflags +faststart clay-motion.mp4
+```
+
+无显示设备的 Linux 需由现有工作流提供 Xvfb 和软件 OpenGL；采用 `BLENDER_WORKBENCH`，无需额外 Python 包。脚本输出 `frame-000000.png` 至 `frame-000143.png` 及 `render-summary.json`，输出目录必须没有旧帧。可用 `--frame-limit 1` 先检查单帧；这种输出不是完整动作参考。
+
+镜头固定，按整段头部到上大腿和手部活动范围构图；正交相机显式采用水平 sensor fit，并按宽度计算竖屏尺度，不以推测出的膝／脚踝拉远画面。手指各节按观测方向驱动，骨长统一，手部遮挡、深度估计及检测丢失仍会影响保真度。完整片需先比对关键帧和连续动作，再决定是否用于生成。渲染器不联网、不上传、不给 Seedance 提交任务，也不保证任何供应商接受白模参考。
+
+## 本次云端验证与网页预设
+
+修正版在 GitHub 云端完成 144 帧提取和渲染。身体深度采用 0.15 权重，按画面二维位置保留手腕目标；手指深度仅作局部估计。最终输入白模 SHA-256 为 `56c856b3d1f4187573caafdb3c71126aa6e95c2a9eafc52c9df8581fdf2219f2`。右肘 12 帧使用观测手腕和邻近肘平面推断；左手 20 帧仍缺少可确认的指节，报告保留这些不确定性。
+
+`site/clay-reference.json` 只发布已审核、固定提交版本的白模地址；网页选择时和付费前都核对整片 SHA-256、时长及模型参数。生成只使用 KAI 图片与新白模，不发送真人原片。一次性 GitHub 生成已成功，工作流随后归档为只读回执，不再包含生成密钥步骤。
+
+验证：Python 动作提取与生成边界测试，以及网页模拟测试（以下不会联网或付费）：
+
+```sh
+python3 -m unittest discover -s tests -p 'test_extract_motion_pose.py'
+python3 -m unittest discover -s tests -p 'test_clay_video_generation.py'
+node --input-type=module -e "console.log(await (await import('./tests/test_create_clay.mjs')).run())"
+```
