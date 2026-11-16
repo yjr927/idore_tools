@@ -40,3 +40,5 @@ jobs:
             generation-output/provider-rejection-summary.json
           retention-days: 7
           if-no-files-found: ignore
+
+# Read the provider's bounded error body before retaining redacted fields.
