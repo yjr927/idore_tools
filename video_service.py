@@ -131,6 +131,13 @@ def _media_url(value, kind):
             and re.fullmatch(r'v[0-9]+(?:-[a-z0-9]+)*\.(?:[a-z]{2}\.)?tiktok\.com', host) is not None
             and re.fullmatch(r'/video/tos/[A-Za-z0-9/_-]+/?', unquote(parsed.path)) is not None
             and parse_qs(parsed.query).get('mime_type') == ['video_mp4'])
+        # TikWM's verified public MP4 response uses this exact CDN family and
+        # hashed path prefix. Do not extend this to arbitrary TikTok subdomains.
+        tiktok_cdn_video = tiktok_cdn_video or (kind == 'video_url'
+            and re.fullmatch(r'v[0-9]+[a-z]?\.tiktokcdn-us\.com', host) is not None
+            and re.fullmatch(r'/[a-fA-F0-9]{32}/[a-fA-F0-9]{8}/video/tos/[A-Za-z0-9_-]+(?:/[A-Za-z0-9_-]+)+/?',
+                             unquote(parsed.path)) is not None
+            and parse_qs(parsed.query).get('mime_type') == ['video_mp4'])
         if (parsed.scheme != 'https' or not host or parsed.username or parsed.password
                 or parsed.port not in (None, 443) or parsed.fragment):
             raise ValueError()

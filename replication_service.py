@@ -21,6 +21,7 @@ import uuid
 from zoneinfo import ZoneInfo
 from discovery import canonical_video, DiscoveryError
 from video_service import MAX_IMAGE_BYTES, VideoError, _media_url
+from motion_prompts import character_motion_prompt
 
 ROOT = Path(__file__).resolve().parent
 CANDIDATE_URL = 'https://raw.githubusercontent.com/yjr927/idore_tools/main/site/data/discovery.json'
@@ -469,11 +470,10 @@ class ReplicationService:
         raw, mime, error = self._file(asset, read=True) if asset else (None, None, None)
         if error and error not in blockers:
             blockers.append(error)
-        prompt = ('Create a new video with one character using the two supplied references for different purposes. '
-                  'IMAGE reference defines the character identity: preserve its face, hairstyle, body proportions, gender presentation and outfit. '
-                  'VIDEO reference supplies visible gesture/dance action, rhythm, camera framing and movement; use it as motion guidance. '
-                  'Keep the character from the image instead of replacing it with the person in the video. No extra characters, text or logos. '
-                  'Additional motion preferences: ' + extra_prompt + '\nPreserve the image character identity throughout.')
+        prompt = character_motion_prompt(
+            character_name=(public_asset.get('character') or public_asset.get('name')) if public_asset else '',
+            material_group=public_asset['material_group'] if public_asset else 'unknown',
+            additional_motion=extra_prompt)
         return dict(asset=public_asset, reference=reference, blockers=list(dict.fromkeys(blockers)), prompt=prompt), raw, mime, media
 
     def prepare(self, body):

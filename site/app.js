@@ -345,9 +345,9 @@ function videoCard(video) {
   const preview = el('button', 'button primary small', '▶ 查看原片'); preview.type = 'button'; preview.addEventListener('click', () => openPreview(video));
   actions.append(preview, externalLink('TikTok 打开 ↗', canonical.url, 'button small'));
   const replicate = el('a', 'button small', '用我的角色跟拍 ↗');
-  replicate.href = `http://127.0.0.1:8765/generate?reference=${encodeURIComponent(video.id)}#replicate-step`;
-  replicate.target = '_blank'; replicate.rel = 'noopener noreferrer';
-  replicate.title = '打开本机素材库，选择同组角色与参考视频文件；需先启动本机工作台';
+  const createParams = new URLSearchParams({reference: canonical.url, material: materialOf(video), cast: castOf(video)});
+  replicate.href = `./create.html?${createParams}`;
+  replicate.title = '打开网站创作台，选择角色并使用这条 TikTok 原片生成';
   actions.append(replicate);
   body.append(actions); card.append(body);
   return card;

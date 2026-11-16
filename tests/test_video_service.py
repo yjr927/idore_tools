@@ -418,3 +418,22 @@ class BoundaryTests(unittest.TestCase):
                 url.replace('mime_type=video_mp4', 'mime_type=video_mp4&mime_type=text_html')):
             with self.subTest(invalid=invalid), self.assertRaises(VideoError):
                 _media_url(invalid, 'video_url')
+
+    def test_verified_us_tiktok_cdn_requires_hashed_path_and_mp4_mime(self):
+        url = ('https://v16m.tiktokcdn-us.com/' + 'a' * 32 + '/' + 'b' * 8
+               + '/video/tos/alisg/tos-alisg-pve-0068c001/clip_example/'
+               + '?mime_type=video_mp4&signature=example')
+        self.assertEqual(_media_url(url, 'video_url'), url)
+        self.assertEqual(_media_url(url.replace('v16m.', 'v19.'), 'video_url'),
+                         url.replace('v16m.', 'v19.'))
+        for invalid in (
+                url.replace('tiktokcdn-us.com', 'tiktokcdn-us.com.evil.example'),
+                url.replace('v16m.', 'anything.'),
+                url.replace('v16m.', 'v16many.'),
+                url.replace('tiktokcdn-us.com', 'tiktokcdn-eu.com'),
+                url.replace('a' * 32 + '/' + 'b' * 8 + '/', ''),
+                url.replace('/video/tos/', '/@bizzyboom/video/'),
+                url.replace('mime_type=video_mp4', 'mime_type=text_html'),
+                url.replace('mime_type=video_mp4', 'mime_type=video_mp4&mime_type=text_html')):
+            with self.subTest(invalid=invalid), self.assertRaises(VideoError):
+                _media_url(invalid, 'video_url')
