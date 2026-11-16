@@ -1,0 +1,57 @@
+name: KAI clay motion preview
+
+on:
+  push:
+    branches: [codex/kai-clay-motion-20261115]
+    paths: [.github/workflows/kai-clay-render-once.yml]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: kai-clay-preview
+  cancel-in-progress: false
+
+jobs:
+  render:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      PYTHONUNBUFFERED: '1'
+      LIBGL_ALWAYS_SOFTWARE: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install pose and offline rendering tools
+        run: |
+          python -m pip install --disable-pip-version-check -r requirements-motion.txt
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq blender ffmpeg xvfb
+      - name: Read and verify the selected motion source
+        run: |
+          python scripts/prepare_motion_source.py --output "$RUNNER_TEMP/kai-source.mp4" --summary clay-output/source-summary.json
+      - name: Extract body and finger motion
+        run: |
+          python scripts/extract_motion_pose.py --input "$RUNNER_TEMP/kai-source.mp4" --output "$RUNNER_TEMP/kai-motion.json" --model-dir "$RUNNER_TEMP/pose-models" | tee clay-output/extraction-summary.json
+      - name: Render a new anonymous clay animation
+        run: |
+          xvfb-run -a blender -b -t 2 --python-exit-code 1 --python scripts/render_motion_clay.py -- --input "$RUNNER_TEMP/kai-motion.json" --output-dir "$RUNNER_TEMP/clay-frames"
+      - name: Package the motion preview for review
+        run: |
+          python scripts/package_clay_preview.py --frames "$RUNNER_TEMP/clay-frames" --pose "$RUNNER_TEMP/kai-motion.json" --output clay-output
+      - name: Retain only derived preview and safe summaries
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: kai-clay-motion-preview
+          path: |
+            clay-output/*.json
+            clay-output/clay-bizzyboom.mp4
+            clay-output/clay-contact-sheet.jpg
+          if-no-files-found: warn
+          retention-days: 7
