@@ -26,6 +26,7 @@ from urllib.request import HTTPRedirectHandler, Request, build_opener
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from video_service import _media_url, _mp4
+from motion_prompts import character_motion_prompt
 try:
     from scripts import run_video_generation
 except ImportError:
@@ -36,13 +37,11 @@ PLAYER_URL = "https://www.tiktok.com/player/v1/7706633304702848276"
 IMAGE_URL = "https://raw.githubusercontent.com/yjr927/idore_tools/bd19680c2f14b89be1a1025b7825d9e49bd4b433/reference-assets/kai-full.png"
 MODEL = "bytedance/seedance-2.0-fast"
 MAX_REFERENCE_BYTES = 200_000_000
-PROMPT = (
-    "Create one 6-second vertical video with one character, KAI. The IMAGE reference defines KAI's identity: "
-    "preserve the exact face, hairstyle, hair color, body proportions, butterfly-pattern outfit, colors and accessories. "
-    "Use the VIDEO reference ONLY for the visible hand gestures/dance, opening movement rhythm, pose changes, "
-    "camera framing and motion. Keep KAI from the image throughout; do not replace KAI with the person from the video "
-    "or copy that person's face, hair or clothes. Keep one character, with no extra people, text or logos. "
-    "Follow the first six seconds of the motion reference as closely as the model allows. Do not generate audio."
+PROMPT = character_motion_prompt(
+    character_name="KAI", material_group="male", duration_seconds=6, aspect_ratio="9:16",
+    wardrobe_details="the butterfly accessories, black sheer fabric, and light-colored trousers visible in the supplied KAI image",
+    additional_motion="Use Bizzyboom's supplied short hand-gesture/dance video as the motion reference. "
+        "Reproduce the gestures and their timing as actually shown while keeping KAI's original appearance."
 )
 
 
