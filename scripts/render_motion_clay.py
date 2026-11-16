@@ -24,6 +24,42 @@ LENGTHS = ((.033, .027, .022), (.041, .026, .020),
 THRESHOLD = .20
 
 
+def solve_elbow(shoulder, wrist, pole, upper=.285, forearm=.265):
+    """Two-bone IK preserving the measured wrist, including missing-elbow frames.
+
+    The pole is a bend direction from an observed elbow plane, not new motion.
+    Unreachable targets use minimal stretch rather than losing the measured hand.
+    """
+    def dot(a, b):
+        return sum(x * y for x, y in zip(a, b))
+    def unit(v):
+        length = math.sqrt(dot(v, v))
+        return tuple(x / length for x in v) if length > 1e-8 else (1., 0., 0.)
+    delta = tuple(b - a for a, b in zip(shoulder, wrist))
+    distance = math.sqrt(dot(delta, delta))
+    axis = unit(delta)
+    adjustment = 'none'
+    if distance > upper + forearm - 1e-6:
+        factor = distance / (upper + forearm) * 1.00001
+        upper *= factor
+        forearm *= factor
+        adjustment = 'reach_stretch'
+    if distance < abs(upper - forearm) + 1e-6:
+        upper = forearm = (upper + forearm) / 2
+        adjustment = 'close_fold'
+    projection = dot(pole, axis)
+    bend = tuple(p - projection * a for p, a in zip(pole, axis))
+    if dot(bend, bend) < 1e-10:
+        fallback = (0., -1., 0.) if abs(axis[1]) < .9 else (0., 0., 1.)
+        projection = dot(fallback, axis)
+        bend = tuple(p - projection * a for p, a in zip(fallback, axis))
+    bend = unit(bend)
+    along = (upper * upper - forearm * forearm + distance * distance) / (2 * distance) if distance > 1e-8 else 0
+    height = math.sqrt(max(0., upper * upper - along * along))
+    elbow = tuple(s + a * along + b * height for s, a, b in zip(shoulder, axis, bend))
+    return elbow, adjustment
+
+
 def point(value):
     return (isinstance(value, list) and len(value) == 4
             and all(isinstance(x, (int, float)) and not isinstance(x, bool)
@@ -92,9 +128,12 @@ def main(argv=None):
                'core_missing_frames': missing, 'hand_missing_frames': hand_missing,
                'missing_hands': 'plain_palm_only_no_invented_finger_motion',
                'unobserved_legs': 'fixed_neutral_pose_not_measured_motion',
+               'wrist_targets': 'measured_positions_relative_to_shoulders_preserved',
+               'inferred_elbow_frames': {'left': [], 'right': []},
+               'arm_fit_adjustment_frames': {'left': [], 'right': []},
                'warnings': []}
     if any(missing.values()):
-        summary['warnings'].append('Unmeasured arm segments are hidden for those frames.')
+        summary['warnings'].append('Missing elbows use nearest observed elbow planes; unmeasured wrists are not invented.')
     if any(hand_missing.values()):
         summary['warnings'].append('Some hand frames lack measured finger motion.')
     if args.validate_only:
@@ -198,8 +237,16 @@ def main(argv=None):
     scale = .36 / max(statistics.median(spans), .04)
     shoulder_neutral = Vector((0, 0, 1.43))
     bounds = []
+    elbow_planes = {'left': [], 'right': []}
+    for index, frame in enumerate(data['frames']):
+        for side in elbow_planes:
+            raw = [measured(frame, side + '_' + name) for name in ('shoulder', 'elbow', 'wrist')]
+            if all(p is not None for p in raw):
+                normal = (raw[2] - raw[0]).cross(raw[1] - raw[0])
+                if normal.length > 1e-5:
+                    elbow_planes[side].append((index, normal.normalized()))
 
-    def pose(frame):
+    def pose(frame, index):
         left, right = measured(frame, 'left_shoulder'), measured(frame, 'right_shoulder')
         center = (left + right) / 2 if left is not None and right is not None else baseline
         displacement = (center - baseline) * scale
@@ -215,10 +262,25 @@ def main(argv=None):
         for side, sign in (('left', 1), ('right', -1)):
             shoulder = shoulders + across * (.18 * sign)
             hip = pelvis + across * (.13 * sign)
-            arm = measured_direction(frame, side + '_shoulder', side + '_elbow')
-            forearm = measured_direction(frame, side + '_elbow', side + '_wrist')
-            elbow = shoulder + arm * .285 if arm is not None else None
-            wrist = elbow + forearm * .265 if elbow is not None and forearm is not None else None
+            raw_shoulder = measured(frame, side + '_shoulder')
+            raw_elbow = measured(frame, side + '_elbow')
+            raw_wrist = measured(frame, side + '_wrist')
+            wrist = shoulder + (raw_wrist - raw_shoulder) * scale if raw_shoulder is not None and raw_wrist is not None else None
+            elbow = None
+            if wrist is not None:
+                if raw_elbow is not None:
+                    pole = (raw_elbow - raw_shoulder) * scale
+                elif elbow_planes[side]:
+                    normal = min(elbow_planes[side], key=lambda item: abs(item[0] - index))[1]
+                    pole = normal.cross(unit(wrist - shoulder))
+                    summary['inferred_elbow_frames'][side].append(index)
+                else:
+                    pole = Vector((0, -1, 0))
+                    summary['inferred_elbow_frames'][side].append(index)
+                coordinates, adjustment = solve_elbow(tuple(shoulder), tuple(wrist), tuple(pole))
+                elbow = Vector(coordinates)
+                if adjustment != 'none':
+                    summary['arm_fit_adjustment_frames'][side].append(index)
             # Legs move only when all three leg joints have measured support.
             thigh = measured_direction(frame, side + '_hip', side + '_knee') if lower_body_observed else None
             shin = measured_direction(frame, side + '_knee', side + '_ankle') if lower_body_observed else None
@@ -228,7 +290,7 @@ def main(argv=None):
                             'hip': hip, 'knee': knee, 'ankle': ankle}
         return result
 
-    poses = [pose(frame) for frame in data['frames']]
+    poses = [pose(frame, index) for index, frame in enumerate(data['frames'])]
     for p in poses:
         bounds.extend([p['head'] + Vector((0, 0, .13)),
                        p['pelvis'] - Vector((0, 0, .25))])
@@ -242,13 +304,16 @@ def main(argv=None):
     # Neutral/inferred lower legs must never zoom the gesture reference out.
     xmin, xmax = min(v.x for v in bounds) - .05, max(v.x for v in bounds) + .05
     zmin, zmax = min(v.z for v in bounds) - .05, max(v.z for v in bounds) + .05
-    ortho = max(zmax - zmin, (xmax - xmin) / (576 / 1024)) * 1.06
+    # Blender's explicit horizontal sensor fit interprets ortho_scale as width.
+    # Passing the desired height here previously zoomed this portrait shot out.
+    ortho = max(xmax - xmin, (zmax - zmin) * (576 / 1024)) * 1.04
     camera_data = bpy.data.cameras.new('Fixed motion reference camera')
     camera = bpy.data.objects.new('Fixed motion reference camera', camera_data)
     scene.collection.objects.link(camera)
     camera.location = ((xmin + xmax) / 2, -6, (zmin + zmax) / 2)
     camera.rotation_euler = (Vector((camera.location.x, 0, camera.location.z)) - camera.location).to_track_quat('-Z', 'Y').to_euler()
     camera_data.type = 'ORTHO'
+    camera_data.sensor_fit = 'HORIZONTAL'
     camera_data.ortho_scale = ortho
     scene.camera = camera
     bpy.ops.mesh.primitive_plane_add(size=200, location=(0, 0, min(.04, zmin + .09)))
@@ -325,6 +390,8 @@ def main(argv=None):
             print('Clay render: %s/%s frames' % (i + 1, args.frame_limit), flush=True)
     summary['engine'] = scene.render.engine
     summary['camera'] = 'fixed_orthographic_medium_shot_head_upper_thighs_with_hand_margin'
+    summary['camera_view_width'] = round(ortho, 5)
+    summary['camera_view_height'] = round(ortho / (576 / 1024), 5)
     (output / 'render-summary.json').write_text(json.dumps(summary, indent=2) + '\n', encoding='utf-8')
     print('Clay render completed: %s frames.' % args.frame_limit, flush=True)
     return 0

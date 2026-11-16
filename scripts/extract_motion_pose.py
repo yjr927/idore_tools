@@ -23,6 +23,7 @@ import os
 from pathlib import Path
 import sys
 import tempfile
+from types import SimpleNamespace
 from urllib.error import HTTPError
 from urllib.request import HTTPRedirectHandler, Request, build_opener
 
@@ -139,7 +140,7 @@ def _distance(first, second):
     return math.hypot((first[0] - second[0]) * WIDTH / HEIGHT, first[1] - second[1])
 
 
-def assign_hands(body, detected_hands):
+def assign_hands(body, detected_hands, *, max_distance=0.16):
     """Assign globally to body wrists; ignore handedness classification labels.
 
     Near-tied assignments at crossed/occluded wrists are deliberately omitted.
@@ -161,7 +162,7 @@ def assign_hands(body, detected_hands):
             for chosen_candidates in itertools.permutations(range(len(candidates)), count):
                 pairs = list(zip(chosen_sides, chosen_candidates))
                 distances = [_distance(wrists[side], candidates[index][0]) for side, index in pairs]
-                if all(distance <= 0.16 for distance in distances):
+                if all(distance <= max_distance for distance in distances):
                     options.append((count, sum(distances), pairs))
     if not options:
         return result, False
@@ -176,6 +177,75 @@ def assign_hands(body, detected_hands):
         result[side] = [[point[0], point[1], point[2] - wrist_z + wrists[side][2], confidence]
                         for point in points]
     return result, False
+
+
+def hand_crop_bounds(body, side):
+    """A bounded square around a measured wrist, with forearm context."""
+    wrist = body.get(side + "_wrist")
+    if wrist is None:
+        return None
+    center_x, center_y = wrist[0] * WIDTH, wrist[1] * HEIGHT
+    elbow = body.get(side + "_elbow")
+    edge = 288
+    if elbow is not None:
+        dx, dy = center_x - elbow[0] * WIDTH, center_y - elbow[1] * HEIGHT
+        edge = max(192, min(360, round(math.hypot(dx, dy) * 2.2)))
+        # Fingers generally extend beyond the wrist; retain the wrist inside
+        # the crop while shifting some context in the measured forearm direction.
+        center_x += max(-48, min(48, dx * 0.25))
+        center_y += max(-48, min(48, dy * 0.25))
+    x = max(0, min(WIDTH - edge, round(center_x - edge / 2)))
+    y = max(0, min(HEIGHT - edge, round(center_y - edge / 2)))
+    return x, y, x + edge, y + edge
+
+
+def map_crop_hands(detected_hands, bounds):
+    """Map independent IMAGE results to original full-frame coordinates."""
+    x0, y0, x1, y1 = bounds
+    return [[SimpleNamespace(x=(x0 + point.x * (x1 - x0)) / WIDTH,
+                y=(y0 + point.y * (y1 - y0)) / HEIGHT,
+                z=point.z * (x1 - x0) / WIDTH) for point in landmarks]
+            for landmarks in list(detected_hands or [])[:2] if len(landmarks) == 21
+            and all(_point(point, 0.6) is not None for point in landmarks)]
+
+
+def recover_crop_hands(body, assigned, rgb, detector, cv2, mp, statistics):
+    """Try at most one crop per missing side; never replace a measured hand."""
+    recovered = dict(assigned)
+    for side in ("left", "right"):
+        if recovered[side] is not None:
+            continue
+        bounds = hand_crop_bounds(body, side)
+        if bounds is None:
+            continue
+        x0, y0, x1, y1 = bounds
+        crop = rgb[y0:y1, x0:x1]
+        enlarged = cv2.resize(crop, (640, 640), interpolation=cv2.INTER_CUBIC)
+        image = mp.Image(image_format=mp.ImageFormat.SRGB, data=enlarged)
+        statistics["attempts"][side] += 1
+        result = detector.detect(image)
+        mapped = map_crop_hands(result.hand_landmarks, bounds)
+        matches, ambiguous = assign_hands(body, mapped, max_distance=0.10)
+        if ambiguous:
+            statistics["ambiguous_results"][side] += 1
+        if matches[side] is not None:
+            # Recovery is measured, but does not acquire calibrated finger
+            # confidence by being upscaled. Keep the lower conservative cap.
+            recovered[side] = [point[:3] + [min(point[3], 0.5)] for point in matches[side]]
+            statistics["recovered_frames"][side] += 1
+    return recovered
+
+
+def _missing_ranges(sequence):
+    ranges, start = [], None
+    for index in range(len(sequence) + 1):
+        missing = index < len(sequence) and sequence[index] is None
+        if missing and start is None:
+            start = index
+        elif not missing and start is not None:
+            ranges.append([start, index - 1])
+            start = None
+    return ranges
 
 
 def _longest_missing(sequence):
@@ -228,7 +298,7 @@ def _smooth(sequence, *, hand=False):
     return output
 
 
-def finalize_motion(raw_frames, *, source_fps, ambiguous_hand_frames=0):
+def finalize_motion(raw_frames, *, source_fps, ambiguous_hand_frames=0, crop_statistics=None):
     if len(raw_frames) != FRAME_COUNT:
         raise ExtractionError("source_video_too_short")
     quality = {"body": {}, "hands": {}, "ambiguous_hand_frames": ambiguous_hand_frames,
@@ -240,6 +310,8 @@ def finalize_motion(raw_frames, *, source_fps, ambiguous_hand_frames=0):
         "head_information": "ear-midpoint location only; no facial appearance or expressions",
         "coordinates": {"x": "full-frame normalized right", "y": "full-frame normalized down",
             "z": "estimated normalized image depth; negative toward camera; hands aligned at body wrists; not metric 3D"}}
+    if crop_statistics is not None:
+        quality["hand_crop_fallback"] = copy.deepcopy(crop_statistics)
     output = [{"t": round(index / FPS, 6), "body": {}, "hands": {"left": None, "right": None}}
               for index in range(FRAME_COUNT)]
     for name in BODY_JOINTS + ("left", "right"):
@@ -252,6 +324,10 @@ def finalize_motion(raw_frames, *, source_fps, ambiguous_hand_frames=0):
             "observed_frames": observed, "coverage": round(observed / FRAME_COUNT, 4),
             "longest_gap_frames": _longest_missing(sequence), "interpolated_frames": interpolated,
             "remaining_missing_frames": sum(value is None for value in values)}
+        if hand or name in CORE_JOINTS:
+            quality["hands" if hand else "body"][name].update(
+                observed_missing_frame_ranges=_missing_ranges(sequence),
+                missing_frame_ranges=_missing_ranges(values))
         for frame, value in zip(output, values):
             if hand:
                 frame["hands"][name] = value
@@ -300,9 +376,19 @@ def extract_motion(input_path, model_dir):
             running_mode=vision.RunningMode.VIDEO, num_hands=2,
             min_hand_detection_confidence=0.5, min_hand_presence_confidence=0.5,
             min_tracking_confidence=0.5)
+        crop_options = vision.HandLandmarkerOptions(base_options=base(
+            model_asset_path=str(models["hand_landmarker.task"]), delegate=base.Delegate.CPU),
+            running_mode=vision.RunningMode.IMAGE, num_hands=2,
+            min_hand_detection_confidence=0.5, min_hand_presence_confidence=0.5,
+            min_tracking_confidence=0.5)
+        crop_statistics = {"attempts": {"left": 0, "right": 0},
+            "recovered_frames": {"left": 0, "right": 0},
+            "ambiguous_results": {"left": 0, "right": 0},
+            "detector": "independent IMAGE mode; thresholds unchanged at 0.5",
+            "resized_crop_pixels": 640}
         raw_frames, ambiguous = [], 0
         source_index, frame = -1, None
-        with vision.PoseLandmarker.create_from_options(pose_options) as pose, vision.HandLandmarker.create_from_options(hand_options) as hands:
+        with vision.PoseLandmarker.create_from_options(pose_options) as pose, vision.HandLandmarker.create_from_options(hand_options) as hands, vision.HandLandmarker.create_from_options(crop_options) as crop_hands:
             for index in range(FRAME_COUNT):
                 wanted = round(index / FPS * source_fps)
                 while source_index < wanted:
@@ -325,8 +411,10 @@ def extract_motion(input_path, model_dir):
                 body = body_from_pose(pose_result.pose_landmarks[0] if pose_result.pose_landmarks else None)
                 assigned, unsure = assign_hands(body, hand_result.hand_landmarks)
                 ambiguous += int(unsure)
+                assigned = recover_crop_hands(body, assigned, rgb, crop_hands, cv2, mp, crop_statistics)
                 raw_frames.append({"body": body, "hands": assigned})
-        return finalize_motion(raw_frames, source_fps=source_fps, ambiguous_hand_frames=ambiguous)
+        return finalize_motion(raw_frames, source_fps=source_fps, ambiguous_hand_frames=ambiguous,
+                               crop_statistics=crop_statistics)
     finally:
         capture.release()
 

@@ -58,6 +58,8 @@ class MotionExtractionTests(unittest.TestCase):
         self.assertLessEqual(result["frames"][20]["body"]["left_wrist"][3], 0.3)
         self.assertEqual(result["quality"]["hands"]["left"]["longest_gap_frames"], 6)
         self.assertIsNone(result["frames"][62]["hands"]["left"])
+        self.assertEqual(result["quality"]["hands"]["left"]["observed_missing_frame_ranges"], [[20, 21], [60, 65]])
+        self.assertEqual(result["quality"]["hands"]["left"]["missing_frame_ranges"], [[60, 65]])
         self.assertTrue(result["quality"]["hand_missing_warning"])
         self.assertFalse(result["quality"]["lower_body_observed"])
         self.assertNotIn("left_ankle", result["frames"][0]["body"])
@@ -81,6 +83,50 @@ class MotionExtractionTests(unittest.TestCase):
         self.assertEqual(result["head_center"][:2], [0.5, 0.2])
         self.assertFalse(any(name in result for name in ("nose", "eyes", "face", "mouth")))
 
+    def test_missing_hand_crop_maps_to_screen_and_recovers_only_the_missing_side(self):
+        tracked = body()
+        assigned = {"left": None, "right": [[0.7, 0.7, 0.1, 0.6] for _ in range(21)]}
+        bounds = motion.hand_crop_bounds(tracked, "left")
+        x0, y0, x1, y1 = bounds
+        crop_points = [point((0.3 * motion.WIDTH - x0) / (x1 - x0) + index * .001,
+                             (0.7 * motion.HEIGHT - y0) / (y1 - y0) - index * .001,
+                             index * .001) for index in range(21)]
+        class Pixels:
+            def __getitem__(self, slices): return self
+        calls = []
+        detector = SimpleNamespace(detect=lambda image: calls.append(image) or SimpleNamespace(hand_landmarks=[crop_points]))
+        cv2 = SimpleNamespace(resize=lambda image, size, interpolation: image, INTER_CUBIC=1)
+        mp = SimpleNamespace(Image=lambda **kwargs: kwargs, ImageFormat=SimpleNamespace(SRGB=1))
+        statistics = {"attempts": {"left": 0, "right": 0}, "recovered_frames": {"left": 0, "right": 0},
+                      "ambiguous_results": {"left": 0, "right": 0}}
+        result = motion.recover_crop_hands(tracked, assigned, Pixels(), detector, cv2, mp, statistics)
+        self.assertEqual(len(calls), 1)
+        self.assertEqual(statistics["attempts"], {"left": 1, "right": 0})
+        self.assertEqual(statistics["recovered_frames"], {"left": 1, "right": 0})
+        self.assertEqual(result["right"], assigned["right"])
+        self.assertAlmostEqual(result["left"][0][0], .3)
+        self.assertAlmostEqual(result["left"][0][1], .7)
+        self.assertAlmostEqual(result["left"][0][2], .1)
+        self.assertAlmostEqual(result["left"][20][2], .1 + .02 * (x1 - x0) / motion.WIDTH)
+        self.assertLessEqual(result["left"][0][3], .5)
+
+    def test_crop_does_not_turn_no_detection_or_out_of_crop_points_into_fingers(self):
+        tracked = body()
+        class Pixels:
+            def __getitem__(self, slices): return self
+        statistics = {"attempts": {"left": 0, "right": 0}, "recovered_frames": {"left": 0, "right": 0},
+                      "ambiguous_results": {"left": 0, "right": 0}}
+        cv2 = SimpleNamespace(resize=lambda image, size, interpolation: image, INTER_CUBIC=1)
+        mp = SimpleNamespace(Image=lambda **kwargs: kwargs, ImageFormat=SimpleNamespace(SRGB=1))
+        detector = SimpleNamespace(detect=lambda image: SimpleNamespace(hand_landmarks=[]))
+        result = motion.recover_crop_hands(tracked, {"left": None, "right": None}, Pixels(), detector, cv2, mp, statistics)
+        self.assertEqual(result, {"left": None, "right": None})
+        self.assertEqual(statistics["attempts"], {"left": 1, "right": 1})
+        self.assertEqual(statistics["recovered_frames"], {"left": 0, "right": 0})
+        outside = hand(.5, .5)
+        outside[-1].x = 1.1
+        self.assertEqual(motion.map_crop_hands([outside], (0, 0, 288, 288)), [])
+
     def test_cpu_video_pipeline_processes_all_144_timestamps_without_live_dependencies(self):
         timestamps = {"body": [], "hands": []}
         landmarks = [point(0.5, 0.5) for _ in range(33)]
@@ -97,6 +143,7 @@ class MotionExtractionTests(unittest.TestCase):
             def detect_for_video(self, image, timestamp):
                 timestamps[self.name].append(timestamp)
                 return SimpleNamespace(pose_landmarks=[landmarks]) if self.name == "body" else SimpleNamespace(hand_landmarks=[])
+            def detect(self, image): return SimpleNamespace(hand_landmarks=[])
         delegates = []
         class BaseOptions:
             Delegate = SimpleNamespace(CPU="CPU")
@@ -110,9 +157,12 @@ class MotionExtractionTests(unittest.TestCase):
                 return True, SimpleNamespace(shape=(1024, 576, 3))
             def release(self): self.released = True
         capture = Capture(None)
+        class Pixels:
+            def __getitem__(self, slices): return self
         cv2 = SimpleNamespace(VideoCapture=lambda path: capture, CAP_PROP_FPS=1,
-            COLOR_BGR2RGB=2, cvtColor=lambda frame, code: "PRIVATE_PIXELS_NOT_FOR_OUTPUT")
-        vision = SimpleNamespace(RunningMode=SimpleNamespace(VIDEO="VIDEO"),
+            COLOR_BGR2RGB=2, cvtColor=lambda frame, code: Pixels(), INTER_CUBIC=3,
+            resize=lambda frame, size, interpolation: frame)
+        vision = SimpleNamespace(RunningMode=SimpleNamespace(VIDEO="VIDEO", IMAGE="IMAGE"),
             PoseLandmarkerOptions=lambda **kwargs: kwargs, HandLandmarkerOptions=lambda **kwargs: kwargs,
             PoseLandmarker=SimpleNamespace(create_from_options=lambda options: Task("body")),
             HandLandmarker=SimpleNamespace(create_from_options=lambda options: Task("hands")))
@@ -131,12 +181,13 @@ class MotionExtractionTests(unittest.TestCase):
             self.assertNotIn(str(source), document)
             self.assertEqual(output.stat().st_mode & 0o777, 0o600)
         self.assertTrue(capture.released)
-        self.assertEqual(delegates, ["CPU", "CPU"])
+        self.assertEqual(delegates, ["CPU", "CPU", "CPU"])
         self.assertEqual(len(result["frames"]), 144)
         self.assertEqual(timestamps["body"], timestamps["hands"])
         self.assertEqual(len(set(timestamps["body"])), 144)
         self.assertEqual(timestamps["body"][-1], 5958)
         self.assertTrue(result["quality"]["hand_missing_warning"])
+        self.assertEqual(result["quality"]["hand_crop_fallback"]["attempts"], {"left": 144, "right": 144})
 
     def test_cli_failures_do_not_echo_private_paths_or_upstream_exception_content(self):
         output = io.StringIO()

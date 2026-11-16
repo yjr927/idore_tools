@@ -1,4 +1,5 @@
 name: KAI clay motion preview
+# Revision 2: recover occluded elbows and re-detect missing fingers in wrist crops.
 
 on:
   push:
