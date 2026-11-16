@@ -2,26 +2,30 @@
 """One authorized KAI motion-reference run; transient player URLs stay in memory.
 
 The browser opens only the public player, uses no login state or stealth options,
-and stops at access challenges. No source media, browser state, resolved URLs or
-environment dumps are written. Paid submission is delegated once to the existing
-video runner after public media preflights pass.
+and stops at access challenges. The full reference MP4 is verified in a private
+temporary directory and deleted on exit; it is never a job artifact. Browser
+state, resolved URLs and environment dumps are never written. Paid submission is
+delegated once to the existing video runner after complete-source verification.
 """
 from __future__ import annotations
 
 import asyncio
 from contextlib import redirect_stderr
+import hashlib
 import io
 import json
 import math
+import mmap
 import os
 from pathlib import Path
 import sys
+import tempfile
 import time
 from urllib.parse import urlsplit
 from urllib.request import HTTPRedirectHandler, Request, build_opener
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from video_service import _media_url
+from video_service import _media_url, _mp4
 try:
     from scripts import run_video_generation
 except ImportError:
@@ -31,6 +35,7 @@ except ImportError:
 PLAYER_URL = "https://www.tiktok.com/player/v1/7706633304702848276"
 IMAGE_URL = "https://raw.githubusercontent.com/yjr927/idore_tools/bd19680c2f14b89be1a1025b7825d9e49bd4b433/reference-assets/kai-full.png"
 MODEL = "bytedance/seedance-2.0-fast"
+MAX_REFERENCE_BYTES = 200_000_000
 PROMPT = (
     "Create one 6-second vertical video with one character, KAI. The IMAGE reference defines KAI's identity: "
     "preserve the exact face, hairstyle, hair color, body proportions, butterfly-pattern outfit, colors and accessories. "
@@ -52,32 +57,48 @@ class NoRedirect(HTTPRedirectHandler):
         return None
 
 
-async def access_blocked(page):
-    path = urlsplit(page.url).path.lower()
-    if "/login" in path or "/captcha" in path:
+async def access_blocked(page, diagnostics=None):
+    def blocked(reason):
+        if diagnostics is not None:
+            diagnostics["access_gate"] = reason
         return True
+    path = urlsplit(page.url).path.lower()
+    if "/login" in path:
+        return blocked("login_required")
+    if "/captcha" in path:
+        return blocked("challenge_required")
     for selector in ('iframe[src*="captcha"]', '[id*="captcha"]', '[data-testid*="captcha"]'):
         locators = page.locator(selector)
         if await locators.count() and await locators.first.is_visible():
-            return True
+            return blocked("challenge_required")
     dialogs = page.get_by_role("dialog")
     for index in range(min(await dialogs.count(), 3)):
         dialog = dialogs.nth(index)
         if await dialog.is_visible():
             content = (await dialog.inner_text(timeout=1500)).lower()
-            if any(text in content for text in ("log in", "sign in", "登录", "验证码")):
-                return True
+            if any(text in content for text in ("log in", "sign in", "登录")):
+                return blocked("login_required")
+            if "验证码" in content:
+                return blocked("challenge_required")
     text = (await page.locator("body").inner_text(timeout=1500))[:12000].lower()
-    return any(phrase in text for phrase in (
-        "log in to continue", "log in to watch", "sign in to continue", "verify to continue",
-        "verify you are human", "complete the captcha", "when's your birthday", "when’s your birthday",
-        "enter your birthdate", "verify your age", "安全验证", "拖动滑块", "登录后观看"))
+    for reason, phrases in (("login_required", ("log in to continue", "log in to watch", "sign in to continue", "登录后观看")),
+            ("challenge_required", ("verify to continue", "verify you are human", "complete the captcha", "安全验证", "拖动滑块")),
+            ("age_verification_required", ("when's your birthday", "when’s your birthday", "enter your birthdate", "verify your age"))):
+        if any(phrase in text for phrase in phrases):
+            return blocked(reason)
+    return False
+
+
+def access_failure(diagnostics):
+    return {"login_required": "public_player_login_required", "challenge_required": "public_player_challenge_required",
+        "age_verification_required": "public_player_age_verification_required"}.get(
+            diagnostics.get("access_gate"), "public_player_access_blocked")
 
 
 def player_ui_state():
     return {"play_seen": False, "play_clicked": False, "all_video_count": 0,
             "visible_video_count": 0, "src_kind": "empty", "network_loading": False,
-            "page_on_public_player": False}
+            "page_on_public_player": False, "access_gate": "none"}
 
 
 async def _poll_player(page, deadline, diagnostics):
@@ -85,8 +106,8 @@ async def _poll_player(page, deadline, diagnostics):
         location = urlsplit(page.url)
         diagnostics["page_on_public_player"] = (location.scheme == "https" and location.hostname in ("www.tiktok.com", "tiktok.com")
             and location.path == "/player/v1/7706633304702848276")
-        if await access_blocked(page):
-            raise PreflightStopped("public_player_access_blocked")
+        if await access_blocked(page, diagnostics):
+            raise PreflightStopped(access_failure(diagnostics))
         diagnostics["all_video_count"] = min(100, await page.locator("video").count())
         videos = page.locator("video:visible")
         count = await videos.count()
@@ -141,8 +162,8 @@ async def _resolve_player(diagnostics=None):
             response = await page.goto(PLAYER_URL, wait_until="domcontentloaded", timeout=45000)
             if response is not None and response.status >= 400:
                 raise PreflightStopped("public_player_unavailable")
-            if await access_blocked(page):
-                raise PreflightStopped("public_player_access_blocked")
+            if await access_blocked(page, diagnostics):
+                raise PreflightStopped(access_failure(diagnostics))
             return await _poll_player(page, deadline, diagnostics)
         finally:
             try:
@@ -180,6 +201,70 @@ def range_preflight(url, kind):
         raise PreflightStopped("public_media_format_unverified")
 
 
+def download_reference(url, target):
+    """Download and structurally verify the entire MP4 without API credentials."""
+    validated = _media_url(url, "video_url")
+    request = Request(validated, headers={"Accept": "video/mp4", "Accept-Encoding": "identity",
+        "User-Agent": "idore-media-preflight/1.0"}, method="GET")
+    count, digest = 0, hashlib.sha256()
+    deadline = time.monotonic() + 120
+    try:
+        with build_opener(NoRedirect).open(request, timeout=30) as response:
+            if response.status not in (200, 206):
+                raise PreflightStopped("reference_download_failed")
+            content_type = response.headers.get("Content-Type", "").split(";", 1)[0].strip().lower()
+            if content_type not in ("video/mp4", "application/octet-stream"):
+                raise PreflightStopped("reference_download_not_mp4")
+            length = response.headers.get("Content-Length")
+            if length is not None and (not length.isdigit() or len(length) > 12):
+                raise PreflightStopped("reference_download_length_invalid")
+            expected = int(length) if length is not None else None
+            if expected is not None and not 0 < expected <= MAX_REFERENCE_BYTES:
+                raise PreflightStopped("reference_download_size_unsupported")
+            # A CDN may answer a full GET with 206. Accept that only when the
+            # declared range explicitly covers the entire object.
+            content_range = response.headers.get("Content-Range")
+            if response.status == 206 or content_range is not None:
+                import re
+                match = re.fullmatch(r"bytes 0-([0-9]{1,12})/([0-9]{1,12})", content_range or "")
+                if not match or int(match[1]) + 1 != int(match[2]):
+                    raise PreflightStopped("reference_download_incomplete")
+                total = int(match[2])
+                if not 0 < total <= MAX_REFERENCE_BYTES or expected is not None and expected != total:
+                    raise PreflightStopped("reference_download_length_invalid")
+                expected = total
+            descriptor = os.open(str(target), os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+            with os.fdopen(descriptor, "wb") as destination:
+                while True:
+                    if time.monotonic() >= deadline:
+                        raise PreflightStopped("reference_download_timed_out")
+                    chunk = response.read(min(64 * 1024, MAX_REFERENCE_BYTES - count + 1))
+                    if not chunk:
+                        break
+                    count += len(chunk)
+                    if count > MAX_REFERENCE_BYTES:
+                        raise PreflightStopped("reference_download_size_unsupported")
+                    destination.write(chunk)
+                    digest.update(chunk)
+                destination.flush()
+                os.fsync(destination.fileno())
+        if not count or expected is not None and count != expected:
+            raise PreflightStopped("reference_download_incomplete")
+        with target.open("rb") as downloaded:
+            with mmap.mmap(downloaded.fileno(), 0, access=mmap.ACCESS_READ) as contents:
+                if not _mp4(contents):
+                    raise PreflightStopped("reference_download_not_mp4")
+        return {"verified": True, "bytes": count, "sha256": digest.hexdigest()}
+    except Exception as exc:
+        try:
+            target.unlink(missing_ok=True)
+        except OSError:
+            pass
+        if isinstance(exc, PreflightStopped):
+            raise
+        raise PreflightStopped("reference_download_failed") from None
+
+
 def write_summary(output, summary):
     output.mkdir(parents=True, exist_ok=True)
     path = output / "cloud-generation-summary.json"
@@ -188,11 +273,12 @@ def write_summary(output, summary):
     temporary.replace(path)
 
 
-def main():
+def main(resolved_reference=None):
     output = Path(os.environ.get("VIDEO_OUTPUT_DIR", "generation-output"))
+    private_source = None
     summary = {"schema_version": 1, "status": "stopped", "player_resolution": "not_run",
                "image_preflight": "not_run", "video_preflight": "not_run", "generation_runner_invoked": False,
-               "player_ui": player_ui_state()}
+               "player_ui": player_ui_state(), "reference_download": {"verified": False}}
     try:
         if os.environ.get("GITHUB_RUN_ATTEMPT", "1") != "1":
             raise PreflightStopped("rerun_refused_to_avoid_duplicate_charge")
@@ -202,15 +288,22 @@ def main():
             raise PreflightStopped("authorized_github_run_required")
         if not os.environ.get("OPENROUTER_API_KEY", "").strip():
             raise PreflightStopped("openrouter_secret_missing")
-        with redirect_stderr(io.StringIO()):
-            url, duration = asyncio.run(resolve_player(summary["player_ui"]))
-        summary["player_resolution"] = "passed"
+        if resolved_reference is None:
+            with redirect_stderr(io.StringIO()):
+                url, duration = asyncio.run(resolve_player(summary["player_ui"]))
+            summary["player_resolution"] = "passed"
+        else:
+            if not isinstance(resolved_reference, tuple) or len(resolved_reference) != 2:
+                raise PreflightStopped("provided_reference_invalid")
+            url, duration = resolved_reference
+            summary["player_resolution"] = "skipped_for_in_memory_reference"
         if type(duration) not in (int, float) or not math.isfinite(duration) or not 2 <= duration <= 15.05:
             raise PreflightStopped("reference_video_duration_unsupported")
         _media_url(url, "video_url")
         range_preflight(IMAGE_URL, "image_url")
         summary["image_preflight"] = "passed"
-        range_preflight(url, "video_url")
+        private_source = tempfile.TemporaryDirectory(prefix="kai-motion-")
+        summary["reference_download"] = download_reference(url, Path(private_source.name) / "reference.mp4")
         summary["video_preflight"] = "passed"
         settings = {"model": MODEL, "mode": "references", "prompt": PROMPT, "duration": 6,
             "resolution": "720p", "aspect_ratio": "9:16", "generate_audio": False, "allow_paid": True,
@@ -218,7 +311,9 @@ def main():
         previous = os.environ.get("GENERATION_INPUTS")
         summary["generation_runner_invoked"] = True
         try:
-            # The dynamic URL is never a workflow input, source file or artifact.
+            # The full local MP4 has now been downloaded and verified. This API
+            # contract receives its verified origin URL, not a binary upload;
+            # neither that URL nor the private source file becomes an artifact.
             os.environ["GENERATION_INPUTS"] = json.dumps(settings)
             # Existing runner logs only task states; suppress its error channel
             # here to avoid exposing any unexpected upstream/browser details.
@@ -243,6 +338,12 @@ def main():
             pass
         print("KAI cloud run stopped: " + summary["reason"], flush=True)
         return 1
+    finally:
+        if private_source is not None:
+            try:
+                private_source.cleanup()
+            except OSError:
+                print("KAI private source cleanup could not finish; no source file was added to artifacts.", flush=True)
 
 
 if __name__ == "__main__":
