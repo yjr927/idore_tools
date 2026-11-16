@@ -74,8 +74,60 @@ async def access_blocked(page):
         "enter your birthdate", "verify your age", "安全验证", "拖动滑块", "登录后观看"))
 
 
-async def _resolve_player():
+def player_ui_state():
+    return {"play_seen": False, "play_clicked": False, "all_video_count": 0,
+            "visible_video_count": 0, "src_kind": "empty", "network_loading": False,
+            "page_on_public_player": False}
+
+
+async def _poll_player(page, deadline, diagnostics):
+    while time.monotonic() < deadline:
+        location = urlsplit(page.url)
+        diagnostics["page_on_public_player"] = (location.scheme == "https" and location.hostname in ("www.tiktok.com", "tiktok.com")
+            and location.path == "/player/v1/7706633304702848276")
+        if await access_blocked(page):
+            raise PreflightStopped("public_player_access_blocked")
+        diagnostics["all_video_count"] = min(100, await page.locator("video").count())
+        videos = page.locator("video:visible")
+        count = await videos.count()
+        diagnostics["visible_video_count"] = min(100, count)
+        media = {}
+        if count == 1:
+            try:
+                media = await videos.first.evaluate(
+                    "video => ({url: video.currentSrc, duration: video.duration, networkState: video.networkState})", timeout=3000)
+            except Exception:
+                pass  # A normal DOM replacement can detach a player mid-poll.
+        url = media.get("url") if isinstance(media, dict) else None
+        duration = media.get("duration") if isinstance(media, dict) else None
+        diagnostics["src_kind"] = ("https" if isinstance(url, str) and url.startswith("https://")
+            else "blob" if isinstance(url, str) and url.startswith("blob:") else "empty" if not url else "other")
+        diagnostics["network_loading"] = isinstance(media, dict) and media.get("networkState") == 2
+        if (isinstance(url, str) and url.startswith("https://") and type(duration) in (int, float)
+                and math.isfinite(duration) and duration > 0):
+            return url, duration
+        # React controls may appear well after DOMContentLoaded. Use only a
+        # normal visible/enabled Play control, once successfully clicked; a
+        # detached control may be tried again on the next bounded poll.
+        for label in ("Play video", "Play"):
+            play = page.get_by_role("button", name=label, exact=True)
+            try:
+                if await play.count() and await play.first.is_visible():
+                    diagnostics["play_seen"] = True
+                    if (not diagnostics["play_clicked"] and not diagnostics["network_loading"]
+                            and await play.first.is_enabled(timeout=1000)):
+                        await play.first.click(timeout=2000)
+                        diagnostics["play_clicked"] = True
+                        break
+            except Exception:
+                pass
+        await page.wait_for_timeout(500)
+    raise PreflightStopped("public_player_has_no_playable_video")
+
+
+async def _resolve_player(diagnostics=None):
     from playwright.async_api import async_playwright
+    diagnostics = diagnostics if diagnostics is not None else player_ui_state()
     deadline = time.monotonic() + 105
     async with async_playwright() as playwright:
         browser_env = {key: value for key, value in os.environ.items()
@@ -91,22 +143,7 @@ async def _resolve_player():
                 raise PreflightStopped("public_player_unavailable")
             if await access_blocked(page):
                 raise PreflightStopped("public_player_access_blocked")
-            play = page.get_by_role("button", name="Play video", exact=True)
-            if await play.count() and await play.first.is_visible():
-                await play.first.click(timeout=5000)
-            while time.monotonic() < deadline:
-                if await access_blocked(page):
-                    raise PreflightStopped("public_player_access_blocked")
-                videos = page.locator("video:visible")
-                if await videos.count():
-                    media = await videos.first.evaluate("video => ({url: video.currentSrc, duration: video.duration})", timeout=3000)
-                    url = media.get("url") if isinstance(media, dict) else None
-                    duration = media.get("duration") if isinstance(media, dict) else None
-                    if (isinstance(url, str) and url.startswith("https://") and type(duration) in (int, float)
-                            and math.isfinite(duration) and duration > 0):
-                        return url, duration
-                await page.wait_for_timeout(500)
-            raise PreflightStopped("public_player_has_no_playable_video")
+            return await _poll_player(page, deadline, diagnostics)
         finally:
             try:
                 await asyncio.wait_for(browser.close(), timeout=5)
@@ -114,9 +151,9 @@ async def _resolve_player():
                 pass
 
 
-async def resolve_player():
+async def resolve_player(diagnostics=None):
     try:
-        return await asyncio.wait_for(_resolve_player(), timeout=115)
+        return await asyncio.wait_for(_resolve_player(diagnostics), timeout=115)
     except PreflightStopped:
         raise
     except Exception:
@@ -154,7 +191,8 @@ def write_summary(output, summary):
 def main():
     output = Path(os.environ.get("VIDEO_OUTPUT_DIR", "generation-output"))
     summary = {"schema_version": 1, "status": "stopped", "player_resolution": "not_run",
-               "image_preflight": "not_run", "video_preflight": "not_run", "generation_runner_invoked": False}
+               "image_preflight": "not_run", "video_preflight": "not_run", "generation_runner_invoked": False,
+               "player_ui": player_ui_state()}
     try:
         if os.environ.get("GITHUB_RUN_ATTEMPT", "1") != "1":
             raise PreflightStopped("rerun_refused_to_avoid_duplicate_charge")
@@ -165,7 +203,7 @@ def main():
         if not os.environ.get("OPENROUTER_API_KEY", "").strip():
             raise PreflightStopped("openrouter_secret_missing")
         with redirect_stderr(io.StringIO()):
-            url, duration = asyncio.run(resolve_player())
+            url, duration = asyncio.run(resolve_player(summary["player_ui"]))
         summary["player_resolution"] = "passed"
         if type(duration) not in (int, float) or not math.isfinite(duration) or not 2 <= duration <= 15.05:
             raise PreflightStopped("reference_video_duration_unsupported")
