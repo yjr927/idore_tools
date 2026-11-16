@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta name="description" content="idore 已保存的生成作品。查看角色成片，直接播放或下载视频。">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; media-src 'self'; connect-src 'self'; base-uri 'none'; form-action 'none'">
+  <title>idore · 生成作品</title>
+  <link rel="icon" href="./mark.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./gallery.css?v=20261116-1">
+  <script defer src="./gallery.js?v=20261116-1"></script>
+</head>
+<body>
+  <header class="topbar">
+    <a href="./" class="brand"><span class="brand-mark">i<span>↗</span></span><span>idore<small>YOUR CHARACTER, IN MOTION</small></span></a>
+    <nav aria-label="创作导航"><a href="./">趋势素材库</a><a href="./create.html">角色视频生成</a><a href="./gallery.html" aria-current="page">生成作品</a></nav>
+  </header>
+  <main>
+    <section class="heading" aria-labelledby="gallery-heading">
+      <div><span class="eyebrow">MADE WITH IDORE</span><h1 id="gallery-heading">让灵感，<br>留下作品。</h1><p>收好每一次创作。在这里播放、下载，再开始下一个故事。</p></div>
+      <a href="./create.html" class="button primary">创作一条新视频 <span aria-hidden="true">↗</span></a>
+    </section>
+    <section class="collection" aria-labelledby="collection-heading">
+      <div class="collection-top"><div class="collection-title"><h2 id="collection-heading">生成作品</h2><span id="collection-count" class="count" aria-live="polite" aria-atomic="true">读取中</span></div><button id="reload-gallery" type="button" class="text-button">刷新作品 ↻</button></div>
+      <div class="collection-toolbar"><div id="kind-filters" class="filters" role="group" aria-label="筛选作品类型"><button type="button" class="filter active" data-kind="all" aria-pressed="true">全部作品</button><button type="button" class="filter" data-kind="character" aria-pressed="false">角色作品</button><button type="button" class="filter" data-kind="api_test" aria-pressed="false">接口测试</button></div><p id="gallery-updated" class="updated"></p></div>
+      <p id="gallery-status" class="status" role="status" aria-live="polite">正在读取已保存的作品…</p>
+      <div id="gallery-grid" class="gallery-grid" aria-busy="true"></div>
+    </section>
+    <section class="next-story"><span class="spark" aria-hidden="true">✳</span><div><h2>下一条，会是什么样？</h2><p>带着角色去找新动作，让下一次灵感也成为作品。</p></div><a href="./" class="button">去找趋势灵感 ↗</a></section>
+  </main>
+  <footer>idore · Create your next story.<span>已保存的生成作品 · 可播放与下载</span></footer>
+  <noscript><p class="noscript">请启用 JavaScript，以查看已保存的作品。</p></noscript>
+</body>
+</html>
