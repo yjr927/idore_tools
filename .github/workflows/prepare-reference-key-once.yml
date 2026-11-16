@@ -1,0 +1,36 @@
+name: Prepare encrypted reference transfer key
+on:
+  push:
+    branches: [codex/kai-bizzyboom-cloud-20261115]
+    paths: [.github/workflows/prepare-reference-key-once.yml]
+permissions:
+  contents: read
+jobs:
+  prepare:
+    if: github.run_attempt == 1
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install standard cryptography library
+        run: python3 -m pip install cryptography
+      - name: Prepare protected key material without calling generation
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          REFERENCE_KEY_OUTPUT_DIR: reference-transfer-key
+        run: python3 scripts/prepare_reference_transfer_key.py
+      - name: Save public key and encrypted private key only
+        uses: actions/upload-artifact@v4
+        with:
+          name: reference-transfer-key-${{ github.run_id }}
+          path: |
+            reference-transfer-key/public_key.pem
+            reference-transfer-key/encrypted_private_key.pem
+            reference-transfer-key/key-metadata.json
+          retention-days: 1
+          if-no-files-found: error
