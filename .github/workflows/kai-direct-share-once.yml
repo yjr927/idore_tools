@@ -1,39 +1,10 @@
-name: Test KAI using the selected TikTok share link
-run-name: KAI - direct TikTok link compatibility test
-on:
-  push:
-    branches: [codex/kai-bizzyboom-cloud-20261115]
-    paths: [.github/workflows/kai-direct-share-once.yml]
+name: Archived KAI experiment - kai-direct-share-once
+on: workflow_dispatch
 permissions:
   contents: read
-concurrency:
-  group: kai-bizzyboom-one-generation
-  cancel-in-progress: false
 jobs:
-  generate:
-    if: github.run_attempt == 1
+  archived:
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
-        with:
-          persist-credentials: false
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-      - name: Submit KAI image and exact user-selected public share link once
-        env:
-          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
-          KAI_ALLOW_PAID: 'true'
-          VIDEO_OUTPUT_DIR: generation-output
-        run: python3 scripts/test_kai_direct_share_once.py
-      - name: Save finished output or safe compatibility status
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: kai-direct-share-result-${{ github.run_id }}
-          path: |
-            generation-output/generated/*.mp4
-            generation-output/generation-summary.json
-          retention-days: 7
-          if-no-files-found: ignore
+      - name: Read experiment result
+        run: echo 'Experiment archived. No API key is loaded and no generation is submitted.'

@@ -1,55 +1,10 @@
-name: Generate KAI from privately transferred reference
-run-name: KAI - full reference download and cloud generation
-on:
-  push:
-    branches: [codex/kai-bizzyboom-cloud-20261115]
-    paths: [.github/workflows/kai-encrypted-reference-once.yml]
+name: Archived KAI experiment - kai-encrypted-reference-once
+on: workflow_dispatch
 permissions:
   contents: read
-  actions: read
-concurrency:
-  group: kai-bizzyboom-one-generation
-  cancel-in-progress: false
 jobs:
-  generate:
-    if: github.run_attempt == 1
+  archived:
     runs-on: ubuntu-24.04
-    timeout-minutes: 35
     steps:
-      - uses: actions/checkout@v4
-        with:
-          persist-credentials: false
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-      - name: Install standard cryptography library
-        run: python3 -m pip install cryptography
-      - name: Retrieve the protected transfer key
-        uses: actions/download-artifact@v4
-        with:
-          name: reference-transfer-key-43780539094
-          run-id: 43780539094
-          repository: yjr927/idore_tools
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          path: reference-transfer-key
-      - name: Privately read the reference, verify the complete MP4 and generate once
-        env:
-          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
-          KAI_ALLOW_PAID: 'true'
-          REFERENCE_KEY_RUN_ID: '43780539094'
-          REFERENCE_KEY_DIR: reference-transfer-key
-          REFERENCE_ENCRYPTED_FILE: cloud-requests/kai-reference.encrypted.json
-          VIDEO_OUTPUT_DIR: generation-output
-        run: python3 scripts/run_kai_encrypted_reference.py
-      - name: Save generated KAI video and safe status only
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: kai-reference-result-${{ github.run_id }}
-          path: |
-            generation-output/generated/*.mp4
-            generation-output/generation-summary.json
-            generation-output/cloud-generation-summary.json
-            generation-output/encrypted-reference-summary.json
-          retention-days: 7
-          if-no-files-found: ignore
+      - name: Read experiment result
+        run: echo 'Experiment archived. No API key is loaded and no generation is submitted.'

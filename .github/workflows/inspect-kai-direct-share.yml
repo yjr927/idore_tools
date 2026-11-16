@@ -1,41 +1,10 @@
-name: Inspect direct TikTok reference failure without generating
-on:
-  push:
-    branches: [codex/kai-bizzyboom-cloud-20261115]
-    paths: [.github/workflows/inspect-kai-direct-share.yml]
+name: Archived KAI experiment - inspect-kai-direct-share
+on: workflow_dispatch
 permissions:
   contents: read
 jobs:
-  inspect:
+  archived:
     runs-on: ubuntu-24.04
-    timeout-minutes: 3
     steps:
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-      - name: Read the existing job only
-        env:
-          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
-        run: |
-          python3 - <<'PY'
-          import json, math, os, re, urllib.request
-          key = os.environ['OPENROUTER_API_KEY'].strip()
-          job = 'gen-vid-1794790770-CnJAhTzxAbuqWKCTFTwa'
-          request = urllib.request.Request('https://openrouter.ai/api/v1/videos/' + job,
-              headers={'Authorization': 'Bearer ' + key, 'Accept': 'application/json'})
-          with urllib.request.urlopen(request, timeout=40) as response:
-              data = json.loads(response.read(200000))
-          error = data.get('error')
-          def safe(value):
-              text = str(value or '').replace(key, '[redacted]')
-              text = re.sub(r'https?://\\S+', '[media URL]', text)
-              text = re.sub(r'\\bsk-(?:or-)?[A-Za-z0-9_-]{12,}', '[redacted]', text)
-              return text[:800]
-          usage = data.get('usage') if isinstance(data.get('usage'), dict) else {}
-          cost = usage.get('cost')
-          summary = {'job_id': job, 'status': safe(data.get('status')), 'paid_submission': False,
-              'error_code': safe(error.get('code')) if isinstance(error, dict) else None,
-              'error_message': safe(error.get('message')) if isinstance(error, dict) else safe(error)}
-          if type(cost) in (int, float) and math.isfinite(cost): summary['cost'] = cost
-          print(json.dumps(summary, ensure_ascii=False))
-          PY
+      - name: Read experiment result
+        run: echo 'Experiment archived. No API key is loaded and no generation is submitted.'

@@ -1,41 +1,10 @@
-name: Generate KAI from the selected TikTok link
-run-name: KAI - automatic TikTok resolution and motion generation
-on:
-  push:
-    branches: [codex/kai-bizzyboom-cloud-20261115]
-    paths: [.github/workflows/kai-tiktok-link-once.yml]
+name: Archived KAI experiment - kai-tiktok-link-once
+on: workflow_dispatch
 permissions:
   contents: read
-concurrency:
-  group: kai-bizzyboom-one-generation
-  cancel-in-progress: false
 jobs:
-  generate:
-    if: github.run_attempt == 1
+  archived:
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
-        with:
-          persist-credentials: false
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-      - name: Resolve public link, verify full source MP4, then generate KAI once
-        env:
-          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
-          KAI_ALLOW_PAID: 'true'
-          VIDEO_OUTPUT_DIR: generation-output
-        run: python3 scripts/run_kai_tiktok_link_cloud.py
-      - name: Save KAI output and safe summaries only
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: kai-tiktok-link-result-${{ github.run_id }}
-          path: |
-            generation-output/generated/*.mp4
-            generation-output/generation-summary.json
-            generation-output/cloud-generation-summary.json
-            generation-output/tiktok-resolution-summary.json
-          retention-days: 7
-          if-no-files-found: ignore
+      - name: Read experiment result
+        run: echo 'Experiment archived. No API key is loaded and no generation is submitted.'
