@@ -1,5 +1,6 @@
 import asyncio
 from contextlib import redirect_stderr, redirect_stdout
+import hashlib
 import importlib.util
 import io
 import json
@@ -17,6 +18,7 @@ spec.loader.exec_module(kai)
 # Reserved example domain: this is a nonfunctional test sentinel, not a media
 # capability copied from TikTok or a real signed download address.
 REFERENCE = "https://media.example/clip.mp4?opaque=DO_NOT_WRITE_REFERENCE"
+MP4 = (24).to_bytes(4, "big") + b"ftypisom\x00\x00\x00\x00isommp42" + (8).to_bytes(4, "big") + b"moov" + (12).to_bytes(4, "big") + b"mdatdata"
 
 
 class KaiMotionCloudTests(unittest.TestCase):
@@ -27,7 +29,7 @@ class KaiMotionCloudTests(unittest.TestCase):
     def tearDown(self):
         self.tmp.cleanup()
 
-    def execute(self, runner=None, resolver=None, environment=None):
+    def execute(self, runner=None, resolver=None, environment=None, resolved_reference=None):
         env = {"GITHUB_ACTIONS": "true", "GITHUB_RUN_ATTEMPT": "1", "GITHUB_RUN_ID": "12345",
             "KAI_ALLOW_PAID": "true", "OPENROUTER_API_KEY": "test-private-key",
             "VIDEO_OUTPUT_DIR": str(self.output), "GENERATION_INPUTS": "prior-safe-inputs"}
@@ -35,16 +37,24 @@ class KaiMotionCloudTests(unittest.TestCase):
         resolver = resolver or AsyncMock(return_value=(REFERENCE, 7.5))
         runner = runner or Mock(return_value=0)
         stdout, stderr = io.StringIO(), io.StringIO()
+        self.download_paths = []
+        def downloaded(url, path):
+            self.assertEqual(url, REFERENCE)
+            self.download_paths.append(path)
+            path.write_bytes(MP4)
+            return {"verified": True, "bytes": len(MP4), "sha256": hashlib.sha256(MP4).hexdigest()}
         with patch.dict(os.environ, env, clear=True), patch.object(kai, "resolve_player", resolver), \
                 patch.object(kai, "range_preflight") as preflight, \
+                patch.object(kai, "download_reference", side_effect=downloaded), \
                 patch.object(kai.run_video_generation, "main", runner), \
                 redirect_stdout(stdout), redirect_stderr(stderr):
-            result = kai.main()
+            result = kai.main(resolved_reference)
             self.assertEqual(os.environ.get("GENERATION_INPUTS"), env["GENERATION_INPUTS"])
         summary = json.loads((self.output / "cloud-generation-summary.json").read_text())
         persisted = "".join(path.read_text() for path in self.output.rglob("*.json"))
         self.assertNotIn(REFERENCE, persisted + stdout.getvalue() + stderr.getvalue())
         self.assertNotIn("test-private-key", persisted + stdout.getvalue() + stderr.getvalue())
+        self.assertTrue(all(not path.exists() for path in self.download_paths))
         return result, summary, resolver, runner, preflight
 
     def test_authorized_resolved_media_stays_in_memory_and_invokes_one_fixed_video_request(self):
@@ -66,8 +76,23 @@ class KaiMotionCloudTests(unittest.TestCase):
         status, summary, _, _, preflight = self.execute(runner)
         self.assertEqual(status, 0); self.assertEqual(summary["status"], "completed")
         self.assertEqual(preflight.call_args_list[0].args, (kai.IMAGE_URL, "image_url"))
-        self.assertEqual(preflight.call_args_list[1].args, (REFERENCE, "video_url"))
+        self.assertEqual(len(preflight.call_args_list), 1)
+        self.assertTrue(summary["reference_download"]["verified"])
+        self.assertEqual(summary["reference_download"]["sha256"], hashlib.sha256(MP4).hexdigest())
         runner.assert_called_once_with()
+
+    def test_supplied_in_memory_reference_skips_browser_but_still_downloads_and_checks_guards(self):
+        status, summary, resolver, runner, preflight = self.execute(resolved_reference=(REFERENCE, 6.22))
+        self.assertEqual(status, 0)
+        resolver.assert_not_called()
+        self.assertEqual(summary["player_resolution"], "skipped_for_in_memory_reference")
+        self.assertTrue(summary["reference_download"]["verified"])
+        self.assertEqual(len(self.download_paths), 1)
+        preflight.assert_called_once_with(kai.IMAGE_URL, "image_url")
+        runner.assert_called_once_with()
+        status, _, resolver, runner, preflight = self.execute(
+            environment={"KAI_ALLOW_PAID": "false"}, resolved_reference=(REFERENCE, 6.22))
+        self.assertEqual(status, 1); resolver.assert_not_called(); runner.assert_not_called(); preflight.assert_not_called()
 
     def test_authorization_challenge_age_gate_and_unsupported_duration_prevent_generation(self):
         for environment in ({"KAI_ALLOW_PAID": "false"}, {"GITHUB_RUN_ATTEMPT": "2"}):
@@ -87,7 +112,51 @@ class KaiMotionCloudTests(unittest.TestCase):
             url = kai.PLAYER_URL
             def locator(self, selector): return Locator()
             def get_by_role(self, role): return Locator()
-        self.assertTrue(asyncio.run(kai.access_blocked(Page())))
+        diagnostics = kai.player_ui_state()
+        self.assertTrue(asyncio.run(kai.access_blocked(Page(), diagnostics)))
+        self.assertEqual(kai.access_failure(diagnostics), "public_player_age_verification_required")
+
+    def test_full_source_download_verifies_complete_mp4_and_hash_without_auth_or_range(self):
+        class Response(io.BytesIO):
+            status = 200
+            def __init__(self):
+                super().__init__(MP4)
+                self.headers = {"Content-Type": "video/mp4", "Content-Length": str(len(MP4))}
+        opener = Mock()
+        def open_request(request, **kwargs):
+            self.assertIsNone(request.get_header("Authorization"))
+            self.assertIsNone(request.get_header("Range"))
+            self.assertEqual(request.get_method(), "GET")
+            return Response()
+        opener.open.side_effect = open_request
+        target = Path(self.tmp.name) / "private-reference.mp4"
+        with patch.object(kai, "build_opener", return_value=opener):
+            result = kai.download_reference(REFERENCE, target)
+        self.assertEqual(target.read_bytes(), MP4)
+        self.assertEqual(target.stat().st_mode & 0o777, 0o600)
+        self.assertEqual(result, {"verified": True, "bytes": len(MP4), "sha256": hashlib.sha256(MP4).hexdigest()})
+        self.assertNotIn(REFERENCE, json.dumps(result))
+
+    def test_truncated_oversized_or_non_mp4_downloads_are_removed_and_not_verified(self):
+        class Response(io.BytesIO):
+            status = 200
+            def __init__(self, body, headers):
+                super().__init__(body); self.headers = headers
+        cases = [
+            (MP4[:-1], {"Content-Type": "video/mp4", "Content-Length": str(len(MP4))}, 200_000_000, "reference_download_incomplete"),
+            (MP4[:-1], {"Content-Type": "video/mp4"}, 200_000_000, "reference_download_not_mp4"),
+            (MP4, {"Content-Type": "video/mp4", "Content-Length": "201"}, 200, "reference_download_size_unsupported"),
+            (MP4, {"Content-Type": "video/mp4"}, 30, "reference_download_size_unsupported"),
+            (b"not an MP4" * 8, {"Content-Type": "video/mp4"}, 200_000_000, "reference_download_not_mp4"),
+        ]
+        for index, (body, headers, maximum, reason) in enumerate(cases):
+            target = Path(self.tmp.name) / ("private-invalid-" + str(index) + ".mp4")
+            opener = Mock(); opener.open.return_value = Response(body, headers)
+            with self.subTest(reason=reason), patch.object(kai, "build_opener", return_value=opener), \
+                    patch.object(kai, "MAX_REFERENCE_BYTES", maximum), self.assertRaises(kai.PreflightStopped) as caught:
+                kai.download_reference(REFERENCE, target)
+            self.assertEqual(caught.exception.reason, reason)
+            self.assertFalse(target.exists())
 
     def test_range_checks_have_no_api_authorization_and_reject_nonmedia(self):
         requests = []
