@@ -37,6 +37,7 @@ POLL_DEADLINE_SECONDS = 25 * 60
 PROMPT = (
     "Task: new reference-to-video generation using a motion-only video reference. "
     "Create a new 6-second, 9:16 video of KAI, the fictional male character in Image 1. "
+    "Set the new video in a bright room with white walls and a warm wood floor, lit by soft daylight. "
     "Image 1 is the sole source of the character's identity and appearance: preserve KAI's "
     "face, facial proportions, hair, skin, clothing, sheer black fabric, light-colored trousers, "
     "and butterfly accessories exactly as shown. Keep the same character and wardrobe throughout. "

@@ -213,8 +213,10 @@ def main(argv=None):
         if p is not None:
             obj.location = p
 
-    def source(p):
-        return Vector((p[0] * 576 / 1024, p[2] * 576 / 1024, -p[1]))
+    def source(p, depth_weight=.15):
+        # Body z is uncalibrated monocular depth; a weak contribution preserves
+        # the observed screen gesture instead of forcing arms toward the lens.
+        return Vector((p[0] * 576 / 1024, p[2] * 576 / 1024 * depth_weight, -p[1]))
 
     def measured(frame, name):
         p = frame['body'].get(name)
@@ -290,20 +292,42 @@ def main(argv=None):
                             'hip': hip, 'knee': knee, 'ankle': ankle}
         return result
 
+    def hand_bounds(frame, side, wrist):
+        hand = frame['hands'][side]
+        if hand is None or any(p[3] < THRESHOLD for p in hand):
+            return [wrist + Vector((.04, 0, .02)), wrist - Vector((.04, 0, .09))]
+        points = [source(p, 1.) for p in hand]
+        forward = unit(points[9] - points[0])
+        across = unit(points[5] - points[17], (1, 0, 0))
+        across = unit(across - forward * across.dot(forward), (1, 0, 0))
+        across = unit(unit(forward.cross(across), (0, -1, 0)).cross(forward), (1, 0, 0))
+        bases = [wrist + forward * .026 + across * .034,
+                 wrist + forward * .073 + across * .030,
+                 wrist + forward * .081 + across * .010,
+                 wrist + forward * .076 - across * .013,
+                 wrist + forward * .063 - across * .031]
+        result = [wrist]
+        for finger, ids in enumerate(FINGERS):
+            current = bases[finger]
+            result.append(current)
+            for segment in range(3):
+                current = current + unit(points[ids[segment + 1]] - points[ids[segment]], tuple(forward)) * LENGTHS[finger][segment]
+                result.append(current)
+        return result
+
     poses = [pose(frame, index) for index, frame in enumerate(data['frames'])]
-    for p in poses:
+    for frame, p in zip(data['frames'], poses):
         bounds.extend([p['head'] + Vector((0, 0, .13)),
                        p['pelvis'] - Vector((0, 0, .25))])
         for side in ('left', 'right'):
             r = p[side]
             bounds.extend(r[key] for key in ('shoulder', 'elbow') if r[key] is not None)
             if r['wrist'] is not None:
-                bounds.extend([r['wrist'] + Vector((.20, 0, .20)),
-                               r['wrist'] - Vector((.20, 0, .20))])
+                bounds.extend(hand_bounds(frame, side, r['wrist']))
     # Fixed medium shot: head to upper thighs, retaining every measured hand.
     # Neutral/inferred lower legs must never zoom the gesture reference out.
-    xmin, xmax = min(v.x for v in bounds) - .05, max(v.x for v in bounds) + .05
-    zmin, zmax = min(v.z for v in bounds) - .05, max(v.z for v in bounds) + .05
+    xmin, xmax = min(v.x for v in bounds) - .025, max(v.x for v in bounds) + .025
+    zmin, zmax = min(v.z for v in bounds) - .025, max(v.z for v in bounds) + .025
     # Blender's explicit horizontal sensor fit interprets ortho_scale as width.
     # Passing the desired height here previously zoomed this portrait shot out.
     ortho = max(xmax - xmin, (zmax - zmin) * (576 / 1024)) * 1.04
@@ -337,7 +361,7 @@ def main(argv=None):
             palm.rotation_quaternion = Vector((0, 0, -1)).to_track_quat('Z', 'Y')
             palm.scale = (.034, .018, .045)
             return
-        points = [source(p) for p in hand]
+        points = [source(p, 1.) for p in hand]
         forward = unit(points[9] - points[0])
         across = unit(points[5] - points[17], (1, 0, 0))
         across = unit(across - forward * across.dot(forward), (1, 0, 0))
@@ -392,6 +416,8 @@ def main(argv=None):
     summary['camera'] = 'fixed_orthographic_medium_shot_head_upper_thighs_with_hand_margin'
     summary['camera_view_width'] = round(ortho, 5)
     summary['camera_view_height'] = round(ortho / (576 / 1024), 5)
+    summary['body_depth_weight'] = .15
+    summary['camera_hand_bounds'] = 'actual_posed_finger_joint_extents_plus_0.025m'
     (output / 'render-summary.json').write_text(json.dumps(summary, indent=2) + '\n', encoding='utf-8')
     print('Clay render completed: %s frames.' % args.frame_limit, flush=True)
     return 0
