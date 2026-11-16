@@ -21,6 +21,7 @@ from pathlib import Path
 import sys
 import tempfile
 import time
+from urllib.error import HTTPError
 from urllib.parse import urlsplit
 from urllib.request import HTTPRedirectHandler, Request, build_opener
 
@@ -261,6 +262,8 @@ def download_reference(url, target):
             pass
         if isinstance(exc, PreflightStopped):
             raise
+        if isinstance(exc, HTTPError) and type(exc.code) is int and 100 <= exc.code <= 599:
+            raise PreflightStopped("reference_download_http_" + str(exc.code)) from None
         raise PreflightStopped("reference_download_failed") from None
 
 
