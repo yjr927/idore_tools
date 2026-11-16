@@ -4,6 +4,8 @@ import json
 import os
 from pathlib import Path
 import sys
+from urllib.error import HTTPError
+from urllib.request import build_opener
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import video_service
 from scripts import run_kai_tiktok_link_cloud
@@ -12,8 +14,23 @@ def main():
     original = video_service._transport
     diagnostic = {'schema_version': 1, 'http_rejection_observed': False}
     def transport(request, *, timeout, max_bytes):
-        status, headers, raw = original(request, timeout=timeout, max_bytes=max_bytes)
-        if request.get_method() == 'POST' and status not in (200, 201, 202):
+        if request.get_method() != 'POST':
+            return original(request, timeout=timeout, max_bytes=max_bytes)
+        # Production deliberately discards error bodies. This diagnostic reads
+        # one bounded official-endpoint response in memory and retains only two
+        # redacted fields, never the complete body, request or signed media URL.
+        video_service._validate_endpoint(request.full_url, request.get_method())
+        try:
+            response = build_opener(video_service._NoRedirect).open(request, timeout=timeout)
+        except HTTPError as exc:
+            with exc:
+                status, headers, raw = exc.code, dict(exc.headers or {}), exc.read(min(max_bytes, 200000) + 1)
+        else:
+            with response:
+                if response.geturl() != request.full_url:
+                    raise video_service.VideoError('Unexpected provider redirect.', 502)
+                status, headers, raw = response.status, dict(response.headers), response.read(max_bytes + 1)
+        if status not in (200, 201, 202):
             diagnostic.update(http_rejection_observed=True, http_status=status)
             try:
                 document = json.loads(raw)
