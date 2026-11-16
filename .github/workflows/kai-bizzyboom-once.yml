@@ -1,9 +1,12 @@
 name: Generate KAI with chosen Bizzyboom motion reference
 run-name: KAI - selected image plus 6-second motion reference
 on:
-  push:
-    branches: [codex/kai-bizzyboom-cloud-20261115]
-    paths: [.github/workflows/kai-bizzyboom-once.yml]
+  workflow_dispatch:
+    inputs:
+      allow_paid:
+        description: Allow one KAI image + Bizzyboom motion-reference generation (6s, 720p, uses OpenRouter credits)
+        type: boolean
+        default: false
 permissions:
   contents: read
 concurrency:
@@ -28,7 +31,7 @@ jobs:
       - name: Read the public player in memory and generate one KAI video
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
-          KAI_ALLOW_PAID: 'true'
+          KAI_ALLOW_PAID: ${{ inputs.allow_paid }}
           VIDEO_OUTPUT_DIR: generation-output
         run: python3 scripts/run_kai_motion_cloud.py
       - name: Save KAI video and safe status only
