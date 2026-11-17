@@ -2,6 +2,50 @@
   "schema_version": 1,
   "items": [
     {
+      "id": "task-7707258503991168278",
+      "created_at": "2026-11-17T14:11:12.971959Z",
+      "source_id": "tiktok-7707258503991168278",
+      "source_url": "https://www.tiktok.com/@vaxis.entertainment/video/7707258503991168278",
+      "title": "NOXEN — seated five-character hand dance",
+      "material_group": "male",
+      "cast_type": "group",
+      "status": "waiting_material",
+      "stage": "matching",
+      "message": "等待同分组、同人数的角色素材。",
+      "character": "",
+      "character_id": "",
+      "character_image": "",
+      "transformation": "unknown",
+      "motion_summary": "实际播放可见5名虚拟男团角色在混凝土台阶上纵向排坐：手掌横盖眼部，另一只手靠近脸或胸前，随后双手移向头侧/耳后、肘部张开；机位固定，角色座位不变。页面描述Five boys及AI生成标识，与虚拟男团角色画面共同支持virtual_idol主题及男生角色素材用途；5名同时可见故为多人，不用mixed代替多人。已见关键帧服装相同，完整造型变化和动作重复周期仍未充分核验。",
+      "kind": "hands",
+      "original_watched": true,
+      "observed_at": "2026-11-17T14:09:51+00:00",
+      "updated_at": "2026-11-17T14:11:12.971966Z",
+      "revision": "9ac06f0c59ffd983cf8a8b98d09f00f14159d86746cc6d5962c8853d023796fe"
+    },
+    {
+      "id": "task-7707863885826493716",
+      "created_at": "2026-11-17T14:11:12.971856Z",
+      "source_id": "tiktok-7707863885826493716",
+      "source_url": "https://www.tiktok.com/@ajdpimentel/video/7707863885826493716",
+      "title": "Love Options — solo hand dance",
+      "material_group": "female",
+      "cast_type": "solo",
+      "status": "waiting_material",
+      "stage": "matching",
+      "message": "等待同分组、同人数的角色素材。",
+      "character": "",
+      "character_id": "",
+      "character_image": "",
+      "transformation": "unknown",
+      "motion_summary": "实际播放中画面仅见1名表演者，正面站在门口，浅紫色荷叶边无袖上装，带花朵/爱心叠加效果；双手在胸前翻掌，再举至双颊附近配合微笑。机位和背景稳定。页面歌曲为BESTie《Love Options》，归入K-pop；按柔美荷叶边服装与表演造型规划女生角色素材，不判断原片人物真实性别。已见关键帧造型相同，但全片妆容/服装变化及动作重复周期未充分核验。",
+      "kind": "hands",
+      "original_watched": true,
+      "observed_at": "2026-11-17T14:09:51+00:00",
+      "updated_at": "2026-11-17T14:11:12.971875Z",
+      "revision": "43731358eb37c8c7f832d31d769f33e4e991092af4ff02125b99cdad77c9076e"
+    },
+    {
       "id": "task-7708583073859915029",
       "created_at": "2026-11-17T00:49:15.088309Z",
       "source_id": "tiktok-7708583073859915029",
@@ -19,7 +63,7 @@
       "motion_summary": "已播放约8秒原片并观察关键画面：夜间游乐设施与路灯前仅一位风格化角色，红色发型、绿色贴身图案上衣和宽松牛仔裤，双脚分开，一臂屈肘将手放在颈肩附近，配合躯干与髋部侧摆。背景位置稳定。页面标注Saja Boys/Abby，按虚拟男团角色用途归男生素材，不推断真人性别或生成工具。已观察片段造型一致，但全片变化及完整重复周期未完全核验。",
       "kind": "hands",
       "observed_at": "2026-11-16T14:31:12.979000+00:00",
-      "updated_at": "2026-11-17T10:41:26.366105Z",
+      "updated_at": "2026-11-17T14:11:12.972014Z",
       "revision": "942f412b3a3921f92e3418735a822156d45e9a1cbc457c33cea8a42245100438",
       "original_watched": true
     },
@@ -41,7 +85,7 @@
       "motion_summary": "已播放约24秒原片并观察多个关键画面：一位表演者穿黑色短裤、修身上衣和徽章帽，向镜头伸拳、转动上身，随后双手在胸前比心。背景墙与架子位置稳定。页面明确标注JISOO与jisooaddicted，属于K-pop舞蹈候选。按这套女装造型的角色素材用途分组，不判断原片人物真实性别。已观察片段未见换装，但未完整核验全片造型变化和动作重复周期。",
       "kind": "hands",
       "observed_at": "2026-11-16T14:31:12.979000+00:00",
-      "updated_at": "2026-11-17T10:41:26.366204Z",
+      "updated_at": "2026-11-17T14:11:12.972055Z",
       "revision": "83752962aca2d90f824bb9f2218430bb3e69a2ca89736c743f58fba95636ed7b",
       "original_watched": true
     },
@@ -99,7 +143,8 @@
     "copy-43991279269",
     "run-43994324684",
     "updated-openai-key-20261116-once",
-    "run-44066998639"
+    "run-44066998639",
+    "run-44100145729"
   ],
   "settings": {
     "daily_limit": 4,
@@ -111,5 +156,5 @@
     "model": "bytedance/seedance-2.5",
     "motion_route": "source_to_clay_to_seedance"
   },
-  "updated_at": "2026-11-17T10:41:27.694186Z"
+  "updated_at": "2026-11-17T14:11:12.972201Z"
 }
