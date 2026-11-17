@@ -5,7 +5,7 @@ Input v1 has exactly schema_version, run_id, observed_at, status, message, video
 Each video has exactly url, title, kind, original_watched, motion_summary, checks,
 recreation_notes, published_at, published_text, metrics, related_videos, music_name.
 Input v2 adds trend_category, material_group and transformation to each video;
-it selects at most two videos and one per topic per America/New_York day.
+it selects at most four videos and two per topic per America/New_York day.
 Same-day rechecks keep the existing reservation. Reservations outlive run history.
 checks contains solo/repetitive/fixed_camera (boolean or null). metrics contains
 views/likes/comments/shares (finite nonnegative number or null). Related records
@@ -59,6 +59,8 @@ RELATED_KEYS = {"url", "original_watched", "same_pattern", "note"}
 STATUSES = {"succeeded", "partial", "empty", "blocked", "failed"}
 MAX_INPUT_BYTES = 256 * 1024
 MAX_RUNS = 90
+MAX_DAILY_VIDEOS = 4
+MAX_TOPIC_VIDEOS = 2
 SOURCE = "ChatGPT Work 云端浏览器"
 SNAPSHOT_KEYS = (
     "id", "video_id", "url", "title", "author", "kind", "original_watched",
@@ -142,12 +144,12 @@ def validate_payload(payload):
         raise WorkResultError("Work 采集状态无效。")
     message = public_text(payload["message"], "message", 1000, True)
     videos = payload["videos"]
-    maximum = 2 if version == 2 else 8
+    maximum = MAX_DAILY_VIDEOS if version == 2 else 8
     if not isinstance(videos, list) or len(videos) > maximum:
         raise WorkResultError(f"每次 Work v{version} 结果最多包含 {maximum} 条视频。")
     if (status in ("succeeded", "partial")) != bool(videos):
         raise WorkResultError("成功或部分成功必须有视频；empty、blocked、failed 不得包含视频。")
-    cleaned, seen, topics = [], set(), set()
+    cleaned, seen, topics = [], set(), {}
     for video in videos:
         exact_object(video, VIDEO_KEYS | set(CLASSIFICATION_KEYS) if version == 2 else VIDEO_KEYS, "视频")
         url, author, video_id = public_url(video["url"])
@@ -165,9 +167,10 @@ def validate_payload(payload):
                 if not isinstance(video[field], str) or video[field] not in choices:
                     raise WorkResultError("视频 " + field + " 分类无效。")
                 classification[field] = video[field]
-            if classification["trend_category"] in topics:
-                raise WorkResultError("每批最多一条 K-pop 和一条虚拟偶像视频。")
-            topics.add(classification["trend_category"])
+            topic = classification["trend_category"]
+            topics[topic] = topics.get(topic, 0) + 1
+            if topics[topic] > MAX_TOPIC_VIDEOS:
+                raise WorkResultError("每批最多两条 K-pop 和两条虚拟偶像视频。")
             if not seen_original and classification["transformation"] != "unknown":
                 raise WorkResultError("尚未观看原片时，transformation 必须为 unknown。")
         checks = exact_object(video["checks"], CHECK_KEYS, "checks")
@@ -269,9 +272,10 @@ def daily_selections(previous, clean):
     Retained v2 snapshots also rebuild missing reservations. Reclassifying the
     same URL cannot free its previous topic's slot for a different video.
     """
-    ledger = copy.deepcopy(previous.get("work_daily_selections", {}))
-    if not isinstance(ledger, dict):
+    previous_ledger = previous.get("work_daily_selections", {})
+    if not isinstance(previous_ledger, dict):
         raise WorkResultError("已有每日采集记录格式无效。")
+    ledger = {}
 
     def reserve(day, topic, ident):
         try:
@@ -282,17 +286,27 @@ def daily_selections(previous, clean):
         if topic not in TOPICS or not isinstance(ident, str) or not re.fullmatch(r"tiktok-\d{10,25}", ident):
             raise WorkResultError("已有每日采集分类或视频编号无效。")
         slots = ledger.setdefault(day, {})
-        if not isinstance(slots, dict) or any(key not in TOPICS for key in slots):
-            raise WorkResultError("已有每日采集分类无效。")
-        if topic in slots and slots[topic] != ident:
-            raise WorkResultError("该纽约日期已收录此类别的视频；每天最多一条 K-pop 和一条虚拟偶像。")
-        slots[topic] = ident
+        reserved = slots.setdefault(topic, [])
+        if ident in reserved:
+            return
+        if len(reserved) >= MAX_TOPIC_VIDEOS:
+            raise WorkResultError("该纽约日期此类别名额已满；每天最多两条 K-pop 和两条虚拟偶像。")
+        if ident not in {item for values in slots.values() for item in values} and len(
+                {item for values in slots.values() for item in values}) >= MAX_DAILY_VIDEOS:
+            raise WorkResultError("该纽约日期已收录四条不同原视频。")
+        reserved.append(ident)
 
-    for day, slots in list(ledger.items()):
-        if not isinstance(slots, dict):
+    for day, slots in previous_ledger.items():
+        if not isinstance(slots, dict) or any(topic not in TOPICS for topic in slots):
             raise WorkResultError("已有每日采集记录格式无效。")
-        for topic, ident in list(slots.items()):
-            reserve(day, topic, ident)
+        for topic, values in slots.items():
+            # Earlier v2 stored one ID string per topic. Normalize it while
+            # retaining every old reservation, independently of trimmed runs.
+            values = [values] if isinstance(values, str) else values
+            if not isinstance(values, list):
+                raise WorkResultError("已有每日采集分类或视频编号无效。")
+            for ident in values:
+                reserve(day, topic, ident)
     for run in previous.get("runs", []):
         if not isinstance(run, dict):
             continue

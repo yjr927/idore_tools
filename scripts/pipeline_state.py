@@ -32,13 +32,9 @@ def touch(item):
 
 
 def classified(video):
-    observed = video.get('material_classification') or {}
-    group = observed.get('material_group', video.get('material_group', 'unknown'))
-    cast = observed.get('subject_group')
-    if not cast:
-        solo = (video.get('checks') or {}).get('solo')
-        cast = 'solo' if solo is True else 'group' if solo is False else 'unknown'
-    return group, cast
+    from replication_service import _effective_reference
+    material, cast, _, _ = _effective_reference(video)
+    return material, cast
 
 
 def match_character(video, characters):
@@ -83,7 +79,11 @@ def sync_queue(document, discovery, characters, today=None):
             if v.get('id') and v['id'] not in selected:
                 selected.append(v['id'])
     library = {v['id']: v for v in discovery.get('videos', []) if v.get('id')}
-    for source_id in selected[:4]:
+    # New observations use today's quota. Existing waiting work must also resume
+    # when the user supplies assets or confirms classifications on a later day.
+    candidates = selected[:4] + [i['source_id'] for i in items
+        if i.get('source_id') and i.get('status') in ('waiting_classification', 'waiting_material')]
+    for source_id in dict.fromkeys(candidates):
         video = library.get(source_id)
         if not video:
             continue

@@ -1,0 +1,123 @@
+name: Produce and review character videos
+on:
+  push:
+    branches: [main]
+    paths: ['work-results/latest.json', 'work-results/classifications.json', 'site/data/characters.json']
+  schedule:
+    - cron: '17 * * * *'
+  workflow_dispatch:
+    inputs:
+      action:
+        type: choice
+        options: [sync, check, copy, retry, approve, reject]
+        default: sync
+        description: Production action
+      item_id:
+        type: string
+        required: false
+      revision:
+        type: string
+        required: false
+      caption:
+        type: string
+        required: false
+      hashtags:
+        type: string
+        required: false
+      request_id:
+        type: string
+        required: false
+      target_account:
+        type: string
+        required: false
+permissions:
+  contents: read
+concurrency:
+  group: idore-production
+  cancel-in-progress: false
+jobs:
+  produce:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 150
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+          cache-dependency-path: requirements-motion.txt
+      - name: Install video and motion tools
+        run: |
+          python -m pip install --disable-pip-version-check -r requirements-motion.txt
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg blender xvfb
+      - name: Validate inputs and production transitions
+        run: |
+          python -m unittest discover -s tests -p 'test_pipeline*.py' -v
+          python -m unittest discover -s tests -p 'test_tiktok_drafts.py' -v
+      - name: Merge current observations and confirmed classifications
+        run: |
+          python scripts/import_work_results.py --input work-results/latest.json --output site/data/discovery.json
+          python scripts/import_material_classifications.py --input work-results/classifications.json --output site/data/discovery.json
+      - name: Match, render clay, generate or process a reviewed action
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          TIKTOK_ACCESS_TOKEN: ${{ secrets.TIKTOK_ACCESS_TOKEN }}
+          TIKTOK_ACCOUNT_ID: ${{ secrets.TIKTOK_ACCOUNT_ID }}
+          TIKTOK_ACCOUNT_LABEL: ${{ vars.TIKTOK_ACCOUNT_LABEL }}
+          OPENAI_MODEL: ${{ vars.OPENAI_MODEL || 'gpt-5.4-mini' }}
+          OPENAI_IMAGE_MODEL: ${{ vars.OPENAI_IMAGE_MODEL }}
+          SEEDANCE_MODEL: ${{ vars.SEEDANCE_MODEL || 'bytedance/seedance-2.5' }}
+          PIPELINE_INPUTS: ${{ toJSON(inputs) }}
+          PIPELINE_PERSIST: 'true'
+          PIPELINE_BRANCH: main
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: python scripts/run_pipeline.py
+      - name: Preserve safe queue receipt
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: production-queue-${{ github.run_id }}
+          path: site/data/pipeline.json
+          retention-days: 7
+      - name: Preserve private TikTok upload receipts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tiktok-private-receipts-${{ github.run_id }}
+          path: artifacts/tiktok-private/**/tiktok-draft-receipts.json
+          if-no-files-found: ignore
+          retention-days: 7
+  deploy:
+    needs: produce
+    if: always() && needs.produce.result != 'skipped'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: false
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+      - uses: actions/deploy-pages@v4
+        id: deployment

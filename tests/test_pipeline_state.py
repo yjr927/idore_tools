@@ -8,7 +8,8 @@ class PipelineStateTests(unittest.TestCase):
     def setUp(self):
         self.character = {'id': 'kai', 'name': 'KAI', 'material_group': 'male', 'cast_type': 'solo', 'enabled': True}
         self.video = {'id': 'tiktok-7706633304702848276', 'url': 'https://www.tiktok.com/@bizzyboom/video/7706633304702848276',
-            'material_group': 'male', 'checks': {'solo': True}, 'transformation': 'none', 'original_watched': True, 'kind': 'hands'}
+            'material_group': 'male', 'checks': {'solo': True}, 'transformation': 'none', 'original_watched': True,
+            'kind': 'hands', 'source_kind': 'chatgpt_work', 'last_seen_at': '2026-11-16T13:00:00Z'}
 
     def test_matching_never_crosses_gender_or_people_count(self):
         self.assertEqual(match_character(self.video, [self.character])[1], 'queued')
@@ -37,6 +38,16 @@ class PipelineStateTests(unittest.TestCase):
              'hashtags': [{'tag': '#KAI'}], 'video_path': 'generated/video-a.mp4', 'sha256': 'a'*64}
         touch(i)
         return i
+
+    def test_later_asset_upload_resumes_waiting_work_without_recollecting(self):
+        discovery = {'videos': [self.video], 'runs': [{'observed_at': '2026-11-16T13:00:00Z',
+                      'video_snapshots': [self.video]}]}
+        doc = {'items': []}
+        sync_queue(doc, discovery, [], '2026-11-16')
+        self.assertEqual(doc['items'][0]['status'], 'waiting_material')
+        sync_queue(doc, discovery, [self.character], '2026-11-17')
+        self.assertEqual(len(doc['items']), 1)
+        self.assertEqual(doc['items'][0]['status'], 'queued')
 
     def test_approval_binds_edited_copy_and_media(self):
         i = self.item()

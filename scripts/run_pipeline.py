@@ -98,11 +98,26 @@ def connections(document):
         providers = report.get('providers', {})
         for name in ('openai', 'openrouter'):
             p = providers.get(name, {})
+            previous = document['connections'].get(name, {})
+            if name == 'openai' and p.get('status') == 'passed' and previous.get('status') == 'insufficient_quota':
+                previous.update(checked_at=now(), message='凭证读取有效；上次生成仍因额度不足失败，修复后请手动重试文案。')
+                continue
             document['connections'][name] = {'configured': bool(os.environ.get('OPENAI_API_KEY' if name == 'openai' else 'OPENROUTER_API_KEY')),
                 'status': 'connected' if p.get('status') == 'passed' else p.get('reason', 'unchecked'), 'message': p.get('reason', ''), 'checked_at': now()}
-    document['connections']['tiktok'] = {'configured': bool(os.environ.get('TIKTOK_ACCESS_TOKEN')),
-        'status': 'configured' if os.environ.get('TIKTOK_ACCESS_TOKEN') else 'not_configured',
-        'message': '等待开发者应用与 video.upload 账号授权。' if not os.environ.get('TIKTOK_ACCESS_TOKEN') else '等待审核后验证上传。'}
+    token = os.environ.get('TIKTOK_ACCESS_TOKEN', '').strip()
+    account = os.environ.get('TIKTOK_ACCOUNT_ID', '').strip()
+    label = os.environ.get('TIKTOK_ACCOUNT_LABEL', '').strip()
+    label_safe = (1 <= len(label) <= 120 and all(ord(c) >= 32 for c in label)
+                  and not (account and account.casefold() in label.casefold())
+                  and not (token and token in label))
+    configured = (8 <= len(token) <= 4096 and all(33 <= ord(c) <= 126 for c in token)
+                  and 3 <= len(account) <= 256 and all(33 <= ord(c) <= 126 for c in account)
+                  and label_safe)
+    fingerprint = hashlib.sha256(('tiktok-account-v1:' + account).encode()).hexdigest() if configured else ''
+    document['connections']['tiktok'] = {'configured': bool(configured),
+        'status': 'configured' if configured else 'not_configured',
+        'account_label': label if label_safe else '', 'account_fingerprint': fingerprint,
+        'message': '请同时配置 video.upload 授权、账号标识和公开账号昵称。' if not configured else '请在审核时确认此目标账号；配置存在尚不代表上传已验证。'}
     checkpoint(document)
 
 
@@ -166,9 +181,11 @@ def generate_video(document, item, character, scratch):
     from video_service import VideoService
     from scripts.run_clay_video_generation import ObservedTransport
     from scripts.archive_generated_videos import merge
-    if (item.get('material_group') != character.get('material_group') or item.get('cast_type') != 'solo'
+    if (item.get('material_group') not in ('male', 'female', 'mixed')
+            or item.get('material_group') != character.get('material_group') or item.get('cast_type') != 'solo'
             or character.get('cast_type') != 'solo' or character.get('enabled') is not True
-            or item.get('original_watched') is not True or item.get('transformation') == 'unknown'
+            or item.get('original_watched') is not True
+            or item.get('transformation') == 'unknown'
             or item.get('kind') == 'pov'):
         raise PipelineError('material_required', '角色分组、人数或原片动作尚未确认，未提交生成。')
     if item.get('transformation') not in (None, 'none') and not all(character.get(k) for k in ('before_prompt', 'after_prompt')):
@@ -243,9 +260,15 @@ def prepare_styles(document, item, character, scratch):
         'before_prompt': character['before_prompt'], 'after_prompt': character['after_prompt'], 'consent': True})
     if job.get('status') != 'completed':
         raise PipelineError('styles_failed', '前后造型图没有完成。')
-    files = sorted((scratch / 'styles' / 'generated').glob('style-*.png'))
-    if len(files) != 2:
-        raise PipelineError('styles_failed', '前后造型图文件不完整。')
+    files = []
+    for label in ('before', 'after'):
+        name = Path(job.get(label + '_url') or '').name
+        if not re.fullmatch(r'style-[a-f0-9]{32}-' + label + r'\.png', name):
+            raise PipelineError('styles_failed', '前后造型图文件不完整。')
+        path = scratch / 'styles' / 'generated' / name
+        if not path.is_file() or path.is_symlink():
+            raise PipelineError('styles_failed', '前后造型图文件不完整。')
+        files.append(path)
     paths = []
     for source in files:
         target = SITE / 'generated' / source.name
@@ -261,6 +284,7 @@ def copy_for(document, item, allow_repeat=False):
     if item.get('copy_reserved') and not allow_repeat:
         raise PipelineError('copy_submission_uncertain', '上次文案任务已提交，请检查已有结果后手动重试。')
     item['copy_reserved'] = True
+    item['approval'] = {'status': 'pending'}
     mark(document, item, 'generating_copy', 'copy', '正在读取成片画面，匹配美国英文文案与标签。')
     completed = dict(item, id=Path(item.get('video_path', '')).stem, status='completed')
     result = generate_copy(completed, site_dir=SITE)
@@ -273,16 +297,55 @@ def send_draft(document, item):
     from tiktok_draft_service import TikTokDraftService
     if not approved_content(item):
         raise PipelineError('approval_required', '作品发生变化或尚未审核，请重新审核。')
-    if not os.environ.get('TIKTOK_ACCESS_TOKEN'):
-        item['tiktok'] = {'status': 'not_configured', 'message': '审核已保存；连接 TikTok 后才会上传草稿。'}
+    token = os.environ.get('TIKTOK_ACCESS_TOKEN', '').strip()
+    account = os.environ.get('TIKTOK_ACCOUNT_ID', '').strip()
+    label = os.environ.get('TIKTOK_ACCOUNT_LABEL', '').strip()
+    label_safe = (1 <= len(label) <= 120 and all(ord(c) >= 32 for c in label)
+                  and not (account and account.casefold() in label.casefold())
+                  and not (token and token in label))
+    configured = (8 <= len(token) <= 4096 and all(33 <= ord(c) <= 126 for c in token)
+                  and 3 <= len(account) <= 256 and all(33 <= ord(c) <= 126 for c in account)
+                  and label_safe)
+    fingerprint = hashlib.sha256(('tiktok-account-v1:' + account).encode()).hexdigest() if configured else ''
+    document.setdefault('connections', {})['tiktok'] = {'configured': bool(configured),
+        'status': 'configured' if configured else 'not_configured',
+        'account_label': label if label_safe else '', 'account_fingerprint': fingerprint,
+        'message': '上传仅允许审核时明确确认的账号。'}
+    if not configured:
+        item['tiktok'] = {'status': 'not_configured', 'message': '审核已保存；配置 TikTok 授权、账号标识和昵称后，须确认目标账号再审核。'}
         checkpoint(document)
+        return
+    if item.get('approval', {}).get('target_account') != fingerprint:
+        item['approval'] = {'status': 'pending'}
+        item['tiktok'] = {'status': 'account_changed', 'message': '目标账号未在本次审核中确认；请重新审核。'}
+        mark(document, item, 'pending_review', 'review', 'TikTok 目标账号已变化或尚未确认，请核对账号后重新审核；没有上传。')
         return
     if item.get('upload_reserved'):
         raise PipelineError('upload_uncertain', '此前已尝试上传，请先在 TikTok 核对，避免重复草稿。')
+    run_id = os.environ.get('GITHUB_RUN_ID', '')
+    if not re.fullmatch(r'[0-9]{1,30}', run_id):
+        raise PipelineError('private_receipt_required', '无法确定私有回执位置，未提交上传。')
+    private = ROOT / 'artifacts' / 'tiktok-private' / run_id
+    if any(path.is_symlink() for path in (ROOT / 'artifacts', private.parent, private)):
+        raise PipelineError('private_receipt_required', '私有回执目录无效，未提交上传。')
+    private.mkdir(parents=True, exist_ok=True, mode=0o700)
+    os.chmod(private, 0o700)
+    receipt = private / 'tiktok-draft-receipts.json'
+    if receipt.is_symlink():
+        raise PipelineError('private_receipt_required', '私有回执文件无效，未提交上传。')
+    if not receipt.exists():
+        fd = os.open(str(receipt), os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+        with os.fdopen(fd, 'w', encoding='utf-8') as target:
+            json.dump({'schema_version': 1, 'uploads': {}}, target)
+            target.flush()
+            os.fsync(target.fileno())
+    os.chmod(receipt, 0o600)
+    # Use the retained private artifact directory as the service's state path.
+    # It survives an exception; neither this receipt nor publish_id enters site/.
+    service = TikTokDraftService(private)
     item['upload_reserved'] = True
     mark(document, item, 'uploading', 'tiktok', '正在把已审核视频发送到 TikTok 草稿收件箱。')
-    with tempfile.TemporaryDirectory() as private:
-        service = TikTokDraftService(private)
+    try:
         result = service.send_draft(SITE / item['video_path'], idempotency_key=item['id'],
             expected_sha256=item['sha256'], caption_revision=item['approval']['revision'])
         for _ in range(6):
@@ -294,6 +357,9 @@ def send_draft(document, item):
         status = result.get('status', 'needs_attention')
         mark(document, item, status, 'tiktok', '视频已进入 TikTok 收件箱，请在 TikTok 内继续编辑。'
              if status == 'draft_sent' else 'TikTok 尚未确认草稿送达，请查看账号通知后再处理。')
+    finally:
+        if receipt.is_file() and not receipt.is_symlink():
+            os.chmod(receipt, 0o600)
 
 
 def main():
@@ -344,7 +410,20 @@ def main():
             if settings.get('revision') != item.get('revision'):
                 raise PipelineError('stale_review', '任务已有更新，请刷新后重试。')
             if action == 'approve':
+                token = os.environ.get('TIKTOK_ACCESS_TOKEN', '').strip()
+                account = os.environ.get('TIKTOK_ACCOUNT_ID', '').strip()
+                label = os.environ.get('TIKTOK_ACCOUNT_LABEL', '').strip()
+                configured = (8 <= len(token) <= 4096 and all(33 <= ord(c) <= 126 for c in token)
+                    and 3 <= len(account) <= 256 and all(33 <= ord(c) <= 126 for c in account)
+                    and 1 <= len(label) <= 120 and all(ord(c) >= 32 for c in label)
+                    and account.casefold() not in label.casefold() and token not in label)
+                target_account = hashlib.sha256(('tiktok-account-v1:' + account).encode()).hexdigest() if configured else ''
+                expected_account = settings.get('target_account', '')
+                if not isinstance(expected_account, str) or expected_account != target_account:
+                    raise PipelineError('stale_review', 'TikTok 目标账号已有变化，请刷新并确认账号后再审核；没有上传。')
                 approve(item, settings['revision'], settings.get('caption', ''), settings.get('hashtags', ''), os.environ.get('GITHUB_ACTOR', ''))
+                item['approval'].update(target_account=target_account or None,
+                                        account_label=label if configured else '')
                 checkpoint(document)
                 send_draft(document, item)
             elif action == 'reject':
@@ -357,6 +436,8 @@ def main():
                     raise PipelineError('already_uploaded', '已上传作品请另建版本，不能改写已审核内容。')
                 copy_for(document, item, allow_repeat=True)
             elif action == 'retry':
+                if item.get('upload_reserved') or item.get('status') == 'draft_sent':
+                    raise PipelineError('already_uploaded', '上传已提交，请核对原草稿；不能重新生成文案或重复上传。')
                 if item.get('status') == 'approved':
                     send_draft(document, item)
                 elif item.get('video_path'):
