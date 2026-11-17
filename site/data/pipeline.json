@@ -74,17 +74,21 @@
   ],
   "connections": {
     "openai": {
-      "configured": false,
-      "status": "unchecked",
-      "message": "Awaiting cloud secret verification"
+      "configured": true,
+      "status": "connected",
+      "message": "",
+      "checked_at": "2026-11-17T00:54:16.051253Z"
     },
     "openrouter": {
-      "configured": false,
-      "status": "unchecked"
+      "configured": true,
+      "status": "connected",
+      "message": "",
+      "checked_at": "2026-11-17T00:54:16.051260Z"
     },
     "tiktok": {
       "configured": false,
-      "status": "not_configured"
+      "status": "not_configured",
+      "message": "等待开发者应用与 video.upload 账号授权。"
     }
   },
   "requests": [
@@ -100,5 +104,5 @@
     "model": "bytedance/seedance-2.5",
     "motion_route": "source_to_clay_to_seedance"
   },
-  "updated_at": "2026-11-17T00:54:13.347281Z"
+  "updated_at": "2026-11-17T00:54:16.051642Z"
 }
