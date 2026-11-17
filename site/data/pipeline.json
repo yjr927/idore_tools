@@ -58,7 +58,7 @@
       "id": "review-video-36dc967ec3fc7e4cd1060f94",
       "status": "generating_copy",
       "stage": "copy",
-      "message": "成片已保存，等待云端生成英文文案与标签。",
+      "message": "正在读取成片画面，匹配美国英文文案与标签。",
       "approval": {
         "status": "pending"
       },
@@ -68,8 +68,10 @@
       "motion_summary": "Single-character hand gesture dance with a phone-hand gesture; no transformation.",
       "transformation": "none",
       "clay_path": "https://raw.githubusercontent.com/yjr927/idore_tools/cce63dabd044b1a8131fc49158479bffa31aaee5/reference-assets/clay-bizzyboom.mp4",
-      "updated_at": "2026-11-17T00:49:15.087176Z",
-      "revision": "bff4f581dbd0205ad26afac69d07a63787fab4fe7c2e977abcec25380eb58205"
+      "updated_at": "2026-11-17T00:54:20.430958Z",
+      "revision": "bff4f581dbd0205ad26afac69d07a63787fab4fe7c2e977abcec25380eb58205",
+      "copy_reserved": true,
+      "error_code": ""
     }
   ],
   "connections": {
@@ -105,5 +107,5 @@
     "model": "bytedance/seedance-2.5",
     "motion_route": "source_to_clay_to_seedance"
   },
-  "updated_at": "2026-11-17T00:54:19.245220Z"
+  "updated_at": "2026-11-17T00:54:20.431008Z"
 }
