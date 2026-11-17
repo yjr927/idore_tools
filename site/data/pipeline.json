@@ -6,45 +6,47 @@
       "created_at": "2026-11-17T00:49:15.088309Z",
       "source_id": "tiktok-7708583073859915029",
       "source_url": "https://www.tiktok.com/@just.some.dude.online/video/7708583073859915029",
-      "title": "Saja Boys character \u2014 solo eight-second dance",
+      "title": "Saja Boys character — solo eight-second dance",
       "material_group": "male",
       "cast_type": "solo",
       "status": "waiting_classification",
       "stage": "matching",
-      "message": "\u8bf7\u5148\u786e\u8ba4\u539f\u7247\u662f\u5426\u6709\u6362\u88c5\u6216\u5986\u5bb9\u53d8\u5316\u3002",
+      "message": "请先确认原片是否有换装或妆容变化。",
       "character": "KAI",
       "character_id": "kai",
       "character_image": "https://raw.githubusercontent.com/yjr927/idore_tools/bd19680c2f14b89be1a1025b7825d9e49bd4b433/reference-assets/kai-full.png",
       "transformation": "unknown",
-      "motion_summary": "\u5df2\u64ad\u653e\u7ea68\u79d2\u539f\u7247\u5e76\u89c2\u5bdf\u5173\u952e\u753b\u9762\uff1a\u591c\u95f4\u6e38\u4e50\u8bbe\u65bd\u4e0e\u8def\u706f\u524d\u4ec5\u4e00\u4f4d\u98ce\u683c\u5316\u89d2\u8272\uff0c\u7ea2\u8272\u53d1\u578b\u3001\u7eff\u8272\u8d34\u8eab\u56fe\u6848\u4e0a\u8863\u548c\u5bbd\u677e\u725b\u4ed4\u88e4\uff0c\u53cc\u811a\u5206\u5f00\uff0c\u4e00\u81c2\u5c48\u8098\u5c06\u624b\u653e\u5728\u9888\u80a9\u9644\u8fd1\uff0c\u914d\u5408\u8eaf\u5e72\u4e0e\u9acb\u90e8\u4fa7\u6446\u3002\u80cc\u666f\u4f4d\u7f6e\u7a33\u5b9a\u3002\u9875\u9762\u6807\u6ce8Saja Boys/Abby\uff0c\u6309\u865a\u62df\u7537\u56e2\u89d2\u8272\u7528\u9014\u5f52\u7537\u751f\u7d20\u6750\uff0c\u4e0d\u63a8\u65ad\u771f\u4eba\u6027\u522b\u6216\u751f\u6210\u5de5\u5177\u3002\u5df2\u89c2\u5bdf\u7247\u6bb5\u9020\u578b\u4e00\u81f4\uff0c\u4f46\u5168\u7247\u53d8\u5316\u53ca\u5b8c\u6574\u91cd\u590d\u5468\u671f\u672a\u5b8c\u5168\u6838\u9a8c\u3002",
+      "motion_summary": "已播放约8秒原片并观察关键画面：夜间游乐设施与路灯前仅一位风格化角色，红色发型、绿色贴身图案上衣和宽松牛仔裤，双脚分开，一臂屈肘将手放在颈肩附近，配合躯干与髋部侧摆。背景位置稳定。页面标注Saja Boys/Abby，按虚拟男团角色用途归男生素材，不推断真人性别或生成工具。已观察片段造型一致，但全片变化及完整重复周期未完全核验。",
       "kind": "hands",
       "observed_at": "2026-11-16T14:31:12.979000+00:00",
-      "updated_at": "2026-11-17T00:49:15.088312Z",
-      "revision": "942f412b3a3921f92e3418735a822156d45e9a1cbc457c33cea8a42245100438"
+      "updated_at": "2026-11-17T00:54:13.347139Z",
+      "revision": "942f412b3a3921f92e3418735a822156d45e9a1cbc457c33cea8a42245100438",
+      "original_watched": true
     },
     {
       "id": "task-7703568479311416583",
       "created_at": "2026-11-17T00:49:15.088292Z",
       "source_id": "tiktok-7703568479311416583",
       "source_url": "https://www.tiktok.com/@patriciamulyana/video/7703568479311416583",
-      "title": "JISOO ADDICTED \u2014 solo hand-gesture dance",
+      "title": "JISOO ADDICTED — solo hand-gesture dance",
       "material_group": "female",
       "cast_type": "solo",
       "status": "waiting_material",
       "stage": "matching",
-      "message": "\u7b49\u5f85\u540c\u5206\u7ec4\u3001\u540c\u4eba\u6570\u7684\u89d2\u8272\u7d20\u6750\u3002",
+      "message": "等待同分组、同人数的角色素材。",
       "character": "",
       "character_id": "",
       "character_image": "",
       "transformation": "unknown",
-      "motion_summary": "\u5df2\u64ad\u653e\u7ea624\u79d2\u539f\u7247\u5e76\u89c2\u5bdf\u591a\u4e2a\u5173\u952e\u753b\u9762\uff1a\u4e00\u4f4d\u8868\u6f14\u8005\u7a7f\u9ed1\u8272\u77ed\u88e4\u3001\u4fee\u8eab\u4e0a\u8863\u548c\u5fbd\u7ae0\u5e3d\uff0c\u5411\u955c\u5934\u4f38\u62f3\u3001\u8f6c\u52a8\u4e0a\u8eab\uff0c\u968f\u540e\u53cc\u624b\u5728\u80f8\u524d\u6bd4\u5fc3\u3002\u80cc\u666f\u5899\u4e0e\u67b6\u5b50\u4f4d\u7f6e\u7a33\u5b9a\u3002\u9875\u9762\u660e\u786e\u6807\u6ce8JISOO\u4e0ejisooaddicted\uff0c\u5c5e\u4e8eK-pop\u821e\u8e48\u5019\u9009\u3002\u6309\u8fd9\u5957\u5973\u88c5\u9020\u578b\u7684\u89d2\u8272\u7d20\u6750\u7528\u9014\u5206\u7ec4\uff0c\u4e0d\u5224\u65ad\u539f\u7247\u4eba\u7269\u771f\u5b9e\u6027\u522b\u3002\u5df2\u89c2\u5bdf\u7247\u6bb5\u672a\u89c1\u6362\u88c5\uff0c\u4f46\u672a\u5b8c\u6574\u6838\u9a8c\u5168\u7247\u9020\u578b\u53d8\u5316\u548c\u52a8\u4f5c\u91cd\u590d\u5468\u671f\u3002",
+      "motion_summary": "已播放约24秒原片并观察多个关键画面：一位表演者穿黑色短裤、修身上衣和徽章帽，向镜头伸拳、转动上身，随后双手在胸前比心。背景墙与架子位置稳定。页面明确标注JISOO与jisooaddicted，属于K-pop舞蹈候选。按这套女装造型的角色素材用途分组，不判断原片人物真实性别。已观察片段未见换装，但未完整核验全片造型变化和动作重复周期。",
       "kind": "hands",
       "observed_at": "2026-11-16T14:31:12.979000+00:00",
-      "updated_at": "2026-11-17T00:49:15.088296Z",
-      "revision": "83752962aca2d90f824bb9f2218430bb3e69a2ca89736c743f58fba95636ed7b"
+      "updated_at": "2026-11-17T00:54:13.347072Z",
+      "revision": "83752962aca2d90f824bb9f2218430bb3e69a2ca89736c743f58fba95636ed7b",
+      "original_watched": true
     },
     {
-      "title": "KAI \u00b7 \u624b\u52bf\u821e",
+      "title": "KAI · 手势舞",
       "character": "KAI",
       "material_group": "male",
       "cast_type": "solo",
@@ -56,7 +58,7 @@
       "id": "review-video-36dc967ec3fc7e4cd1060f94",
       "status": "generating_copy",
       "stage": "copy",
-      "message": "\u6210\u7247\u5df2\u4fdd\u5b58\uff0c\u7b49\u5f85\u4e91\u7aef\u751f\u6210\u82f1\u6587\u6587\u6848\u4e0e\u6807\u7b7e\u3002",
+      "message": "成片已保存，等待云端生成英文文案与标签。",
       "approval": {
         "status": "pending"
       },
@@ -85,12 +87,18 @@
       "status": "not_configured"
     }
   },
-  "requests": [],
+  "requests": [
+    "check-43991279269"
+  ],
   "settings": {
     "daily_limit": 4,
+    "kpop_limit": 2,
+    "virtual_idol_limit": 2,
     "market": "US",
     "language": "en",
+    "duration": 6,
+    "model": "bytedance/seedance-2.5",
     "motion_route": "source_to_clay_to_seedance"
   },
-  "updated_at": "2026-11-17T00:49:15.088335Z"
+  "updated_at": "2026-11-17T00:54:13.347281Z"
 }
