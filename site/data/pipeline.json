@@ -78,8 +78,9 @@
     "openai": {
       "configured": true,
       "status": "insufficient_quota",
-      "message": "OpenAI credits or a project spending limit blocked this request. Check billing before requesting again.",
-      "checked_at": "2026-11-17T01:22:10.235682Z"
+      "message": "更换密钥后重新请求，OpenAI 仍返回 insufficient_quota；请检查该密钥所属项目的余额与额度。",
+      "checked_at": "2026-11-17T01:22:10.235682Z",
+      "verification_url": "https://github.com/yjr927/idore_tools/actions/runs/43994892107"
     },
     "openrouter": {
       "configured": true,
