@@ -1242,9 +1242,310 @@
           "transformation": "unknown"
         }
       ]
+    },
+    {
+      "trend_category": "kpop",
+      "material_group": "female",
+      "transformation": "unknown",
+      "url": "https://www.tiktok.com/@ajdpimentel/video/7707863885826493716",
+      "title": "Love Options — solo hand dance",
+      "kind": "hands",
+      "original_watched": true,
+      "motion_summary": "实际播放中画面仅见1名表演者，正面站在门口，浅紫色荷叶边无袖上装，带花朵/爱心叠加效果；双手在胸前翻掌，再举至双颊附近配合微笑。机位和背景稳定。页面歌曲为BESTie《Love Options》，归入K-pop；按柔美荷叶边服装与表演造型规划女生角色素材，不判断原片人物真实性别。已见关键帧造型相同，但全片妆容/服装变化及动作重复周期未充分核验。",
+      "checks": {
+        "fixed_camera": true,
+        "repetitive": null,
+        "solo": true
+      },
+      "recreation_notes": "短时长、正面上半身构图适合作为手势参考；注意手指靠近脸部、装饰叠加特效及遮挡。当前目录仅KAI男生单人，未找到同组女生角色，保留候选并等待适配素材，不强行配对。尚未生成测试；后续制作仍须先提取动作并生成无脸白模。",
+      "published_at": null,
+      "published_text": "2d ago",
+      "metrics": {
+        "comments": 0,
+        "likes": 7,
+        "shares": 0,
+        "views": null
+      },
+      "related_videos": [
+        {
+          "url": "https://www.tiktok.com/@xinxin.go/video/7690088748360518920",
+          "original_watched": true,
+          "same_pattern": null,
+          "note": "已播放，黑色吊带单人中近景，观察到脸旁举掌、双掌在下巴附近展开；主片有双颊旁举手动作，但完整手势顺序未确认一致，不能仅凭歌曲判定同玩法。页面9-27，作为较早参考，不作近期主候选。"
+        },
+        {
+          "url": "https://www.tiktok.com/@patriciamulyana/video/7693132349088845062",
+          "original_watched": true,
+          "same_pattern": null,
+          "note": "已播放，单人黑色短上衣、蓝色下装，双臂在腰侧展开，随后一手叉腰、另一手举到头侧；表情和全身幅度与主片不同，完整手势顺序未确认一致。页面10-5，仅作较早关联参考。"
+        }
+      ],
+      "music_name": "Love Options - BESTie",
+      "id": "tiktok-7707863885826493716",
+      "video_id": "7707863885826493716",
+      "author": "ajdpimentel",
+      "kinds": [
+        "hands"
+      ],
+      "first_seen_at": "2026-11-17T14:09:51+00:00",
+      "last_seen_at": "2026-11-17T14:09:51+00:00",
+      "duration": null,
+      "music_id": "",
+      "source": "ChatGPT Work 云端浏览器",
+      "source_url": "https://www.tiktok.com/@ajdpimentel/video/7707863885826493716",
+      "source_kind": "chatgpt_work",
+      "search_query": "",
+      "assessment": "待核验候选",
+      "assessment_note": "实际播放中画面仅见1名表演者，正面站在门口，浅紫色荷叶边无袖上装，带花朵/爱心叠加效果；双手在胸前翻掌，再举至双颊附近配合微笑。机位和背景稳定。页面歌曲为BESTie《Love Options》，归入K-pop；按柔美荷叶边服装与表演造型规划女生角色素材，不判断原片人物真实性别。已见关键帧造型相同，但全片妆容/服装变化及动作重复周期未充分核验。",
+      "motion_verified": false,
+      "trend_verified": false,
+      "favorite": false,
+      "availability": "Work 已观看原片",
+      "observations": [
+        {
+          "run_id": "work-tiktok-20261117T140951Z-v2",
+          "observed_at": "2026-11-17T14:09:51+00:00",
+          "metrics": {
+            "comments": 0,
+            "likes": 7,
+            "shares": 0,
+            "views": null
+          },
+          "original_watched": true,
+          "motion_summary": "实际播放中画面仅见1名表演者，正面站在门口，浅紫色荷叶边无袖上装，带花朵/爱心叠加效果；双手在胸前翻掌，再举至双颊附近配合微笑。机位和背景稳定。页面歌曲为BESTie《Love Options》，归入K-pop；按柔美荷叶边服装与表演造型规划女生角色素材，不判断原片人物真实性别。已见关键帧造型相同，但全片妆容/服装变化及动作重复周期未充分核验。",
+          "checks": {
+            "fixed_camera": true,
+            "repetitive": null,
+            "solo": true
+          },
+          "recreation_notes": "短时长、正面上半身构图适合作为手势参考；注意手指靠近脸部、装饰叠加特效及遮挡。当前目录仅KAI男生单人，未找到同组女生角色，保留候选并等待适配素材，不强行配对。尚未生成测试；后续制作仍须先提取动作并生成无脸白模。",
+          "related_videos": [
+            {
+              "url": "https://www.tiktok.com/@xinxin.go/video/7690088748360518920",
+              "original_watched": true,
+              "same_pattern": null,
+              "note": "已播放，黑色吊带单人中近景，观察到脸旁举掌、双掌在下巴附近展开；主片有双颊旁举手动作，但完整手势顺序未确认一致，不能仅凭歌曲判定同玩法。页面9-27，作为较早参考，不作近期主候选。"
+            },
+            {
+              "url": "https://www.tiktok.com/@patriciamulyana/video/7693132349088845062",
+              "original_watched": true,
+              "same_pattern": null,
+              "note": "已播放，单人黑色短上衣、蓝色下装，双臂在腰侧展开，随后一手叉腰、另一手举到头侧；表情和全身幅度与主片不同，完整手势顺序未确认一致。页面10-5，仅作较早关联参考。"
+            }
+          ],
+          "motion_verified": false,
+          "trend_verified": false,
+          "trend_category": "kpop",
+          "material_group": "female",
+          "transformation": "unknown"
+        }
+      ]
+    },
+    {
+      "trend_category": "virtual_idol",
+      "material_group": "male",
+      "transformation": "unknown",
+      "url": "https://www.tiktok.com/@vaxis.entertainment/video/7707258503991168278",
+      "title": "NOXEN — seated five-character hand dance",
+      "kind": "hands",
+      "original_watched": true,
+      "motion_summary": "实际播放可见5名虚拟男团角色在混凝土台阶上纵向排坐：手掌横盖眼部，另一只手靠近脸或胸前，随后双手移向头侧/耳后、肘部张开；机位固定，角色座位不变。页面描述Five boys及AI生成标识，与虚拟男团角色画面共同支持virtual_idol主题及男生角色素材用途；5名同时可见故为多人，不用mixed代替多人。已见关键帧服装相同，完整造型变化和动作重复周期仍未充分核验。",
+      "checks": {
+        "fixed_camera": true,
+        "repetitive": null,
+        "solo": false
+      },
+      "recreation_notes": "固定座位与短手势序列易拆解，但5角色纵向遮挡、手掌盖眼及同步动作会提高难度。当前KAI男生单人素材无法直接满足5角色构图，需等待足够多人角色素材，不能宣称单人匹配。尚未生成测试；后续制作仍须先提取动作并生成无脸白模。",
+      "published_at": null,
+      "published_text": "5d ago",
+      "metrics": {
+        "comments": 16,
+        "likes": 249,
+        "shares": 11,
+        "views": null
+      },
+      "related_videos": [],
+      "music_name": "original sound - V-AXIS ENTERTAINMENT",
+      "id": "tiktok-7707258503991168278",
+      "video_id": "7707258503991168278",
+      "author": "vaxis.entertainment",
+      "kinds": [
+        "hands"
+      ],
+      "first_seen_at": "2026-11-17T14:09:51+00:00",
+      "last_seen_at": "2026-11-17T14:09:51+00:00",
+      "duration": null,
+      "music_id": "",
+      "source": "ChatGPT Work 云端浏览器",
+      "source_url": "https://www.tiktok.com/@vaxis.entertainment/video/7707258503991168278",
+      "source_kind": "chatgpt_work",
+      "search_query": "",
+      "assessment": "待核验候选",
+      "assessment_note": "实际播放可见5名虚拟男团角色在混凝土台阶上纵向排坐：手掌横盖眼部，另一只手靠近脸或胸前，随后双手移向头侧/耳后、肘部张开；机位固定，角色座位不变。页面描述Five boys及AI生成标识，与虚拟男团角色画面共同支持virtual_idol主题及男生角色素材用途；5名同时可见故为多人，不用mixed代替多人。已见关键帧服装相同，完整造型变化和动作重复周期仍未充分核验。",
+      "motion_verified": false,
+      "trend_verified": false,
+      "favorite": false,
+      "availability": "Work 已观看原片",
+      "observations": [
+        {
+          "run_id": "work-tiktok-20261117T140951Z-v2",
+          "observed_at": "2026-11-17T14:09:51+00:00",
+          "metrics": {
+            "comments": 16,
+            "likes": 249,
+            "shares": 11,
+            "views": null
+          },
+          "original_watched": true,
+          "motion_summary": "实际播放可见5名虚拟男团角色在混凝土台阶上纵向排坐：手掌横盖眼部，另一只手靠近脸或胸前，随后双手移向头侧/耳后、肘部张开；机位固定，角色座位不变。页面描述Five boys及AI生成标识，与虚拟男团角色画面共同支持virtual_idol主题及男生角色素材用途；5名同时可见故为多人，不用mixed代替多人。已见关键帧服装相同，完整造型变化和动作重复周期仍未充分核验。",
+          "checks": {
+            "fixed_camera": true,
+            "repetitive": null,
+            "solo": false
+          },
+          "recreation_notes": "固定座位与短手势序列易拆解，但5角色纵向遮挡、手掌盖眼及同步动作会提高难度。当前KAI男生单人素材无法直接满足5角色构图，需等待足够多人角色素材，不能宣称单人匹配。尚未生成测试；后续制作仍须先提取动作并生成无脸白模。",
+          "related_videos": [],
+          "motion_verified": false,
+          "trend_verified": false,
+          "trend_category": "virtual_idol",
+          "material_group": "male",
+          "transformation": "unknown"
+        }
+      ]
     }
   ],
   "runs": [
+    {
+      "id": "work-tiktok-20261117T140951Z-v2",
+      "run_id": "work-tiktok-20261117T140951Z-v2",
+      "payload_sha256": "e4d9ebfd85b7d4c9fd0ede215aa058fe634ad7bbea63c8df49dbc1d7b1775050",
+      "collector": "chatgpt_work",
+      "status": "partial",
+      "kind": "all",
+      "query": "",
+      "started_at": "2026-11-17T14:09:51+00:00",
+      "finished_at": "2026-11-17T14:09:51+00:00",
+      "observed_at": "2026-11-17T14:09:51+00:00",
+      "found": 2,
+      "added": 2,
+      "message": "纽约当日先前未使用名额；本轮收录2条新原视频（K-pop 1条、虚拟偶像1条），均已播放查看关键画面。未凑满4条。Love Options另查看2名作者，但完整动作顺序未确认一致；NOXEN未找到其他作者同玩法原片，均不足3名作者同玩法充分核验。原片日期保留页面原样，精确日期及播放量未核验；本批指标未使用K/M换算，不代表美国榜单热度。素材分组仅为角色用途；当前公开目录仅KAI男生单人，候选缺少相应女生单人或男生多人素材。仅完成采集交接，尚未生成测试。",
+      "ingestion_status": "imported",
+      "video_snapshots": [
+        {
+          "id": "tiktok-7707863885826493716",
+          "video_id": "7707863885826493716",
+          "url": "https://www.tiktok.com/@ajdpimentel/video/7707863885826493716",
+          "title": "Love Options — solo hand dance",
+          "author": "ajdpimentel",
+          "kind": "hands",
+          "original_watched": true,
+          "motion_summary": "实际播放中画面仅见1名表演者，正面站在门口，浅紫色荷叶边无袖上装，带花朵/爱心叠加效果；双手在胸前翻掌，再举至双颊附近配合微笑。机位和背景稳定。页面歌曲为BESTie《Love Options》，归入K-pop；按柔美荷叶边服装与表演造型规划女生角色素材，不判断原片人物真实性别。已见关键帧造型相同，但全片妆容/服装变化及动作重复周期未充分核验。",
+          "checks": {
+            "fixed_camera": true,
+            "repetitive": null,
+            "solo": true
+          },
+          "recreation_notes": "短时长、正面上半身构图适合作为手势参考；注意手指靠近脸部、装饰叠加特效及遮挡。当前目录仅KAI男生单人，未找到同组女生角色，保留候选并等待适配素材，不强行配对。尚未生成测试；后续制作仍须先提取动作并生成无脸白模。",
+          "published_at": null,
+          "published_text": "2d ago",
+          "metrics": {
+            "comments": 0,
+            "likes": 7,
+            "shares": 0,
+            "views": null
+          },
+          "related_videos": [
+            {
+              "url": "https://www.tiktok.com/@xinxin.go/video/7690088748360518920",
+              "original_watched": true,
+              "same_pattern": null,
+              "note": "已播放，黑色吊带单人中近景，观察到脸旁举掌、双掌在下巴附近展开；主片有双颊旁举手动作，但完整手势顺序未确认一致，不能仅凭歌曲判定同玩法。页面9-27，作为较早参考，不作近期主候选。"
+            },
+            {
+              "url": "https://www.tiktok.com/@patriciamulyana/video/7693132349088845062",
+              "original_watched": true,
+              "same_pattern": null,
+              "note": "已播放，单人黑色短上衣、蓝色下装，双臂在腰侧展开，随后一手叉腰、另一手举到头侧；表情和全身幅度与主片不同，完整手势顺序未确认一致。页面10-5，仅作较早关联参考。"
+            }
+          ],
+          "music_name": "Love Options - BESTie",
+          "motion_verified": false,
+          "trend_verified": false,
+          "source": "ChatGPT Work 云端浏览器",
+          "source_url": "https://www.tiktok.com/@ajdpimentel/video/7707863885826493716",
+          "source_kind": "chatgpt_work",
+          "assessment": "待核验候选",
+          "assessment_note": "实际播放中画面仅见1名表演者，正面站在门口，浅紫色荷叶边无袖上装，带花朵/爱心叠加效果；双手在胸前翻掌，再举至双颊附近配合微笑。机位和背景稳定。页面歌曲为BESTie《Love Options》，归入K-pop；按柔美荷叶边服装与表演造型规划女生角色素材，不判断原片人物真实性别。已见关键帧造型相同，但全片妆容/服装变化及动作重复周期未充分核验。",
+          "trend_category": "kpop",
+          "material_group": "female",
+          "transformation": "unknown",
+          "observed_at": "2026-11-17T14:09:51+00:00"
+        },
+        {
+          "id": "tiktok-7707258503991168278",
+          "video_id": "7707258503991168278",
+          "url": "https://www.tiktok.com/@vaxis.entertainment/video/7707258503991168278",
+          "title": "NOXEN — seated five-character hand dance",
+          "author": "vaxis.entertainment",
+          "kind": "hands",
+          "original_watched": true,
+          "motion_summary": "实际播放可见5名虚拟男团角色在混凝土台阶上纵向排坐：手掌横盖眼部，另一只手靠近脸或胸前，随后双手移向头侧/耳后、肘部张开；机位固定，角色座位不变。页面描述Five boys及AI生成标识，与虚拟男团角色画面共同支持virtual_idol主题及男生角色素材用途；5名同时可见故为多人，不用mixed代替多人。已见关键帧服装相同，完整造型变化和动作重复周期仍未充分核验。",
+          "checks": {
+            "fixed_camera": true,
+            "repetitive": null,
+            "solo": false
+          },
+          "recreation_notes": "固定座位与短手势序列易拆解，但5角色纵向遮挡、手掌盖眼及同步动作会提高难度。当前KAI男生单人素材无法直接满足5角色构图，需等待足够多人角色素材，不能宣称单人匹配。尚未生成测试；后续制作仍须先提取动作并生成无脸白模。",
+          "published_at": null,
+          "published_text": "5d ago",
+          "metrics": {
+            "comments": 16,
+            "likes": 249,
+            "shares": 11,
+            "views": null
+          },
+          "related_videos": [],
+          "music_name": "original sound - V-AXIS ENTERTAINMENT",
+          "motion_verified": false,
+          "trend_verified": false,
+          "source": "ChatGPT Work 云端浏览器",
+          "source_url": "https://www.tiktok.com/@vaxis.entertainment/video/7707258503991168278",
+          "source_kind": "chatgpt_work",
+          "assessment": "待核验候选",
+          "assessment_note": "实际播放可见5名虚拟男团角色在混凝土台阶上纵向排坐：手掌横盖眼部，另一只手靠近脸或胸前，随后双手移向头侧/耳后、肘部张开；机位固定，角色座位不变。页面描述Five boys及AI生成标识，与虚拟男团角色画面共同支持virtual_idol主题及男生角色素材用途；5名同时可见故为多人，不用mixed代替多人。已见关键帧服装相同，完整造型变化和动作重复周期仍未充分核验。",
+          "trend_category": "virtual_idol",
+          "material_group": "male",
+          "transformation": "unknown",
+          "observed_at": "2026-11-17T14:09:51+00:00"
+        }
+      ],
+      "sources": [
+        {
+          "name": "ChatGPT Work 云端浏览器",
+          "url": "https://www.tiktok.com/@ajdpimentel/video/7707863885826493716",
+          "status": "ok",
+          "found": 1
+        },
+        {
+          "name": "ChatGPT Work 云端浏览器",
+          "url": "https://www.tiktok.com/@xinxin.go/video/7690088748360518920",
+          "status": "ok",
+          "found": 1
+        },
+        {
+          "name": "ChatGPT Work 云端浏览器",
+          "url": "https://www.tiktok.com/@patriciamulyana/video/7693132349088845062",
+          "status": "ok",
+          "found": 1
+        },
+        {
+          "name": "ChatGPT Work 云端浏览器",
+          "url": "https://www.tiktok.com/@vaxis.entertainment/video/7707258503991168278",
+          "status": "ok",
+          "found": 1
+        }
+      ]
+    },
     {
       "id": "work-tiktok-20261116T143112979Z-v2",
       "run_id": "work-tiktok-20261116T143112979Z-v2",
@@ -2153,23 +2454,36 @@
       ]
     }
   ],
-  "last_attempt_at": "2026-11-16T14:31:12.979000+00:00",
-  "last_success_at": "2026-11-16T14:31:12.979000+00:00",
+  "last_attempt_at": "2026-11-17T14:09:51+00:00",
+  "last_success_at": "2026-11-17T14:09:51+00:00",
   "work_imports": {
     "work-tiktok-20261112T013104Z-7704859708200389902": "3f8b1c1e965c6bdb4e2aa62d5664177f4b4188cb0e4652526db2730fb82349c7",
     "work-tiktok-20261112T140658Z-d02c989e": "2f440e348273e22c41cb3b476aaf274262e138159e45dde53425844de921907c",
     "work-tiktok-50b2ab5b319448999ae70fc23c281d1f": "13f1e35e49f2b88a0e613c7255bddd7804b46e72fbcc034b7290212ccb3ff700",
     "work-tiktok-42496ba06f294957b97fa8c6dd7d3ddc": "e7ef4bacfbd5a54872d6aee2266480cb1ba6d52fcadc83e19e6418b99b51fcd6",
     "work-tiktok-58f0303583004adabe312c55789ab9b0": "033895ff0737f4a440632c2f0444bddb9fdf75ff1713e310b4c0f88a7236cb8b",
-    "work-tiktok-20261116T143112979Z-v2": "3e2ca714238977a7aa19d01100e6ee39277e4d28e0c930e41c2e69e639d44d6e"
+    "work-tiktok-20261116T143112979Z-v2": "3e2ca714238977a7aa19d01100e6ee39277e4d28e0c930e41c2e69e639d44d6e",
+    "work-tiktok-20261117T140951Z-v2": "e4d9ebfd85b7d4c9fd0ede215aa058fe634ad7bbea63c8df49dbc1d7b1775050"
   },
   "material_classification_imports": {
     "2026-11-15T22:22:39.724000+00:00": "8cd3e17433a336f4ee0bcc3b43c3920f593ebf1d3c38b5039ecfc571ac1215ed"
   },
   "work_daily_selections": {
     "2026-11-16": {
-      "kpop": "tiktok-7703568479311416583",
-      "virtual_idol": "tiktok-7708583073859915029"
+      "kpop": [
+        "tiktok-7703568479311416583"
+      ],
+      "virtual_idol": [
+        "tiktok-7708583073859915029"
+      ]
+    },
+    "2026-11-17": {
+      "kpop": [
+        "tiktok-7707863885826493716"
+      ],
+      "virtual_idol": [
+        "tiktok-7707258503991168278"
+      ]
     }
   }
 }
