@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "items": [
+    {
+      "id": "kai",
+      "name": "KAI",
+      "material_group": "male",
+      "cast_type": "solo",
+      "image_url": "https://raw.githubusercontent.com/yjr927/idore_tools/bd19680c2f14b89be1a1025b7825d9e49bd4b433/reference-assets/kai-full.png",
+      "enabled": true
+    }
+  ]
+}
