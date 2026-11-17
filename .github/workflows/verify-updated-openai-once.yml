@@ -1,0 +1,67 @@
+name: Verify updated OpenAI secret once
+on:
+  push:
+    branches: [codex/verify-updated-openai-20261116]
+    paths: ['.github/workflows/verify-updated-openai-once.yml']
+permissions:
+  contents: read
+concurrency:
+  group: idore-production
+  cancel-in-progress: false
+jobs:
+  copy:
+    if: github.run_attempt == 1
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install frame reader
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+      - name: Generate KAI English copy from completed video
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_MODEL: ${{ vars.OPENAI_MODEL || 'gpt-5.4-mini' }}
+          PIPELINE_PERSIST: 'true'
+          PIPELINE_BRANCH: main
+          PIPELINE_INPUTS: '{"action":"copy","item_id":"review-video-36dc967ec3fc7e4cd1060f94","revision":"0046d0c2b21076ac4809acb988c8713febb5a71c0f6fae87ec73d017511ee83f","request_id":"updated-openai-key-20261116-once"}'
+        run: python scripts/run_pipeline.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: updated-key-copy-result
+          path: site/data/pipeline.json
+          retention-days: 7
+  deploy:
+    needs: copy
+    if: always() && needs.copy.result != 'skipped'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: false
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+      - uses: actions/deploy-pages@v4
+        id: deployment
