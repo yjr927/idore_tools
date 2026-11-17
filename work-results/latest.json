@@ -1,74 +1,74 @@
 {
   "schema_version": 2,
-  "run_id": "work-tiktok-20261116T143112979Z-v2",
-  "observed_at": "2026-11-16T14:31:12.979Z",
+  "run_id": "work-tiktok-20261117T140951Z-v2",
+  "observed_at": "2026-11-17T14:09:51Z",
   "status": "partial",
-  "message": "本轮按纽约当日名额收录K-pop与虚拟偶像各1条。已播放主片关键画面，K-pop主片页面11-2，扩展至30天窗口；虚拟角色主片12h ago。JISOO相关2名作者已查看部分原片，但动作未证明一致；虚拟角色原声页仅1条视频，未找到其他作者证据。均不足3名作者同玩法核验，美国受众参与度未核验，不宣称美国热榜或新趋势。记录主片页面直接显示的整数指标，未使用搜索卡片或关联片K/M计数作为主片指标。完整动作重复周期及全片造型变化未完全核验。AI适配尚未生成测试。",
+  "message": "纽约当日先前未使用名额；本轮收录2条新原视频（K-pop 1条、虚拟偶像1条），均已播放查看关键画面。未凑满4条。Love Options另查看2名作者，但完整动作顺序未确认一致；NOXEN未找到其他作者同玩法原片，均不足3名作者同玩法充分核验。原片日期保留页面原样，精确日期及播放量未核验；本批指标未使用K/M换算，不代表美国榜单热度。素材分组仅为角色用途；当前公开目录仅KAI男生单人，候选缺少相应女生单人或男生多人素材。仅完成采集交接，尚未生成测试。",
   "videos": [
     {
-      "url": "https://www.tiktok.com/@patriciamulyana/video/7703568479311416583",
-      "title": "JISOO ADDICTED — solo hand-gesture dance",
+      "url": "https://www.tiktok.com/@ajdpimentel/video/7707863885826493716",
+      "title": "Love Options — solo hand dance",
       "trend_category": "kpop",
       "material_group": "female",
       "kind": "hands",
       "transformation": "unknown",
       "original_watched": true,
-      "motion_summary": "已播放约24秒原片并观察多个关键画面：一位表演者穿黑色短裤、修身上衣和徽章帽，向镜头伸拳、转动上身，随后双手在胸前比心。背景墙与架子位置稳定。页面明确标注JISOO与jisooaddicted，属于K-pop舞蹈候选。按这套女装造型的角色素材用途分组，不判断原片人物真实性别。已观察片段未见换装，但未完整核验全片造型变化和动作重复周期。",
+      "motion_summary": "实际播放中画面仅见1名表演者，正面站在门口，浅紫色荷叶边无袖上装，带花朵/爱心叠加效果；双手在胸前翻掌，再举至双颊附近配合微笑。机位和背景稳定。页面歌曲为BESTie《Love Options》，归入K-pop；按柔美荷叶边服装与表演造型规划女生角色素材，不判断原片人物真实性别。已见关键帧造型相同，但全片妆容/服装变化及动作重复周期未充分核验。",
       "checks": {
         "solo": true,
         "repetitive": null,
         "fixed_camera": true
       },
-      "recreation_notes": "单人中景且背景稳定，适合短段手势参考；建议保留帽子与服装轮廓，检查伸拳透视、比心手指接触及躯干摆动。尚未生成测试。",
+      "recreation_notes": "短时长、正面上半身构图适合作为手势参考；注意手指靠近脸部、装饰叠加特效及遮挡。当前目录仅KAI男生单人，未找到同组女生角色，保留候选并等待适配素材，不强行配对。尚未生成测试；后续制作仍须先提取动作并生成无脸白模。",
       "published_at": null,
-      "published_text": "11-2",
+      "published_text": "2d ago",
       "metrics": {
         "views": null,
-        "likes": 3072,
-        "comments": 22,
-        "shares": 195
+        "likes": 7,
+        "comments": 0,
+        "shares": 0
       },
       "related_videos": [
         {
-          "url": "https://www.tiktok.com/@kkgee00/video/7706922233561632020",
+          "url": "https://www.tiktok.com/@xinxin.go/video/7690088748360518920",
           "original_watched": true,
           "same_pattern": null,
-          "note": "页面4d ago；已播放部分原片：分屏上方为歌曲表演画面，下方为镜前舞蹈，观察到下蹲、起身、手靠头侧与另一臂横伸。与主片属于同曲相关内容，但完整手势顺序未证明相同，不计为确认同玩法。"
+          "note": "已播放，黑色吊带单人中近景，观察到脸旁举掌、双掌在下巴附近展开；主片有双颊旁举手动作，但完整手势顺序未确认一致，不能仅凭歌曲判定同玩法。页面9-27，作为较早参考，不作近期主候选。"
         },
         {
-          "url": "https://www.tiktok.com/@midozinha/video/7708406452343393556",
+          "url": "https://www.tiktok.com/@patriciamulyana/video/7693132349088845062",
           "original_watched": true,
           "same_pattern": null,
-          "note": "页面23h ago；已播放部分原片，紫色长发造型的单人面对镜头抬手经过脸侧并对口型，画面叠加文字和通知展示。未确认主片的伸拳、胸前比心顺序一致；同曲不等于同玩法。"
+          "note": "已播放，单人黑色短上衣、蓝色下装，双臂在腰侧展开，随后一手叉腰、另一手举到头侧；表情和全身幅度与主片不同，完整手势顺序未确认一致。页面10-5，仅作较早关联参考。"
         }
       ],
-      "music_name": "الصوت الأصلي - ♡゛فَتومهہ 🎀"
+      "music_name": "Love Options - BESTie"
     },
     {
-      "url": "https://www.tiktok.com/@just.some.dude.online/video/7708583073859915029",
-      "title": "Saja Boys character — solo eight-second dance",
+      "url": "https://www.tiktok.com/@vaxis.entertainment/video/7707258503991168278",
+      "title": "NOXEN — seated five-character hand dance",
       "trend_category": "virtual_idol",
       "material_group": "male",
       "kind": "hands",
       "transformation": "unknown",
       "original_watched": true,
-      "motion_summary": "已播放约8秒原片并观察关键画面：夜间游乐设施与路灯前仅一位风格化角色，红色发型、绿色贴身图案上衣和宽松牛仔裤，双脚分开，一臂屈肘将手放在颈肩附近，配合躯干与髋部侧摆。背景位置稳定。页面标注Saja Boys/Abby，按虚拟男团角色用途归男生素材，不推断真人性别或生成工具。已观察片段造型一致，但全片变化及完整重复周期未完全核验。",
+      "motion_summary": "实际播放可见5名虚拟男团角色在混凝土台阶上纵向排坐：手掌横盖眼部，另一只手靠近脸或胸前，随后双手移向头侧/耳后、肘部张开；机位固定，角色座位不变。页面描述Five boys及AI生成标识，与虚拟男团角色画面共同支持virtual_idol主题及男生角色素材用途；5名同时可见故为多人，不用mixed代替多人。已见关键帧服装相同，完整造型变化和动作重复周期仍未充分核验。",
       "checks": {
-        "solo": true,
+        "solo": false,
         "repetitive": null,
         "fixed_camera": true
       },
-      "recreation_notes": "单角色全身构图、背景稳定、短时长适合尝试姿态参考；注意颈肩手部遮挡、宽裤摆动及逆光脸部细节。同一作者的多人版本动作复杂，未作为本条同玩法证据。尚未生成测试。",
+      "recreation_notes": "固定座位与短手势序列易拆解，但5角色纵向遮挡、手掌盖眼及同步动作会提高难度。当前KAI男生单人素材无法直接满足5角色构图，需等待足够多人角色素材，不能宣称单人匹配。尚未生成测试；后续制作仍须先提取动作并生成无脸白模。",
       "published_at": null,
-      "published_text": "12h ago",
+      "published_text": "5d ago",
       "metrics": {
         "views": null,
-        "likes": 194,
-        "comments": 6,
-        "shares": 2
+        "likes": 249,
+        "comments": 16,
+        "shares": 11
       },
       "related_videos": [],
-      "music_name": "original sound - just.some.dude.online"
+      "music_name": "original sound - V-AXIS ENTERTAINMENT"
     }
   ]
 }
