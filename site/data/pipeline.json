@@ -100,9 +100,9 @@
       "created_at": "2026-11-16T02:15:10Z",
       "model": "bytedance/seedance-2.5",
       "id": "review-video-36dc967ec3fc7e4cd1060f94",
-      "status": "generating_copy",
-      "stage": "copy",
-      "message": "正在读取成片画面，匹配美国英文文案与标签。",
+      "status": "pending_review",
+      "stage": "review",
+      "message": "视频、文案和标签已就绪，等待审核。",
       "approval": {
         "status": "pending"
       },
@@ -112,12 +112,85 @@
       "motion_summary": "Single-character hand gesture dance with a phone-hand gesture; no transformation.",
       "transformation": "none",
       "clay_path": "https://raw.githubusercontent.com/yjr927/idore_tools/cce63dabd044b1a8131fc49158479bffa31aaee5/reference-assets/clay-bizzyboom.mp4",
-      "updated_at": "2026-11-18T01:28:14.867620Z",
-      "revision": "bff4f581dbd0205ad26afac69d07a63787fab4fe7c2e977abcec25380eb58205",
+      "updated_at": "2026-11-18T01:47:22.861855Z",
+      "revision": "f2aace94fd963fa951022bd25098b91da9b11de5527e5f9b447731fd8f6ecd53",
       "copy_reserved": true,
       "error_code": "",
       "copy_provider": "openrouter",
-      "copy_model": "openai/gpt-5.4-mini"
+      "copy_model": "openai/gpt-5.4-mini",
+      "caption": "KAI serving a soft editorial moment",
+      "publication_text": "KAI serving a soft editorial moment\n\n#fashion #style #fashiontok #dance #outfitinspo",
+      "captions": [
+        "KAI serving a soft editorial moment",
+        "Butterflies, tulle, and slow hand movements",
+        "A clean fashion pose with gesture flair"
+      ],
+      "hashtags": [
+        {
+          "tag": "#fashion",
+          "reason": "Describes the visible fashion-focused outfit and styling.",
+          "category": "content",
+          "source_url": null,
+          "observed_at": null
+        },
+        {
+          "tag": "#style",
+          "reason": "Fits the visible editorial styling and posed presentation.",
+          "category": "content",
+          "source_url": null,
+          "observed_at": null
+        },
+        {
+          "tag": "#fashiontok",
+          "reason": "Describes the video topic or community, not the supplied character or idore brand.",
+          "category": "content",
+          "source_url": null,
+          "observed_at": null
+        },
+        {
+          "tag": "#dance",
+          "reason": "Relevant to the visible gesture-performance / dance-edit feel.",
+          "category": "content",
+          "source_url": null,
+          "observed_at": null
+        },
+        {
+          "tag": "#outfitinspo",
+          "reason": "Works for a visible outfit showcase with styling cues.",
+          "category": "content",
+          "source_url": null,
+          "observed_at": null
+        }
+      ],
+      "sources": [
+        {
+          "url": "https://ignix.social/trends/dance",
+          "title": "Dance trends this week on Instagram and TikTok (November 16, 2026) · Ignix",
+          "observed_at": "2026-11-18T01:28:23.247468+00:00"
+        },
+        {
+          "url": "https://contentscout.co/trending/tiktok/fashion/",
+          "title": "Top Fashion and Style Posts on TikTok Right Now",
+          "observed_at": "2026-11-18T01:28:23.247528+00:00"
+        },
+        {
+          "url": "https://remakethetrend.com/trends/christian-dior-dance-ai-trend/",
+          "title": "Christian Dior Dance AI Trend: You and a Friend Doing the I Love Christian Dior Duo",
+          "observed_at": "2026-11-18T01:28:23.247591+00:00"
+        },
+        {
+          "url": "https://ignix.social/trends/fashion",
+          "title": "Fashion trends this week on Instagram and TikTok (November 16, 2026) · Ignix",
+          "observed_at": "2026-11-18T01:28:23.247632+00:00"
+        },
+        {
+          "url": "https://postdom.com/blog/tiktok-dances",
+          "title": "Latest TikTok dances, 2-8 Nov 2026: what's trending",
+          "observed_at": "2026-11-18T01:28:23.247661+00:00"
+        }
+      ],
+      "trend_note": "Web sources were searched, but no current trend hashtag was verified. These hashtags are content or character/brand suggestions matched to the visible video frames. No audio was analyzed, and no official or real-time TikTok ranking or reach is claimed. Source observed_at is retrieval time, not evidence of current popularity.",
+      "caption_basis": "completed_video_frames"
     }
   ],
   "connections": {
@@ -131,8 +204,8 @@
     "openrouter": {
       "configured": true,
       "status": "connected",
-      "message": "",
-      "checked_at": "2026-11-17T00:54:16.051260Z"
+      "message": "成片文案与标签调用成功。",
+      "checked_at": "2026-11-18T01:28:26.382449Z"
     },
     "tiktok": {
       "configured": false,
@@ -140,12 +213,12 @@
       "message": "等待开发者应用与 video.upload 账号授权。"
     },
     "copy": {
+      "configured": true,
       "provider": "openrouter",
       "model": "openai/gpt-5.4-mini",
-      "configured": true,
-      "status": "generating",
-      "message": "正在核对成片并联网搜索标签。",
-      "checked_at": "2026-11-18T01:28:14.867605Z"
+      "status": "connected",
+      "message": "成片文案与标签调用成功。",
+      "checked_at": "2026-11-18T01:28:26.382433Z"
     }
   },
   "requests": [
@@ -170,5 +243,5 @@
     "copy_provider": "openrouter",
     "copy_model": "openai/gpt-5.4-mini"
   },
-  "updated_at": "2026-11-18T01:28:14.867674Z"
+  "updated_at": "2026-11-18T01:47:22.861920Z"
 }

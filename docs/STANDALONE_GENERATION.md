@@ -31,7 +31,9 @@ KAI 的首个白模版本已实际完成：720×1280、约 6 秒、24fps、无�
 
 当前文案流程使用已有 GitHub Secret `OPENROUTER_API_KEY`，经 OpenRouter 调用 OpenAI 模型，分析成片抽帧、搜索美国近期网页资料并生成结构化英文文案。工作流固定 `COPY_PROVIDER=openrouter`；Variable `OPENROUTER_TEXT_MODEL` 默认 `openai/gpt-5.4-mini`。它分析实际完成的视频，不把原片标题当作成片内容。标签区分内容、品牌与有来源的趋势建议；无近期证据时如实说明，不能承诺实时排名或流量。
 
-迁移后的云端文案实测尚待完成，不能把配置完成称为生成成功。旧任务中直接 OpenAI 返回的 **`insufficient_quota`** 继续标为原来的失败；只有新请求实际运行后，才记录新的 provider、模型和结果。网页在额度确认中明确使用 OpenRouter 余额；结果不确定时仍不会自动重发。
+迁移后的云端文案已于 2026 年 11 月 17 日（纽约时间）[实际运行成功](https://github.com/yjr927/idore_tools/actions/runs/44215375401)：使用已有 KAI 成片的画面，经 `openrouter`／`openai/gpt-5.4-mini` 生成 3 条英文候选，保存 5 个标签和 5 条真实检索来源。KAI 当前为 **待审核（`pending_review`）**，尚未发送 TikTok；本次没有重新生成视频。
+
+首选文案是 “KAI serving a soft editorial moment”，标签为 `#fashion`、`#style`、`#fashiontok`、`#dance`、`#outfitinspo`。这些是与画面、服饰和风格相关的建议，没有标签通过当前趋势证据校验；来源和检索时间不等于实时热度或官方排名。此前直接 OpenAI 的 **`insufficient_quota`** 仍保留在历史工作流回执中，不代表这次 KAI 文案失败。网页在额度确认中明确使用 OpenRouter 余额；结果不确定时仍不会自动重发。
 
 连接页单独显示“英文文案与标签”服务、OpenRouter 视频服务与“OpenAI · 可选造型图”。直接 `OPENAI_API_KEY` 只用于可选变装图，其余额／项目额度不足不会阻止经 OpenRouter 请求文案。变装另需 Variable `OPENAI_IMAGE_MODEL` 与角色前后造型要求。模型密钥不进入浏览器，不增加新的密钥输入框；网页只通过现有 GitHub 工作台会话发送固定云端操作。
 
