@@ -24,7 +24,14 @@ jobs:
         with:
           python-version: '3.11'
       - name: Install frame reader
-        run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+        timeout-minutes: 4
+        run: |
+          if ! command -v ffmpeg >/dev/null || ! command -v ffprobe >/dev/null; then
+            sudo apt-get -o Acquire::Retries=1 -o Acquire::http::Timeout=30 update -qq
+            sudo apt-get -o Acquire::Retries=1 -o Acquire::http::Timeout=30 install -y -qq ffmpeg
+          fi
+          ffmpeg -version | head -n 1
+          ffprobe -version | head -n 1
       - name: Validate routed copy boundaries
         run: |
           python -m unittest discover -s tests -p 'test_openrouter_copy.py' -v
