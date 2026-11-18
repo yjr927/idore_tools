@@ -60,7 +60,7 @@ class PipelineCopyTests(unittest.TestCase):
         self.item['video_path'] = 'generated/' + self.item['id'] + '.mp4'
         (self.site / self.item['video_path']).write_bytes(content)
         self.env = {'GITHUB_ACTIONS': 'true', 'GITHUB_RUN_ID': '12345', 'GITHUB_RUN_ATTEMPT': '1',
-                    'OPENAI_API_KEY': KEY, 'OPENAI_MODEL': '', 'PATH': '/usr/bin'}
+                    'COPY_PROVIDER': 'openai', 'OPENAI_API_KEY': KEY, 'OPENAI_MODEL': '', 'PATH': '/usr/bin'}
         self.transport = Transport()
 
     def generate(self, **kwargs):
@@ -156,6 +156,31 @@ class PipelineCopyTests(unittest.TestCase):
         self.assertNotIn('OPENROUTER_API_KEY', child)
         self.assertNotIn('GH_TOKEN', child)
         self.assertEqual(child['PATH'], '/usr/bin')
+
+    def test_default_router_uses_only_router_secret_and_actual_frames(self):
+        valid = self.generate()
+        job = {'status': 'completed', 'draft': {k: valid[k] for k in ('captions', 'hashtags', 'trend_note')},
+               'sources': valid['sources']}
+        env = {k: v for k, v in self.env.items() if k not in ('COPY_PROVIDER', 'OPENAI_API_KEY', 'OPENAI_MODEL')}
+        env['OPENROUTER_API_KEY'] = 'sk-or-v1-not-a-real-router-secret'
+        with patch('scripts.openrouter_copy.generate_router_draft', return_value=job) as router:
+            result = generate_copy(self.item, env, site_dir=self.site,
+                state_dir=Path(self.tmp.name) / 'router', frame_extractor=lambda path, env: [FRAME] * 4)
+        self.assertEqual(result['copy_provider'], 'openrouter')
+        self.assertEqual(result['copy_model'], 'openai/gpt-5.4-mini')
+        self.assertEqual(router.call_args.kwargs['key'], env['OPENROUTER_API_KEY'])
+        self.assertEqual(router.call_args.kwargs['frames'], [FRAME] * 4)
+
+    def test_router_never_falls_back_to_direct_openai_key_or_non_openai_model(self):
+        for changes, code in [({'COPY_PROVIDER': 'openrouter'}, 'missing_key'),
+                              ({'COPY_PROVIDER': 'openrouter', 'OPENROUTER_API_KEY': KEY,
+                                'OPENROUTER_TEXT_MODEL': 'other/model'}, 'missing_model')]:
+            env = dict(self.env, **changes)
+            with self.assertRaises(PipelineCopyError) as caught:
+                generate_copy(self.item, env, site_dir=self.site, request_fn=self.transport)
+            self.assertEqual(caught.exception.code, code)
+            self.assertEqual(caught.exception.provider, 'openrouter')
+        self.assertEqual(self.transport.calls, [])
 
 
 if __name__ == '__main__': unittest.main()

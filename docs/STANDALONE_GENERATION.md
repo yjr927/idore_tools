@@ -29,9 +29,11 @@ KAI 的首个白模版本已实际完成：720×1280、约 6 秒、24fps、无�
 
 ## 英文文案与 hashtags
 
-GitHub Secrets 中的 `OPENAI_API_KEY` 用于成片抽帧分析、美国近期网页检索及结构化英文文案。它分析实际完成的视频，不把原片标题当作成片内容。标签区分内容、品牌与有来源的趋势建议；无近期证据时如实说明，不能承诺实时排名或流量。
+当前文案流程使用已有 GitHub Secret `OPENROUTER_API_KEY`，经 OpenRouter 调用 OpenAI 模型，分析成片抽帧、搜索美国近期网页资料并生成结构化英文文案。工作流固定 `COPY_PROVIDER=openrouter`；Variable `OPENROUTER_TEXT_MODEL` 默认 `openai/gpt-5.4-mini`。它分析实际完成的视频，不把原片标题当作成片内容。标签区分内容、品牌与有来源的趋势建议；无近期证据时如实说明，不能承诺实时排名或流量。
 
-当前云端实测 OpenAI 返回 **`insufficient_quota`**。文案与 hashtags 仍受余额或项目额度限制，工作台显示受阻；不会填写假结果或自动换模型。补充余额／调整额度后，再人工重试。文案模型使用 Variable `OPENAI_MODEL`，默认 `gpt-5.4-mini`。视频用 Secret `OPENROUTER_API_KEY`；变装另需 Variable `OPENAI_IMAGE_MODEL` 与角色前后造型要求。
+迁移后的云端文案实测尚待完成，不能把配置完成称为生成成功。旧任务中直接 OpenAI 返回的 **`insufficient_quota`** 继续标为原来的失败；只有新请求实际运行后，才记录新的 provider、模型和结果。网页在额度确认中明确使用 OpenRouter 余额；结果不确定时仍不会自动重发。
+
+连接页单独显示“英文文案与标签”服务、OpenRouter 视频服务与“OpenAI · 可选造型图”。直接 `OPENAI_API_KEY` 只用于可选变装图，其余额／项目额度不足不会阻止经 OpenRouter 请求文案。变装另需 Variable `OPENAI_IMAGE_MODEL` 与角色前后造型要求。模型密钥不进入浏览器，不增加新的密钥输入框；网页只通过现有 GitHub 工作台会话发送固定云端操作。
 
 ## TikTok 草稿入口
 

@@ -39,9 +39,10 @@
     if (selected.video) actions.append(link('去审核成片 →', ctx.itemLink(selected), 'button primary'));
     if (['waiting_material', 'waiting_classification'].includes(selected.status)) actions.append(link('查看连接与素材 →', './settings.html', 'button'));
     if (['needs_attention', 'rejected'].includes(selected.status) || selected.video && selected.status === 'generating_copy') {
-      const paid = ctx.consent('允许本次重试或文案生成使用云端服务额度。'); detail.append(paid.wrap);
-      if (selected.video) { const copy = button('生成文案与标签', () => ctx.dispatch('copy', selected, { consent: paid.input.checked })); copy.dataset.cloudAction = ''; copy.dataset.actionBlocked = selected.revision ? '' : 'true'; copy.disabled = !selected.revision; actions.append(copy); }
-      if (['needs_attention', 'rejected'].includes(selected.status)) { const retry = button('重试当前步骤', () => ctx.dispatch('retry', selected, { consent: paid.input.checked })); retry.dataset.cloudAction = ''; retry.dataset.actionBlocked = selected.revision ? '' : 'true'; retry.disabled = !selected.revision; actions.append(retry); }
+      const copyRoute = ctx.copyConfig(), paid = ctx.consent(selected.video ? `允许本次文案生成使用 ${copyRoute.label} 额度。` : '允许本次重试使用云端服务额度。'); detail.append(paid.wrap);
+      if (selected.video) detail.append(el('p', 'meta', '下次文案：' + copyRoute.label + (copyRoute.model ? ' · ' + copyRoute.model : '')));
+      if (selected.video) { const copy = button('生成文案与标签', () => ctx.dispatch('copy', selected, { consent: paid.input.checked, copyConfig: copyRoute })); copy.dataset.cloudAction = ''; copy.dataset.actionBlocked = selected.revision ? '' : 'true'; copy.disabled = !selected.revision; actions.append(copy); }
+      if (['needs_attention', 'rejected'].includes(selected.status)) { const retry = button('重试当前步骤', () => ctx.dispatch('retry', selected, { consent: paid.input.checked, copyConfig: copyRoute })); retry.dataset.cloudAction = ''; retry.dataset.actionBlocked = selected.revision ? '' : 'true'; retry.disabled = !selected.revision; actions.append(retry); }
     }
     if (actions.children.length) detail.append(actions);
     if (!ctx.connected) detail.append(ctx.authHint());
