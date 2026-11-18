@@ -20,7 +20,7 @@
       "kind": "hands",
       "original_watched": true,
       "observed_at": "2026-11-17T14:09:51+00:00",
-      "updated_at": "2026-11-18T01:58:49.981683Z",
+      "updated_at": "2026-11-18T02:58:50.511708Z",
       "revision": "9ac06f0c59ffd983cf8a8b98d09f00f14159d86746cc6d5962c8853d023796fe"
     },
     {
@@ -42,7 +42,7 @@
       "kind": "hands",
       "original_watched": true,
       "observed_at": "2026-11-17T14:09:51+00:00",
-      "updated_at": "2026-11-18T01:58:49.981629Z",
+      "updated_at": "2026-11-18T02:58:50.511632Z",
       "revision": "b0f6beb40c549236f41f3cd0b9b75877c08a4ba74bdc31ddecbb94ec013c3b64"
     },
     {
@@ -63,7 +63,7 @@
       "motion_summary": "已播放约8秒原片并观察关键画面：夜间游乐设施与路灯前仅一位风格化角色，红色发型、绿色贴身图案上衣和宽松牛仔裤，双脚分开，一臂屈肘将手放在颈肩附近，配合躯干与髋部侧摆。背景位置稳定。页面标注Saja Boys/Abby，按虚拟男团角色用途归男生素材，不推断真人性别或生成工具。已观察片段造型一致，但全片变化及完整重复周期未完全核验。",
       "kind": "hands",
       "observed_at": "2026-11-16T14:31:12.979000+00:00",
-      "updated_at": "2026-11-18T01:58:49.981714Z",
+      "updated_at": "2026-11-18T02:58:50.511748Z",
       "revision": "e879b4cc6816eb300ebdc37586c4b2618ce0d5e53f485a02013cbeb7ab21548e",
       "original_watched": true
     },
@@ -85,7 +85,7 @@
       "motion_summary": "已播放约24秒原片并观察多个关键画面：一位表演者穿黑色短裤、修身上衣和徽章帽，向镜头伸拳、转动上身，随后双手在胸前比心。背景墙与架子位置稳定。页面明确标注JISOO与jisooaddicted，属于K-pop舞蹈候选。按这套女装造型的角色素材用途分组，不判断原片人物真实性别。已观察片段未见换装，但未完整核验全片造型变化和动作重复周期。",
       "kind": "hands",
       "observed_at": "2026-11-16T14:31:12.979000+00:00",
-      "updated_at": "2026-11-18T01:58:49.981741Z",
+      "updated_at": "2026-11-18T02:58:50.511785Z",
       "revision": "e0978aa887c77ad2af7bfecf495207ad5c7331b2ac99d267b17df6b6516dfb13",
       "original_watched": true
     },
@@ -231,7 +231,8 @@
     "run-44162729904",
     "openrouter-copy-migration-20261117",
     "run-44218852311",
-    "run-44219610645"
+    "run-44219610645",
+    "run-44223062029"
   ],
   "settings": {
     "daily_limit": 4,
@@ -245,5 +246,5 @@
     "copy_provider": "openrouter",
     "copy_model": "openai/gpt-5.4-mini"
   },
-  "updated_at": "2026-11-18T01:58:52.015985Z"
+  "updated_at": "2026-11-18T02:58:50.511884Z"
 }
