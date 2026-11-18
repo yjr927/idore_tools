@@ -204,44 +204,51 @@
     const optionalStyles = el('details', 'small-details material-section'); optionalStyles.append(el('summary', '', '可选 · OpenAI 变装造型图'), connectionCard('OpenAI · 可选造型图', '仅用于可选的变装造型图，不影响 OpenRouter 文案服务。', 'openai'));
     const keys = el('p', 'subtle'); keys.append(document.createTextNode('视频与当前文案共用云端 OpenRouter 密钥；直接 OpenAI 密钥仅供可选造型图。密钥保存在 GitHub Secrets，网页不会读取或展示。 '), link('管理云端凭证 ↗', `https://github.com/${REPO}/settings/secrets/actions`, 'text-link'));
     const materials = el('section', 'settings-panel material-section'); materials.id = 'role-materials'; const materialHeading = el('div', 'section-heading'); materialHeading.append(el('h2', '', '角色素材'), link('查看角色素材 →', './materials.html', 'button')); materials.append(materialHeading);
-    const enabled = characters.filter(item => item.enabled === true && !DISPLAY_ONLY_KINDS.has(item.asset_kind)), ips = new Set(characters.map(item => JSON.stringify([item.collection || '常规', item.ip || '未分组'])));
-    materials.append(el('p', 'subtle', charactersLoaded ? `${ips.size} 个 IP · ${characters.length} 份素材 · ${enabled.length} 份已启用。按素材分类与 IP 逐层查看。` : charactersError ? '角色素材清单暂时无法读取。' : '正在读取角色素材清单…'));
+    const enabled = characters.filter(item => item.enabled === true && !DISPLAY_ONLY_KINDS.has(item.asset_kind)), ips = new Set(characters.map(item => materialName(item.ip, '未分组')));
+    materials.append(el('p', 'subtle', charactersLoaded ? `${ips.size} 个 IP · ${characters.length} 份素材 · ${enabled.length} 份已启用。先选 IP，再选日常图或万圣节图。` : charactersError ? '角色素材清单暂时无法读取。' : '正在读取角色素材清单…'));
     if (pipeline.items.some(item => item.status === 'waiting_material' && item.material_group === 'female') && !enabled.some(item => item.material_group === 'female')) materials.append(el('p', 'inline-note warning', characters.some(item => item.material_group === 'female' && item.asset_kind !== 'scene') ? '女生角色素材已收录，尚未启用制作匹配；相关任务会继续等待。' : '女生角色的匹配素材仍待补充或确认，相关任务会继续等待。'));
     const fallback = el('p', 'subtle settings-fallback'); fallback.append(document.createTextNode('网页暂时无法连接时，也可使用 '), link('手动云端入口 ↗', WORKFLOW, 'text-link'));
     root.replaceChildren(session, serviceHeading, services, keys, optionalStyles, materials, fallback);
   }
   function context() { return { pipeline, characters, el, text, date, link, button, badge, meta, empty, consent, authHint, itemLink, selectItem, currentItem, mediaPanel, dispatch, copyConfig, connected: Boolean(githubToken), busy, notify }; }
   function materialName(value, fallback = '') { return typeof value === 'string' && value.length ? value.slice(0, 255) : fallback; }
-  function materialHref(collection, ip = '') { const url = new URL('./materials.html', location.href); url.searchParams.set('collection', collection); if (ip) url.searchParams.set('ip', ip); return url.pathname + url.search; }
+  function materialHref(ip = '', collection = '') { const url = new URL('./materials.html', location.href); if (ip) url.searchParams.set('ip', ip); if (ip && collection) url.searchParams.set('collection', collection); return url.pathname + url.search; }
   function renderMaterials() {
     const root = $('#materials-root'); if (!root) return; root.setAttribute('aria-busy', String(!charactersLoaded && !charactersError));
     if (!charactersLoaded) { root.replaceChildren(empty(charactersError ? '素材清单暂时无法读取。' : '正在读取角色素材…', charactersError ? '请稍后刷新，已保存的素材不会因此改变。' : '从已发布的角色清单读取。')); return; }
     if (!characters.length) { root.replaceChildren(empty('还没有已发布的角色素材。', '角色图片加入后，会先按 IP 名称显示在这里。')); return; }
-    const collections = new Map();
-    for (const item of characters) { const collection = materialName(item.collection, '常规'), ip = materialName(item.ip, '未分组'); if (!collections.has(collection)) collections.set(collection, new Map()); const group = collections.get(collection); if (!group.has(ip)) group.set(ip, []); group.get(ip).push(item); }
-    const params = new URLSearchParams(location.search), preferred = ['常规', '万圣节', '无限综艺'], names = [...collections.keys()].sort((a, b) => { const rank = value => preferred.includes(value) ? preferred.indexOf(value) : preferred.length; return rank(a) - rank(b); }), collection = params.get('collection') || names[0], ip = params.get('ip') || '';
-    const tabs = el('nav', 'material-collections'); tabs.setAttribute('aria-label', '素材分类');
-    for (const name of names) { const count = [...collections.get(name).values()].reduce((sum, items) => sum + items.length, 0), tab = link(name + ' · ' + count, materialHref(name), 'material-collection' + (name === collection ? ' active' : '')); if (name === collection) tab.setAttribute('aria-current', 'true'); tabs.append(tab); }
-    const groups = collections.get(collection); if (!groups) { root.replaceChildren(tabs, empty('没有找到这个素材分类。', '请选择上方已有的素材分类。')); return; }
-    const breadcrumb = el('nav', 'material-breadcrumb'); breadcrumb.setAttribute('aria-label', '素材位置'); breadcrumb.append(link('角色素材', materialHref(collection)), el('span', '', ' / ' + collection)); if (ip) breadcrumb.append(el('span', '', ' / ' + ip));
-    const summary = el('div', 'material-section-heading'); summary.append(el('h2', '', ip || '选择一个 IP'), el('p', 'meta', ip ? `${groups.get(ip)?.length || 0} 份素材 · 保留原始名称与完整画面` : `${groups.size} 个 IP · 点击名称查看角色素材`));
+    const groups = new Map();
+    for (const item of characters) { const ip = materialName(item.ip, '未分组'), collection = materialName(item.collection, '日常图'); if (!groups.has(ip)) groups.set(ip, new Map()); const variants = groups.get(ip); if (!variants.has(collection)) variants.set(collection, []); variants.get(collection).push(item); }
+    const params = new URLSearchParams(location.search), ip = params.get('ip') || '', collection = ip ? params.get('collection') || '' : '';
+    const breadcrumb = el('nav', 'material-breadcrumb'); breadcrumb.setAttribute('aria-label', '素材位置'); breadcrumb.append(link('角色素材', materialHref())); if (ip) { breadcrumb.append(el('span', '', ' / ')); breadcrumb.append(collection ? link(ip, materialHref(ip)) : el('span', '', ip)); } if (collection) breadcrumb.append(el('span', '', ' / ' + collection));
+    const summary = el('div', 'material-section-heading');
     if (!ip) {
+      summary.append(el('h2', '', '选择一个 IP'), el('p', 'meta', `${groups.size} 个 IP · 先选 IP，再看素材分类`));
       const grid = el('div', 'ip-grid');
-      for (const [name, items] of groups) { const card = link('', materialHref(collection, name), 'ip-card'); card.append(el('span', 'ip-symbol', '✳'), el('h3', '', name), el('p', '', `${items.length} 份素材`), el('span', 'ip-open', '查看角色 →')); grid.append(card); }
-      root.replaceChildren(tabs, breadcrumb, summary, grid); return;
+      for (const [name, variants] of groups) { const count = [...variants.values()].reduce((sum, rows) => sum + rows.length, 0), card = link('', materialHref(name), 'ip-card'); card.append(el('span', 'ip-symbol', '✳'), el('h3', '', name), el('p', '', `${variants.size} 个分类 · ${count} 份素材`), el('span', 'ip-open', '查看分类 →')); grid.append(card); }
+      root.replaceChildren(breadcrumb, summary, grid); return;
     }
-    const items = groups.get(ip); if (!items) { root.replaceChildren(tabs, breadcrumb, empty('没有找到这个 IP。', '返回 IP 列表，选择已保存的素材。', materialHref(collection), '返回 IP 列表 →')); return; }
+    const variants = groups.get(ip); if (!variants) { root.replaceChildren(breadcrumb, empty('没有找到这个 IP。', '返回 IP 列表，选择已保存的素材。', materialHref(), '返回 IP 列表 →')); return; }
+    if (!collection) {
+      const preferred = ['日常图', '万圣节图', '场景素材'], rank = name => preferred.includes(name) ? preferred.indexOf(name) : preferred.length, names = [...variants.keys()].sort((a, b) => rank(a) - rank(b));
+      summary.append(el('h2', '', ip), el('p', 'meta', `${variants.size} 个素材分类 · 点击分类查看图片`));
+      const grid = el('div', 'ip-grid variant-grid');
+      for (const name of names) { const card = link('', materialHref(ip, name), 'variant-card'); card.append(el('span', 'ip-symbol', '▱'), el('h3', '', name), el('p', '', `${variants.get(name).length} 份素材`), el('span', 'ip-open', '查看图片 →')); grid.append(card); }
+      root.replaceChildren(breadcrumb, summary, grid, link('← 返回 IP 列表', materialHref(), 'button material-back')); return;
+    }
+    const items = variants.get(collection); if (!items) { root.replaceChildren(breadcrumb, empty('没有找到这个素材分类。', '返回当前 IP，选择已保存的素材分类。', materialHref(ip), '返回素材分类 →')); return; }
+    summary.append(el('h2', '', collection), el('p', 'meta', `${items.length} 份素材 · 保留原始名称与完整画面`));
     const grid = el('div', 'role-assets-grid');
     for (const item of items) {
       const card = el('article', 'role-asset-card'), name = materialName(item.name, '未命名素材'), filename = materialName(item.filename), image = mediaUrl(item.image_url, 'image'), scene = item.asset_kind === 'scene', displayOnly = DISPLAY_ONLY_KINDS.has(item.asset_kind), frame = el('div', 'role-asset-frame');
       if (image) { const preview = link('', image, 'role-image-link'), img = el('img'); img.src = image; img.alt = ip + ' · ' + name; img.loading = 'lazy'; img.decoding = 'async'; preview.setAttribute('aria-label', '查看 ' + ip + ' / ' + name + ' 原图'); preview.append(img); frame.append(preview); } else frame.append(el('p', 'meta', '图片地址待确认'));
-      const body = el('div', 'role-asset-body'); body.append(el('h3', '', name)); if (filename) body.append(el('p', 'role-filename', filename));
+      const body = el('div', 'role-asset-body'); body.append(el('h3', '', name)); if (filename) body.append(el('p', 'role-filename', filename)); const characterGroup = materialName(item.character_group); if (characterGroup) body.append(el('p', 'meta role-character-group', characterGroup));
       const labels = el('div', 'role-asset-labels');
       if (scene) labels.append(el('span', '', '场景素材'), el('span', '', '仅展示'));
       else { if (ASSET_KINDS[item.asset_kind]) labels.append(el('span', '', ASSET_KINDS[item.asset_kind])); labels.append(el('span', '', MATERIALS[item.material_group] || MATERIALS.unknown), el('span', '', CASTS[item.cast_type] || CASTS.unknown), el('span', item.enabled === true && !displayOnly ? 'enabled' : '', displayOnly ? '仅展示' : item.enabled === true ? '已启用匹配' : '尚未启用匹配')); } body.append(labels);
       if (image) body.append(link('查看原图 ↗', image, 'text-link')); card.append(frame, body); grid.append(card);
     }
-    root.replaceChildren(tabs, breadcrumb, summary, grid, link('← 返回 IP 列表', materialHref(collection), 'button material-back'));
+    root.replaceChildren(breadcrumb, summary, grid, link('← 返回素材分类', materialHref(ip), 'button material-back'));
   }
   function renderPage() { const page = document.body.dataset.page; if (!loaded && readError && !['settings', 'materials'].includes(page)) { const root = $(page === 'review' ? '#review-root' : '#production-root'); root?.replaceChildren(empty('云端记录暂时无法读取。', '请稍后刷新，现有任务不会因此重新提交。')); root?.setAttribute('aria-busy', 'false'); return; } if (page === 'review') renderReview(); else if (page === 'settings') renderSettings(); else if (page === 'materials') renderMaterials(); else renderers.get(page)?.(context()); paintSession(); }
   async function navigate(href, push = true) {
