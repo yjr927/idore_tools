@@ -2,14 +2,16 @@
   'use strict';
   const REPO = 'yjr927/idore_tools', API = 'https://api.github.com', WORKFLOW = `https://github.com/${REPO}/actions/workflows/pipeline.yml`;
   const KAI = 'https://raw.githubusercontent.com/yjr927/idore_tools/bd19680c2f14b89be1a1025b7825d9e49bd4b433/reference-assets/kai-full.png';
-  const PAGES = { 'create.html': 'production', 'review.html': 'review', 'settings.html': 'settings' };
+  const PAGES = { 'create.html': 'production', 'review.html': 'review', 'settings.html': 'settings', 'materials.html': 'materials' };
   const LABELS = { waiting_classification: '等待分类', waiting_material: '等待角色素材', queued: '已排队', preparing_motion: '提取原片动作', rendering_clay: '渲染动作白模', generating_styles: '准备变装造型', generating_video: '生成角色视频', generating_copy: '准备英文文案', pending_review: '等待审核', approved: '审核已通过', uploading: '正在送至草稿', draft_sent: '已送至 TikTok 草稿', needs_attention: '需要处理', rejected: '已退回制作' };
   const MATERIALS = { male: '男生', female: '女生', mixed: '男女混合', unknown: '男女分组待确认' }, CASTS = { solo: '单人', group: '多人', unknown: '人数待确认' };
+  const ASSET_KINDS = { character: '角色图', portrait: '角色肖像', single_character: '角色单图', turnaround: '角色多视图', cast_lineup: '多人组合', scale_sheet: '角色比例图', profile_card: '角色设定卡', group: '组合素材', scene: '场景素材' };
+  const DISPLAY_ONLY_KINDS = new Set(['scene', 'turnaround', 'cast_lineup', 'scale_sheet', 'profile_card', 'group']);
   const JOURNAL = 'idore-cloud-dispatch-v1', renderers = new Map(), drafts = new Map();
   const legacyParams = new URLSearchParams(location.search); let removedLegacyGrant = false;
   for (const key of ['code', 'state', 'access_token', 'api_key', 'token', 'error', 'error_description']) if (legacyParams.has(key)) { legacyParams.delete(key); removedLegacyGrant = true; }
   if (removedLegacyGrant) history.replaceState(null, '', location.pathname + (legacyParams.toString() ? '?' + legacyParams.toString() : '') + (location.hash || ''));
-  let githubToken = '', credentialGeneration = 0, busy = false, navigating = false, loaded = false, readError = false, pipeline = { items: [], settings: {}, connections: {}, updated_at: '' }, characters = [], selectedId = '', lastReview = '', returnTo = './create.html';
+  let githubToken = '', credentialGeneration = 0, busy = false, navigating = false, loaded = false, readError = false, pipeline = { items: [], settings: {}, connections: {}, updated_at: '' }, characters = [], charactersLoaded = false, charactersError = false, selectedId = '', lastReview = '', returnTo = './create.html';
   const $ = selector => document.querySelector(selector);
   const el = (tag, className, text) => { const result = document.createElement(tag); if (className) result.className = className; if (text !== undefined) result.textContent = String(text); return result; };
   const text = (value, maximum = 300) => typeof value === 'string' ? value.trim().slice(0, maximum) : '';
@@ -18,9 +20,15 @@
   const revision = value => typeof value === 'string' && /^[a-f0-9]{64}$/.test(value);
   const date = value => { const time = new Date(value); return value && Number.isFinite(time.getTime()) ? new Intl.DateTimeFormat('zh-CN', { timeZone: 'America/New_York', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).format(time) : '时间待记录'; };
   function mediaUrl(value, kind = 'video') {
-    if (typeof value !== 'string' || value.length > 600) return '';
+    if (typeof value !== 'string' || value.length > 2400) return '';
     const ext = kind === 'image' ? '(?:png|jpg|jpeg|webp)' : 'mp4';
     if (new RegExp(`^(?:generated|reference-assets)/[A-Za-z0-9_-]{1,160}\\.${ext}$`).test(value)) return new URL('./' + value, location.href).href;
+    if (kind === 'image') {
+      const nested = value.match(/^https:\/\/raw\.githubusercontent\.com\/yjr927\/idore_tools\/[a-f0-9]{40}\/site\/characters\/([^?#]+)$/);
+      if (nested) {
+        try { const parts = nested[1].split('/').map(part => decodeURIComponent(part)); if (parts.length < 2 || parts.length > 6 || parts.some(part => !part || part === '.' || part === '..' || part.length > 255 || /[\x00-\x1f\x7f/\\%]/.test(part)) || !/\.png$/i.test(parts[parts.length - 1])) return ''; return new URL(value).href; } catch { return ''; }
+      }
+    }
     try { const url = new URL(value); return url.protocol === 'https:' && url.host === 'raw.githubusercontent.com' && !url.username && !url.password && !url.search && !url.hash && new RegExp(`^/yjr927/idore_tools/[a-f0-9]{40}/reference-assets/[A-Za-z0-9_-]{1,160}\\.${ext}$`).test(url.pathname) ? url.href : ''; } catch { return ''; }
   }
   function original(value, expected = '') {
@@ -36,7 +44,7 @@
     const source = pipeline.connections.copy || {}, provider = pipeline.settings.copy_provider || source.provider;
     return { provider: provider === 'openrouter' ? 'openrouter' : 'openai', model: text(pipeline.settings.copy_model || source.model, 140), label: provider === 'openrouter' ? 'OpenRouter' : 'OpenAI' };
   }
-  function link(label, href, className = '') { const result = el('a', className, label); result.href = href; if (href.startsWith('https:')) { result.target = '_blank'; result.rel = 'noopener noreferrer'; } else if (/\b(?:create|review|settings)\.html/.test(href)) result.dataset.workspace = ''; return result; }
+  function link(label, href, className = '') { const result = el('a', className, label); result.href = href; if (href.startsWith('https:')) { result.target = '_blank'; result.rel = 'noopener noreferrer'; } else if (/\b(?:create|review|settings|materials)\.html/.test(href)) result.dataset.workspace = ''; return result; }
   function button(label, handler, className = 'button') { const result = el('button', className, label); result.type = 'button'; result.addEventListener('click', handler); return result; }
   function notify(message = '', kind = '', settings = false) { const area = $('#workspace-message'); if (!area) return; area.className = 'workspace-message' + (kind ? ' ' + kind : ''); area.replaceChildren(document.createTextNode(message)); if (settings) area.append(document.createTextNode(' '), link('前往连接页 →', './settings.html')); }
   function badge(item) { return el('span', 'status-badge ' + (['needs_attention', 'rejected'].includes(item.status) ? 'attention' : ['pending_review', 'approved', 'draft_sent'].includes(item.status) ? 'ready' : ''), LABELS[item.status]); }
@@ -195,15 +203,47 @@
     services.append(tiktok);
     const optionalStyles = el('details', 'small-details material-section'); optionalStyles.append(el('summary', '', '可选 · OpenAI 变装造型图'), connectionCard('OpenAI · 可选造型图', '仅用于可选的变装造型图，不影响 OpenRouter 文案服务。', 'openai'));
     const keys = el('p', 'subtle'); keys.append(document.createTextNode('视频与当前文案共用云端 OpenRouter 密钥；直接 OpenAI 密钥仅供可选造型图。密钥保存在 GitHub Secrets，网页不会读取或展示。 '), link('管理云端凭证 ↗', `https://github.com/${REPO}/settings/secrets/actions`, 'text-link'));
-    const materials = el('section', 'settings-panel material-section'); materials.append(el('h2', '', '角色素材')); const enabled = characters.filter(item => item.enabled === true), list = el('div', 'character-list');
-    for (const item of enabled) { const row = el('div', 'character-item'), image = mediaUrl(item.image_url, 'image'); if (image) { const img = el('img'); img.src = image; img.alt = text(item.name, 80) + '角色形象'; img.loading = 'lazy'; row.append(img); } row.append(el('strong', '', text(item.name, 80)), el('span', 'meta', (MATERIALS[item.material_group] || MATERIALS.unknown) + ' · ' + (CASTS[item.cast_type] || CASTS.unknown))); list.append(row); }
-    materials.append(list.children.length ? list : el('p', 'subtle', '角色素材清单尚未发布。'));
-    if (pipeline.items.some(item => item.status === 'waiting_material' && item.material_group === 'female') && !enabled.some(item => item.material_group === 'female')) materials.append(el('p', 'inline-note warning', '女生角色素材待补充；对应参考视频会等待，不会换成男生角色。'));
+    const materials = el('section', 'settings-panel material-section'); materials.id = 'role-materials'; const materialHeading = el('div', 'section-heading'); materialHeading.append(el('h2', '', '角色素材'), link('查看角色素材 →', './materials.html', 'button')); materials.append(materialHeading);
+    const enabled = characters.filter(item => item.enabled === true && !DISPLAY_ONLY_KINDS.has(item.asset_kind)), ips = new Set(characters.map(item => JSON.stringify([item.collection || '常规', item.ip || '未分组'])));
+    materials.append(el('p', 'subtle', charactersLoaded ? `${ips.size} 个 IP · ${characters.length} 份素材 · ${enabled.length} 份已启用。按素材分类与 IP 逐层查看。` : charactersError ? '角色素材清单暂时无法读取。' : '正在读取角色素材清单…'));
+    if (pipeline.items.some(item => item.status === 'waiting_material' && item.material_group === 'female') && !enabled.some(item => item.material_group === 'female')) materials.append(el('p', 'inline-note warning', characters.some(item => item.material_group === 'female' && item.asset_kind !== 'scene') ? '女生角色素材已收录，尚未启用制作匹配；相关任务会继续等待。' : '女生角色的匹配素材仍待补充或确认，相关任务会继续等待。'));
     const fallback = el('p', 'subtle settings-fallback'); fallback.append(document.createTextNode('网页暂时无法连接时，也可使用 '), link('手动云端入口 ↗', WORKFLOW, 'text-link'));
     root.replaceChildren(session, serviceHeading, services, keys, optionalStyles, materials, fallback);
   }
   function context() { return { pipeline, characters, el, text, date, link, button, badge, meta, empty, consent, authHint, itemLink, selectItem, currentItem, mediaPanel, dispatch, copyConfig, connected: Boolean(githubToken), busy, notify }; }
-  function renderPage() { const page = document.body.dataset.page; if (!loaded && readError && page !== 'settings') { const root = $(page === 'review' ? '#review-root' : '#production-root'); root?.replaceChildren(empty('云端记录暂时无法读取。', '请稍后刷新，现有任务不会因此重新提交。')); root?.setAttribute('aria-busy', 'false'); return; } if (page === 'review') renderReview(); else if (page === 'settings') renderSettings(); else renderers.get(page)?.(context()); paintSession(); }
+  function materialName(value, fallback = '') { return typeof value === 'string' && value.length ? value.slice(0, 255) : fallback; }
+  function materialHref(collection, ip = '') { const url = new URL('./materials.html', location.href); url.searchParams.set('collection', collection); if (ip) url.searchParams.set('ip', ip); return url.pathname + url.search; }
+  function renderMaterials() {
+    const root = $('#materials-root'); if (!root) return; root.setAttribute('aria-busy', String(!charactersLoaded && !charactersError));
+    if (!charactersLoaded) { root.replaceChildren(empty(charactersError ? '素材清单暂时无法读取。' : '正在读取角色素材…', charactersError ? '请稍后刷新，已保存的素材不会因此改变。' : '从已发布的角色清单读取。')); return; }
+    if (!characters.length) { root.replaceChildren(empty('还没有已发布的角色素材。', '角色图片加入后，会先按 IP 名称显示在这里。')); return; }
+    const collections = new Map();
+    for (const item of characters) { const collection = materialName(item.collection, '常规'), ip = materialName(item.ip, '未分组'); if (!collections.has(collection)) collections.set(collection, new Map()); const group = collections.get(collection); if (!group.has(ip)) group.set(ip, []); group.get(ip).push(item); }
+    const params = new URLSearchParams(location.search), preferred = ['常规', '万圣节', '无限综艺'], names = [...collections.keys()].sort((a, b) => { const rank = value => preferred.includes(value) ? preferred.indexOf(value) : preferred.length; return rank(a) - rank(b); }), collection = params.get('collection') || names[0], ip = params.get('ip') || '';
+    const tabs = el('nav', 'material-collections'); tabs.setAttribute('aria-label', '素材分类');
+    for (const name of names) { const count = [...collections.get(name).values()].reduce((sum, items) => sum + items.length, 0), tab = link(name + ' · ' + count, materialHref(name), 'material-collection' + (name === collection ? ' active' : '')); if (name === collection) tab.setAttribute('aria-current', 'true'); tabs.append(tab); }
+    const groups = collections.get(collection); if (!groups) { root.replaceChildren(tabs, empty('没有找到这个素材分类。', '请选择上方已有的素材分类。')); return; }
+    const breadcrumb = el('nav', 'material-breadcrumb'); breadcrumb.setAttribute('aria-label', '素材位置'); breadcrumb.append(link('角色素材', materialHref(collection)), el('span', '', ' / ' + collection)); if (ip) breadcrumb.append(el('span', '', ' / ' + ip));
+    const summary = el('div', 'material-section-heading'); summary.append(el('h2', '', ip || '选择一个 IP'), el('p', 'meta', ip ? `${groups.get(ip)?.length || 0} 份素材 · 保留原始名称与完整画面` : `${groups.size} 个 IP · 点击名称查看角色素材`));
+    if (!ip) {
+      const grid = el('div', 'ip-grid');
+      for (const [name, items] of groups) { const card = link('', materialHref(collection, name), 'ip-card'); card.append(el('span', 'ip-symbol', '✳'), el('h3', '', name), el('p', '', `${items.length} 份素材`), el('span', 'ip-open', '查看角色 →')); grid.append(card); }
+      root.replaceChildren(tabs, breadcrumb, summary, grid); return;
+    }
+    const items = groups.get(ip); if (!items) { root.replaceChildren(tabs, breadcrumb, empty('没有找到这个 IP。', '返回 IP 列表，选择已保存的素材。', materialHref(collection), '返回 IP 列表 →')); return; }
+    const grid = el('div', 'role-assets-grid');
+    for (const item of items) {
+      const card = el('article', 'role-asset-card'), name = materialName(item.name, '未命名素材'), filename = materialName(item.filename), image = mediaUrl(item.image_url, 'image'), scene = item.asset_kind === 'scene', displayOnly = DISPLAY_ONLY_KINDS.has(item.asset_kind), frame = el('div', 'role-asset-frame');
+      if (image) { const preview = link('', image, 'role-image-link'), img = el('img'); img.src = image; img.alt = ip + ' · ' + name; img.loading = 'lazy'; img.decoding = 'async'; preview.setAttribute('aria-label', '查看 ' + ip + ' / ' + name + ' 原图'); preview.append(img); frame.append(preview); } else frame.append(el('p', 'meta', '图片地址待确认'));
+      const body = el('div', 'role-asset-body'); body.append(el('h3', '', name)); if (filename) body.append(el('p', 'role-filename', filename));
+      const labels = el('div', 'role-asset-labels');
+      if (scene) labels.append(el('span', '', '场景素材'), el('span', '', '仅展示'));
+      else { if (ASSET_KINDS[item.asset_kind]) labels.append(el('span', '', ASSET_KINDS[item.asset_kind])); labels.append(el('span', '', MATERIALS[item.material_group] || MATERIALS.unknown), el('span', '', CASTS[item.cast_type] || CASTS.unknown), el('span', item.enabled === true && !displayOnly ? 'enabled' : '', displayOnly ? '仅展示' : item.enabled === true ? '已启用匹配' : '尚未启用匹配')); } body.append(labels);
+      if (image) body.append(link('查看原图 ↗', image, 'text-link')); card.append(frame, body); grid.append(card);
+    }
+    root.replaceChildren(tabs, breadcrumb, summary, grid, link('← 返回 IP 列表', materialHref(collection), 'button material-back'));
+  }
+  function renderPage() { const page = document.body.dataset.page; if (!loaded && readError && !['settings', 'materials'].includes(page)) { const root = $(page === 'review' ? '#review-root' : '#production-root'); root?.replaceChildren(empty('云端记录暂时无法读取。', '请稍后刷新，现有任务不会因此重新提交。')); root?.setAttribute('aria-busy', 'false'); return; } if (page === 'review') renderReview(); else if (page === 'settings') renderSettings(); else if (page === 'materials') renderMaterials(); else renderers.get(page)?.(context()); paintSession(); }
   async function navigate(href, push = true) {
     const url = new URL(href, location.href), name = url.pathname.split('/').pop(); if (url.origin !== location.origin || !PAGES[name] || navigating) return;
     navigating = true;
@@ -211,12 +251,22 @@
   }
   document.addEventListener('click', event => {
     const anchor = event.target.closest('a[data-workspace]'); if (anchor && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey && event.button === 0) { event.preventDefault(); navigate(anchor.href); return; }
-    if (event.target.closest('[data-refresh]')) loadPipeline().catch(() => {});
+    if (event.target.closest('[data-refresh]')) { if (document.body.dataset.page === 'materials') loadCharacters(); else loadPipeline().catch(() => {}); }
   });
   window.addEventListener('popstate', () => navigate(location.href, false));
   window.addEventListener('pagehide', () => { githubToken = ''; credentialGeneration++; });
   window.addEventListener('pageshow', event => { if (event.persisted) { lastReview = ''; renderPage(); } });
   window.IdoreWorkspace = Object.freeze({ register: (name, renderer) => { renderers.set(name, renderer); if (loaded && document.body.dataset.page === name) renderPage(); }, render: renderPage });
-  async function boot() { selectedId = new URLSearchParams(location.search).get('item') || ''; const source = original(new URLSearchParams(location.search).get('reference')); try { await loadPipeline(); if (!selectedId && source) { selectedId = pipeline.items.find(item => item.source_id === source.id)?.id || ''; if (!selectedId && document.body.dataset.page === 'production') notify('这条原片还未进入制作队列。同步最新趋势后再查看。'); renderPage(); } } catch { /* An honest unavailable state stays visible. */ } try { const data = await publicDocument('./data/characters.json', 200000); if (data?.schema_version === 1 && Array.isArray(data.items)) characters = data.items.slice(0, 200); if (document.body.dataset.page === 'settings') renderPage(); } catch { /* Materials remain unconfirmed. */ } setInterval(() => { if (!busy && document.visibilityState !== 'hidden') loadPipeline({ quiet: true }).catch(() => {}); }, 30000); }
+  async function loadCharacters() {
+    try { const data = await publicDocument('./data/characters.json', 4 * 1024 * 1024); if (data !== null && (data.schema_version !== 1 || !Array.isArray(data.items) || data.items.length > 5000 || !data.items.every(item => item && typeof item === 'object' && !Array.isArray(item)))) throw new Error(); if (data) characters = data.items; else if (!charactersLoaded) characters = []; charactersLoaded = true; charactersError = false; }
+    catch { charactersError = true; if (document.body.dataset.page === 'materials') notify('暂时无法读取最新素材，已保留之前的清单。', 'error'); }
+    if (['settings', 'materials'].includes(document.body.dataset.page)) renderPage();
+  }
+  async function boot() {
+    selectedId = new URLSearchParams(location.search).get('item') || ''; const source = original(new URLSearchParams(location.search).get('reference'));
+    try { await loadPipeline(); if (!selectedId && source) { selectedId = pipeline.items.find(item => item.source_id === source.id)?.id || ''; if (!selectedId && document.body.dataset.page === 'production') notify('这条原片还未进入制作队列。同步最新趋势后再查看。'); renderPage(); } } catch { /* An honest unavailable state stays visible. */ }
+    await loadCharacters();
+    setInterval(() => { if (!busy && document.visibilityState !== 'hidden') { loadPipeline({ quiet: true }).catch(() => {}); if (document.body.dataset.page === 'materials') loadCharacters(); } }, 30000);
+  }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot, { once: true }); else queueMicrotask(boot);
 })();

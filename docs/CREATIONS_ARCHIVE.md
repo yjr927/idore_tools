@@ -8,7 +8,7 @@ Work 每天纽约时间上午 9 点最多收录 4 条原片：K-pop 最多 2 条
 
 生产队列在视频完成后立即保存成片、封面与作品索引，再处理英文文案和标签。文案现经 OpenRouter 调用 OpenAI 模型，与视频共用 GitHub Secret `OPENROUTER_API_KEY`；默认模型为 `openai/gpt-5.4-mini`，由 Variable `OPENROUTER_TEXT_MODEL` 设置。直接 OpenAI 密钥仅用于可选变装造型图。
 
-任何文案失败都不应丢弃已完成视频。此前直接 OpenAI 的 `insufficient_quota` 保留为历史失败；迁移后的文案云端实测尚待完成，不提前改成成功或待审核。视频与文案状态分别显示，审核、退回或 TikTok 上传状态不改变“该视频是否已生成”的事实。
+任何文案失败都不应丢弃已完成视频。KAI 已有成片的文案已在 [OpenRouter 云端验证](https://github.com/yjr927/idore_tools/actions/runs/44215375401)中成功，模型为 `openai/gpt-5.4-mini`，目前为待审核（`pending_review`）。已保存 3 条英文候选、5 个相关标签与 5 条真实检索来源；没有标签被验证为当前趋势，不能把来源列表称为实时热榜。此前直接 OpenAI 的 `insufficient_quota` 保留在历史工作流回执中，不再代表 KAI 当前状态。视频与文案状态分别显示，审核、退回或 TikTok 上传状态不改变“该视频是否已生成”的事实。
 
 生产队列的白模另以 `clay-<TikTokID>.mp4` 保存，供审核对照；它不是最终角色成片，不加入作品索引。原片、动作关节点文件、临时签名媒体地址、提示词、密钥和 TikTok 私有上传回执不归档到作品页。
 

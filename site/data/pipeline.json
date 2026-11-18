@@ -112,8 +112,8 @@
       "motion_summary": "Single-character hand gesture dance with a phone-hand gesture; no transformation.",
       "transformation": "none",
       "clay_path": "https://raw.githubusercontent.com/yjr927/idore_tools/cce63dabd044b1a8131fc49158479bffa31aaee5/reference-assets/clay-bizzyboom.mp4",
-      "updated_at": "2026-11-18T01:28:26.382454Z",
-      "revision": "c3ab68758972a95da3cef2fbe440f261acdaef5dd8c4a7debafddb434afd8009",
+      "updated_at": "2026-11-18T01:47:22.861855Z",
+      "revision": "f2aace94fd963fa951022bd25098b91da9b11de5527e5f9b447731fd8f6ecd53",
       "copy_reserved": true,
       "error_code": "",
       "copy_provider": "openrouter",
@@ -142,8 +142,8 @@
         },
         {
           "tag": "#fashiontok",
-          "reason": "Signals fashion-focused TikTok content based on the visible video.",
-          "category": "brand",
+          "reason": "Describes the video topic or community, not the supplied character or idore brand.",
+          "category": "content",
           "source_url": null,
           "observed_at": null
         },
@@ -189,7 +189,7 @@
           "observed_at": "2026-11-18T01:28:23.247661+00:00"
         }
       ],
-      "trend_note": "Trend-style hashtags were selected from dated sources observed within 30 days in the provided metadata, but the video itself was only visually reviewed and no audio was analyzed. Sources referenced in the research include ContentScout (updated 2026-11-13) and Ignix fashion/dance trend pages (updated 2026-11-16). I did not verify real-time popularity or guarantee performance, and no claim is made that the video matches any specific trend audio or original trend clip. No source-backed current trend was verified; these are content or brand suggestions. No source-backed current trend was verified; tags are content or brand suggestions.",
+      "trend_note": "Web sources were searched, but no current trend hashtag was verified. These hashtags are content or character/brand suggestions matched to the visible video frames. No audio was analyzed, and no official or real-time TikTok ranking or reach is claimed. Source observed_at is retrieval time, not evidence of current popularity.",
       "caption_basis": "completed_video_frames"
     }
   ],
@@ -243,5 +243,5 @@
     "copy_provider": "openrouter",
     "copy_model": "openai/gpt-5.4-mini"
   },
-  "updated_at": "2026-11-18T01:28:27.680689Z"
+  "updated_at": "2026-11-18T01:47:22.861920Z"
 }

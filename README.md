@@ -1,6 +1,6 @@
 # idore · 趋势素材与角色视频工作台
 
-[趋势素材](https://yjr927.github.io/idore_tools/) · [制作](https://yjr927.github.io/idore_tools/create.html) · [审核](https://yjr927.github.io/idore_tools/review.html) · [连接设置](https://yjr927.github.io/idore_tools/settings.html) · [生成作品](https://yjr927.github.io/idore_tools/gallery.html)
+[趋势素材](https://yjr927.github.io/idore_tools/) · [制作](https://yjr927.github.io/idore_tools/create.html) · [审核](https://yjr927.github.io/idore_tools/review.html) · [角色素材](https://yjr927.github.io/idore_tools/materials.html) · [连接设置](https://yjr927.github.io/idore_tools/settings.html) · [生成作品](https://yjr927.github.io/idore_tools/gallery.html)
 
 ## 当前流程
 
@@ -24,11 +24,15 @@ GitHub 云端制作流程读取这些观察，只匹配**同素材分组、同�
 
 OpenAI 和 OpenRouter 的供应商密钥只使用 GitHub Secrets，不在网页输入、读取或展示。当前入口不使用浏览器 OpenRouter OAuth，也不从浏览器直接提交视频生成。具体操作见 [独立网站说明](docs/STANDALONE_GENERATION.md)。
 
+## 角色素材库
+
+[素材页](https://yjr927.github.io/idore_tools/materials.html) 按分类展示 IP，点开 IP 才加载角色图片。当前收录 131 张原图、20 个 IP，保留文件夹、文件名、大小写与空格；万圣节单独展示。`kk金丹老师` 与已有万圣节目录的 14 张相同图片只收录一次。图片按视觉角色呈现分为男生、女生、混合或待确认，单人／多人另行记录；同一角色的多视图不会被误标为多人。场景、多人组合、多视图、比例图、设定卡及分类不明的图片保留展示，不自动用于单人生成。23 张清晰的单角色参考图已加入自动匹配。
+
 ## 云端配置与真实状态
 
 视频与英文文案共用 Secret `OPENROUTER_API_KEY`。当前工作流固定文案 provider 为 `openrouter`，Variable `OPENROUTER_TEXT_MODEL` 默认 `openai/gpt-5.4-mini`；视频模型 Variable `SEEDANCE_MODEL` 默认 `bytedance/seedance-2.5`。Secret `OPENAI_API_KEY` 仅用于可选的变装造型图，另需 `OPENAI_IMAGE_MODEL` 和角色前后造型要求。网页不提供供应商密钥输入或文案 provider 切换。
 
-此前直接 OpenAI 的实际文案请求返回 `insufficient_quota`；该历史错误保留在原任务中，不改写为成功。文案已迁移为通过 OpenRouter 使用 OpenAI 模型，**新的云端文案实测尚待完成**。连接页将文案、视频及可选造型图分开显示；直接 OpenAI 的额度问题不阻止 OpenRouter 文案请求。以新请求的实际回执和任务状态为准，视频已完成不代表文案也已完成。Work 采集继续使用原任务。
+KAI 已有成片的文案已通过 OpenRouter 实测成功，使用 `openai/gpt-5.4-mini`，保存了 3 条英文候选、5 个相关标签和 5 条真实检索来源，当前为 **待审核（`pending_review`）**。[查看成功记录](https://github.com/yjr927/idore_tools/actions/runs/44215375401)。这 5 个标签描述画面与风格，没有标签被验证为当前趋势；不代表官方实时热榜。此前直接 OpenAI 的 `insufficient_quota` 保留在历史工作流回执中，不代表 KAI 当前任务仍失败。连接页分别显示文案、视频及可选造型图；Work 采集继续使用原任务。
 
 TikTok 尚未建立开发者应用及账号授权，目前只有接入入口与接口实现。正式启用需申请 Content Posting API 的 `video.upload`，完成目标账号授权，再配置 Secrets `TIKTOK_ACCESS_TOKEN`、`TIKTOK_ACCOUNT_ID` 和 Variable `TIKTOK_ACCOUNT_LABEL`。审核绑定精确成片、文案版本和目标账号；私有上传回执不进入网站。视频草稿 API **不能附带文案或 hashtags**，请在审核页复制，进入 TikTok 后粘贴。未接入时只保存审核结果，不声称草稿已送达。
 

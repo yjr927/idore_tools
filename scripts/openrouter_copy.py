@@ -134,6 +134,41 @@ def _recent(excerpt, today):
     return False
 
 
+def finalize_draft(draft, excerpts, today, character):
+    """Canonical public copy notes/categories; pure, idempotent, no API calls.
+
+    Persisted results without original search excerpts cannot establish trends.
+    Model-written trend summaries are replaced, not appended or treated as proof.
+    """
+    try:
+        result = copy.deepcopy(draft)
+        allowed_brands = {'idore', re.sub(r'[^a-z0-9]', '', character.lower())} - {''}
+        for tag in result['hashtags']:
+            normalized = re.sub(r'[^a-z0-9]', '', tag['tag'].lower())
+            if tag['category'] == 'brand' and normalized not in allowed_brands:
+                tag.update(category='content', source_url=None, observed_at=None,
+                           reason='Describes the video topic or community, not the supplied character or idore brand.')
+            excerpt = excerpts.get(tag.get('source_url'), '')
+            if tag['category'] == 'trend' and (tag['tag'].lower() not in excerpt.lower() or not _recent(excerpt, today)):
+                tag.update(category='content', source_url=None, observed_at=None,
+                           reason='Fits the visible content; recent source-specific hashtag evidence was not verified.')
+            if tag['category'] != 'trend':
+                tag.update(source_url=None, observed_at=None)
+        if any(tag['category'] == 'trend' for tag in result['hashtags']):
+            result['trend_note'] = ('Source-linked hashtag suggestions passed the dated search-excerpt check. '
+                'They are not an official or real-time TikTok popularity ranking and do not guarantee reach. '
+                'The captions reflect sampled video frames; no audio was analyzed. '
+                'Source observed_at is retrieval time, not publication time.')
+        else:
+            result['trend_note'] = ('Web sources were searched, but no current trend hashtag was verified. '
+                'These hashtags are content or character/brand suggestions matched to the visible video frames. '
+                'No audio was analyzed, and no official or real-time TikTok ranking or reach is claimed. '
+                'Source observed_at is retrieval time, not evidence of current popularity.')
+        return result
+    except (KeyError, TypeError, ValueError, AttributeError):
+        raise OpenRouterCopyError('invalid_output') from None
+
+
 def _save(path, row):
     temporary = path.parent / ('.router-copy-' + uuid.uuid4().hex)
     try:
@@ -248,13 +283,7 @@ def generate_router_draft(*, key, model=DEFAULT_MODEL, frames, character, title,
             'input': [{'role': 'user', 'content': draft_content}],
             'text': {'format': {'type': 'json_schema', 'name': 'tiktok_us_draft', 'strict': True, 'schema': DRAFT_SCHEMA}}}, transport)
         draft = CreativeService._draft(SimpleNamespace(_key=key), response, sources, '\n'.join(excerpts.values()))
-        for tag in draft['hashtags']:
-            excerpt = excerpts.get(tag['source_url'], '')
-            if tag['category'] == 'trend' and (tag['tag'].lower() not in excerpt.lower() or not _recent(excerpt, today)):
-                tag.update(category='content', source_url=None, observed_at=None,
-                           reason='Fits the visible content; recent source-specific hashtag evidence was not verified.')
-        if not any(tag['category'] == 'trend' for tag in draft['hashtags']):
-            draft['trend_note'] += ' No source-backed current trend was verified; tags are content or brand suggestions.'
+        draft = finalize_draft(draft, excerpts, today, character)
         result = {'status': 'completed', 'draft': draft, 'sources': sources}
         if key in json.dumps(result, ensure_ascii=False):
             raise OpenRouterCopyError('invalid_output')

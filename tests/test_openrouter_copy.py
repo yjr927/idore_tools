@@ -11,7 +11,7 @@ from urllib.request import Request
 from zoneinfo import ZoneInfo
 
 from scripts.openrouter_copy import (DEFAULT_MODEL, ENDPOINT, OpenRouterCopyError,
-                                    _recent, _transport, generate_router_draft)
+                                    _recent, _transport, finalize_draft, generate_router_draft)
 
 KEY = 'sk-or-test-not-a-real-private-key'
 FRAME = 'data:image/jpeg;base64,' + base64.b64encode(b'\xff\xd8\xfftest\xff\xd9').decode()
@@ -117,7 +117,44 @@ class OpenRouterCopyTests(unittest.TestCase):
                 self.assertEqual(tag['category'], 'content')
                 self.assertIsNone(tag['source_url'])
                 self.assertIsNone(tag['observed_at'])
-                self.assertIn('No source-backed current trend', result['draft']['trend_note'])
+                self.assertIn('no current trend hashtag was verified', result['draft']['trend_note'])
+
+    def test_misleading_note_and_fashiontok_brand_are_canonicalized_without_api(self):
+        draft = {'captions': ['KAI style.', 'Second.', 'Third.'],
+                 'hashtags': [dict(tag='#fashiontok', reason='A trend brand.', category='brand', source_url=None),
+                              dict(tag='#KAI', reason='Character.', category='brand', source_url=None),
+                              dict(tag='#idore', reason='Brand.', category='brand', source_url=None)],
+                 'trend_note': 'Verified current trends from dated sources. Official real-time top tags. '
+                               'No trend verified. No trend verified.'}
+        result = finalize_draft(draft, {}, datetime.now(ZoneInfo('America/New_York')).date(), 'KAI')
+        self.assertEqual(result['hashtags'][0]['category'], 'content')
+        self.assertEqual(result['hashtags'][1]['category'], 'brand')
+        self.assertEqual(result['hashtags'][2]['category'], 'brand')
+        self.assertEqual(draft['hashtags'][0]['category'], 'brand')
+        self.assertIn('no current trend hashtag was verified', result['trend_note'])
+        self.assertNotIn('Official real-time top tags', result['trend_note'])
+        self.assertEqual(result['trend_note'].count('no current trend hashtag was verified'), 1)
+        self.assertIn('no audio was analyzed', result['trend_note'].lower())
+        self.assertEqual(finalize_draft(result, {}, datetime.now(ZoneInfo('America/New_York')).date(), 'KAI'), result)
+        self.assertEqual(self.transport.calls, [])
+
+    def test_retained_trend_uses_bounded_honest_note_instead_of_model_claim(self):
+        self.transport.draft['output'][0]['content'][0]['text'] = self.transport.draft['output'][0]['content'][0]['text'].replace(
+            'A dated source suggestion, not an official TikTok ranking.', 'Official top viral ranking, guaranteed reach!')
+        result = self.generate()
+        self.assertEqual(result['draft']['hashtags'][0]['category'], 'trend')
+        note = result['draft']['trend_note']
+        self.assertLess(len(note), 500)
+        self.assertNotIn('Official top viral ranking', note)
+        self.assertIn('not an official or real-time TikTok', note)
+
+    def test_adapter_downgrades_community_brand(self):
+        draft = json.loads(self.transport.draft['output'][0]['content'][0]['text'])
+        draft['hashtags'][1]['tag'] = '#fashiontok'
+        self.transport.draft['output'][0]['content'][0]['text'] = json.dumps(draft)
+        result = self.generate()
+        self.assertEqual(result['draft']['hashtags'][1]['category'], 'content')
+        self.assertIsNone(result['draft']['hashtags'][1]['source_url'])
 
     def test_timeout_is_uncertain_and_cannot_resubmit_after_restart(self):
         self.transport.failure = TimeoutError('private provider body ' + KEY)
