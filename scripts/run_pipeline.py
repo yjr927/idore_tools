@@ -118,6 +118,14 @@ def connections(document):
         'status': 'configured' if configured else 'not_configured',
         'account_label': label if label_safe else '', 'account_fingerprint': fingerprint,
         'message': '请同时配置 video.upload 授权、账号标识和公开账号昵称。' if not configured else '请在审核时确认此目标账号；配置存在尚不代表上传已验证。'}
+    from scripts.pipeline_copy import copy_configuration
+    provider, model = copy_configuration()
+    previous = document['connections'].get('copy', {})
+    configured = bool(os.environ.get('OPENROUTER_API_KEY' if provider == 'openrouter' else 'OPENAI_API_KEY'))
+    same_route = previous.get('provider') == provider and previous.get('model') == model
+    document['connections']['copy'] = dict(previous if same_route else {}, provider=provider, model=model,
+        configured=configured, status=previous.get('status', 'unchecked') if same_route and configured else 'unchecked',
+        checked_at=now())
     checkpoint(document)
 
 
@@ -280,16 +288,24 @@ def prepare_styles(document, item, character, scratch):
 
 
 def copy_for(document, item, allow_repeat=False):
-    from scripts.pipeline_copy import generate_copy
+    from scripts.pipeline_copy import copy_configuration, generate_copy
     if item.get('copy_reserved') and not allow_repeat:
         raise PipelineError('copy_submission_uncertain', '上次文案任务已提交，请检查已有结果后手动重试。')
     item['copy_reserved'] = True
     item['approval'] = {'status': 'pending'}
+    provider, model = copy_configuration()
+    item.update(copy_provider=provider, copy_model=model)
+    document['connections']['copy'] = {'provider': provider, 'model': model,
+        'configured': bool(os.environ.get('OPENROUTER_API_KEY' if provider == 'openrouter' else 'OPENAI_API_KEY')),
+        'status': 'generating', 'message': '正在核对成片并联网搜索标签。', 'checked_at': now()}
     mark(document, item, 'generating_copy', 'copy', '正在读取成片画面，匹配美国英文文案与标签。')
     completed = dict(item, id=Path(item.get('video_path', '')).stem, status='completed')
     result = generate_copy(completed, site_dir=SITE)
     item.update(result, approval={'status': 'pending'})
-    document['connections']['openai'] = {'configured': True, 'status': 'connected', 'message': '成片文案与标签调用成功。', 'checked_at': now()}
+    document['connections']['copy'] = {'configured': True, 'provider': provider, 'model': model,
+        'status': 'connected', 'message': '成片文案与标签调用成功。', 'checked_at': now()}
+    document['connections'][provider] = {'configured': True, 'status': 'connected',
+        'message': '成片文案与标签调用成功。', 'checked_at': now()}
     mark(document, item, 'pending_review', 'review', '视频、文案和标签已就绪，等待审核。')
 
 
@@ -376,6 +392,9 @@ def main():
     document['settings'] = {'daily_limit': 4, 'kpop_limit': 2, 'virtual_idol_limit': 2,
         'market': 'US', 'language': 'en', 'duration': 6, 'model': os.environ.get('SEEDANCE_MODEL', 'bytedance/seedance-2.5'),
         'motion_route': 'source_to_clay_to_seedance'}
+    from scripts.pipeline_copy import copy_configuration
+    copy_provider, copy_model = copy_configuration()
+    document['settings'].update(copy_provider=copy_provider, copy_model=copy_model)
     characters = read(SITE / 'data/characters.json', {'items': []})['items']
     seed_completed(document)
     sync_queue(document, read(SITE / 'data/discovery.json'), characters)
@@ -466,9 +485,14 @@ def record_failure(document, item, exc):
     if not isinstance(code, str) or not re.fullmatch(r'[a-z_]{3,80}', code):
         code = 'pipeline_failed'
     item.update(error_code=code, status='needs_attention', message=getattr(exc, 'message', None) or '此步骤未完成，已保留进度；不会自动重复付费提交。')
-    if code in ('insufficient_quota', 'rate_limited', 'auth', 'missing_key', 'missing_model'):
-        document['connections']['openai'] = {'configured': bool(os.environ.get('OPENAI_API_KEY')), 'status': code,
-            'message': item['message'], 'checked_at': now()}
+    if item.get('stage') == 'copy':
+        provider = item.get('copy_provider', 'openai')
+        document['connections']['copy'] = {'provider': provider, 'model': item.get('copy_model', ''),
+            'configured': bool(os.environ.get('OPENROUTER_API_KEY' if provider == 'openrouter' else 'OPENAI_API_KEY')),
+            'status': code, 'message': item['message'], 'checked_at': now()}
+    elif item.get('stage') == 'styles' and code in ('insufficient_quota', 'rate_limited', 'auth', 'missing_key', 'missing_model'):
+        document['connections']['openai'] = {'configured': bool(os.environ.get('OPENAI_API_KEY')),
+            'status': code, 'message': item['message'], 'checked_at': now()}
     touch(item)
     checkpoint(document)
 

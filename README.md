@@ -13,7 +13,7 @@ GitHub 云端制作流程读取这些观察，只匹配**同素材分组、同�
 1. 解析公开原片，在云端私有临时目录下载并验证完整 MP4。
 2. 提取身体和双手关节点，渲染不含原片像素、脸部或服饰的新白模动画。
 3. 将角色图与动作白模交给 Seedance；变装任务还需该角色的前后造型要求。**真人原片不能直接送入这条生成流程。**
-4. 成片保存后抽取实际成片画面，由 OpenAI 搜索美国近期资料，生成英文文案和相关标签，保留真实来源与检索时间。
+4. 成片保存后抽取实际成片画面，经 OpenRouter 调用 OpenAI 模型搜索美国近期资料，生成英文文案和相关标签，保留真实来源与检索时间。
 5. 人工查看视频、修改文案标签并审核。TikTok 接入后，仅将已审核视频送到草稿收件箱；最终编辑与发布仍在 TikTok 内完成。
 
 制作和文案调用会使用对应服务商额度。任务先保存提交记录；结果不确定时停止，不自动重新付费。网站刷新只读取已发布状态。白模的单目深度、遮挡及手指缺失仍可能影响跟拍质量，成片必须人工检查。
@@ -26,7 +26,9 @@ OpenAI 和 OpenRouter 的供应商密钥只使用 GitHub Secrets，不在网页�
 
 ## 云端配置与真实状态
 
-Repository Secrets：`OPENROUTER_API_KEY`、`OPENAI_API_KEY`。Variables：`OPENAI_MODEL`（默认 `gpt-5.4-mini`）、`SEEDANCE_MODEL`（默认 `bytedance/seedance-2.5`）；变装还需 `OPENAI_IMAGE_MODEL` 和角色前后造型要求。已通过实际云端调用确认：**当前 OpenAI 返回 `insufficient_quota`**，因此英文文案与 hashtags 暂时受阻，不能称为已成功生成。需补充余额或调整项目额度后，人工重试；Work 采集继续使用原任务，不改用 OpenAI 采集。
+视频与英文文案共用 Secret `OPENROUTER_API_KEY`。当前工作流固定文案 provider 为 `openrouter`，Variable `OPENROUTER_TEXT_MODEL` 默认 `openai/gpt-5.4-mini`；视频模型 Variable `SEEDANCE_MODEL` 默认 `bytedance/seedance-2.5`。Secret `OPENAI_API_KEY` 仅用于可选的变装造型图，另需 `OPENAI_IMAGE_MODEL` 和角色前后造型要求。网页不提供供应商密钥输入或文案 provider 切换。
+
+此前直接 OpenAI 的实际文案请求返回 `insufficient_quota`；该历史错误保留在原任务中，不改写为成功。文案已迁移为通过 OpenRouter 使用 OpenAI 模型，**新的云端文案实测尚待完成**。连接页将文案、视频及可选造型图分开显示；直接 OpenAI 的额度问题不阻止 OpenRouter 文案请求。以新请求的实际回执和任务状态为准，视频已完成不代表文案也已完成。Work 采集继续使用原任务。
 
 TikTok 尚未建立开发者应用及账号授权，目前只有接入入口与接口实现。正式启用需申请 Content Posting API 的 `video.upload`，完成目标账号授权，再配置 Secrets `TIKTOK_ACCESS_TOKEN`、`TIKTOK_ACCOUNT_ID` 和 Variable `TIKTOK_ACCOUNT_LABEL`。审核绑定精确成片、文案版本和目标账号；私有上传回执不进入网站。视频草稿 API **不能附带文案或 hashtags**，请在审核页复制，进入 TikTok 后粘贴。未接入时只保存审核结果，不声称草稿已送达。
 

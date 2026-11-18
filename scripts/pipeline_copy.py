@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """GitHub-only English copy from actual completed video frames, with real sources.
 
-OPENAI_API_KEY is injected by a GitHub Secret. No browser key, local key file,
-automatic POST retry, or fallback model is used. Two Responses calls are made:
-current US source research, then a structured caption/hashtag draft.
+OPENROUTER_API_KEY is injected by a GitHub Secret for the default OpenAI-model
+route. Direct OpenAI remains an explicit legacy option. No browser key,
+automatic POST retry, or silent provider/model fallback is used.
 """
 from __future__ import annotations
 
@@ -26,6 +26,7 @@ sys.path.insert(0, str(ROOT))
 from creative_service import CreativeError, CreativeService, TEXT_MODEL, _image
 
 DEFAULT_MODEL = 'gpt-5.4-mini'
+DEFAULT_ROUTER_MODEL = 'openai/gpt-5.4-mini'
 MAX_VIDEO = 90 * 1024 * 1024
 MESSAGES = {
     'missing_key': 'GitHub Secret OPENAI_API_KEY is missing.',
@@ -39,15 +40,35 @@ MESSAGES = {
     'retry_blocked': 'This workflow attempt cannot start another paid copy request.',
     'submission_uncertain': 'The OpenAI response could not be confirmed; check usage before requesting again.',
     'provider_error': 'OpenAI did not complete this request. No automatic retry was made.',
+    'search_unavailable': 'Web search returned no verifiable sources; no trend claims were produced.',
 }
 
 
 class PipelineCopyError(Exception):
-    def __init__(self, code, status=None):
+    def __init__(self, code, status=None, provider='openai'):
         self.code = code if code in MESSAGES else 'invalid_output'
         self.status = status if type(status) is int else None
         self.message = MESSAGES[self.code]
+        self.provider = provider
+        if provider == 'openrouter':
+            self.message = self.message.replace('OPENAI_API_KEY', 'OPENROUTER_API_KEY').replace('OpenAI', 'OpenRouter')
         super().__init__(self.message)
+
+
+def copy_configuration(env=None):
+    env = os.environ if env is None else env
+    provider = env.get('COPY_PROVIDER', 'openrouter')
+    if provider not in ('openai', 'openrouter'):
+        raise PipelineCopyError('missing_model')
+    variable = 'OPENROUTER_TEXT_MODEL' if provider == 'openrouter' else 'OPENAI_MODEL'
+    model = env.get(variable) or (DEFAULT_ROUTER_MODEL if provider == 'openrouter' else DEFAULT_MODEL)
+    if not isinstance(model, str):
+        raise PipelineCopyError('missing_model', provider=provider)
+    model = model.strip()
+    pattern = re.compile(r'openai/[a-z0-9][a-z0-9._-]{0,100}') if provider == 'openrouter' else TEXT_MODEL
+    if not pattern.fullmatch(model):
+        raise PipelineCopyError('missing_model', provider=provider)
+    return provider, model
 
 
 def _child_env(env):
@@ -181,14 +202,15 @@ def generate_copy(item, env=None, *, site_dir=None, state_dir=None,
     env = os.environ if env is None else env
     if env.get('GITHUB_ACTIONS') != 'true':
         raise PipelineCopyError('cloud_only')
-    key = env.get('OPENAI_API_KEY', '')
+    provider, selected_model = copy_configuration(env)
+    key = env.get('OPENROUTER_API_KEY' if provider == 'openrouter' else 'OPENAI_API_KEY', '')
     if not isinstance(key, str) or not CreativeService._valid_key(key.strip()):
-        raise PipelineCopyError('missing_key')
+        raise PipelineCopyError('missing_key', provider=provider)
     key = key.strip()
     selected = env.get('OPENAI_MODEL')
-    model = (selected.strip() if isinstance(selected, str) else selected) or default_model
-    if not isinstance(model, str) or not TEXT_MODEL.fullmatch(model.strip()):
-        raise PipelineCopyError('missing_model')
+    model = selected_model if provider == 'openrouter' else ((selected.strip() if isinstance(selected, str) else selected) or default_model)
+    if not isinstance(model, str) or (provider == 'openai' and not TEXT_MODEL.fullmatch(model.strip())):
+        raise PipelineCopyError('missing_model', provider=provider)
     model = model.strip()
     try:
         path = _video_path(item, site_dir or ROOT / 'site')
@@ -210,6 +232,22 @@ def generate_copy(item, env=None, *, site_dir=None, state_dir=None,
     if not isinstance(run_id, str) or not re.fullmatch(r'[A-Za-z0-9_-]{1,32}', run_id):
         raise PipelineCopyError('invalid_output')
     token = 'pipeline-copy-' + item['sha256'][:24] + '-' + run_id
+    if provider == 'openrouter':
+        from scripts.openrouter_copy import OpenRouterCopyError, generate_router_draft
+        if env.get('GITHUB_RUN_ATTEMPT', '1') != '1':
+            raise PipelineCopyError('retry_blocked', provider=provider)
+        try:
+            job = generate_router_draft(key=key, model=model, frames=frames, character=character,
+                title=title, state_dir=state / 'openrouter', request_token=token, request_fn=request_fn)
+            result = validate_copy(job, key)
+            result.update(copy_provider=provider, copy_model=model)
+            return result
+        except OpenRouterCopyError as exc:
+            raise PipelineCopyError(exc.code, getattr(exc, 'status', None), provider=provider) from None
+        except PipelineCopyError as exc:
+            raise PipelineCopyError(exc.code, exc.status, provider=provider) from None
+        except Exception:
+            raise PipelineCopyError('invalid_output', provider=provider) from None
     try:
         service = CreativeService(state, request_fn=request_fn, api_key=key)
         prior = next((job for job in service.jobs()['jobs'] if job.get('idempotency_key') == token), None)
@@ -222,7 +260,9 @@ def generate_copy(item, env=None, *, site_dir=None, state_dir=None,
             'trend_context': 'US English audience. Completed generated video; hashtags must fit its visible content. '
                 'The title and character name are context, not evidence of current popularity.',
             'frames': frames, 'search_trends': True, 'consent': True})
-        return validate_copy(job, key)
+        result = validate_copy(job, key)
+        result.update(copy_provider=provider, copy_model=model)
+        return result
     except PipelineCopyError:
         raise
     except CreativeError as exc:
@@ -250,7 +290,8 @@ def main():
         return 0
     except Exception as exc:
         code = exc.code if isinstance(exc, PipelineCopyError) else 'invalid_output'
-        print(json.dumps({'status': 'copy_failed', 'code': code, 'message': MESSAGES[code]}))
+        message = exc.message if isinstance(exc, PipelineCopyError) else MESSAGES[code]
+        print(json.dumps({'status': 'copy_failed', 'code': code, 'message': message}))
         return 1
 
 

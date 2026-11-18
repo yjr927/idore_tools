@@ -59,6 +59,7 @@ jobs:
           sudo apt-get install -y -qq ffmpeg blender xvfb
       - name: Validate inputs and production transitions
         run: |
+          python -m unittest discover -s tests -p 'test_openrouter_copy.py' -v
           python -m unittest discover -s tests -p 'test_pipeline*.py' -v
           python -m unittest discover -s tests -p 'test_tiktok_drafts.py' -v
       - name: Merge current observations and confirmed classifications
@@ -69,6 +70,8 @@ jobs:
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          COPY_PROVIDER: openrouter
+          OPENROUTER_TEXT_MODEL: ${{ vars.OPENROUTER_TEXT_MODEL || 'openai/gpt-5.4-mini' }}
           TIKTOK_ACCESS_TOKEN: ${{ secrets.TIKTOK_ACCESS_TOKEN }}
           TIKTOK_ACCOUNT_ID: ${{ secrets.TIKTOK_ACCOUNT_ID }}
           TIKTOK_ACCOUNT_LABEL: ${{ vars.TIKTOK_ACCOUNT_LABEL }}

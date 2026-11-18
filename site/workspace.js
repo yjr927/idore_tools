@@ -29,7 +29,12 @@
   function normalizeItem(item) {
     if (!item || !ident(item.id) || !Object.hasOwn(LABELS, item.status)) return null;
     const sourceId = typeof item.source_id === 'string' ? item.source_id.replace(/^tiktok-/, '') : '';
-    return { ...item, title: text(item.title, 180) || '未命名的制作任务', character: text(item.character, 80), source_id: /^\d{10,25}$/.test(sourceId) ? sourceId : '', source_url: original(item.source_url, sourceId)?.url || '', material_group: Object.hasOwn(MATERIALS, item.material_group) ? item.material_group : 'unknown', cast_type: Object.hasOwn(CASTS, item.cast_type) ? item.cast_type : 'unknown', revision: revision(item.revision) ? item.revision : '', message: item.error_code === 'insufficient_quota' ? 'OpenAI 余额或项目额度不足。补充额度后，可重试英文文案与标签。' : safeMessage(item.message), video: mediaUrl(item.video_path), poster: mediaUrl(item.poster_path, 'image'), clay: mediaUrl(item.clay_path), image: mediaUrl(item.character_image, 'image') || (item.character === 'KAI' ? KAI : ''), caption: text(item.caption, 6000), captions: Array.isArray(item.captions) ? item.captions.filter(value => typeof value === 'string').slice(0, 5).map(value => text(value, 6000)) : [], hashtags: Array.isArray(item.hashtags) ? item.hashtags.slice(0, 50) : [] };
+    const quotaMessage = item.copy_provider === 'openrouter' ? 'OpenRouter 余额或授权额度不足。补充额度后，可重试英文文案与标签。' : 'OpenAI 余额或项目额度不足。补充额度后，可重试英文文案与标签。';
+    return { ...item, title: text(item.title, 180) || '未命名的制作任务', character: text(item.character, 80), source_id: /^\d{10,25}$/.test(sourceId) ? sourceId : '', source_url: original(item.source_url, sourceId)?.url || '', material_group: Object.hasOwn(MATERIALS, item.material_group) ? item.material_group : 'unknown', cast_type: Object.hasOwn(CASTS, item.cast_type) ? item.cast_type : 'unknown', revision: revision(item.revision) ? item.revision : '', message: ['insufficient_quota', 'insufficient_credits'].includes(item.error_code) ? quotaMessage : safeMessage(item.message), video: mediaUrl(item.video_path), poster: mediaUrl(item.poster_path, 'image'), clay: mediaUrl(item.clay_path), image: mediaUrl(item.character_image, 'image') || (item.character === 'KAI' ? KAI : ''), caption: text(item.caption, 6000), captions: Array.isArray(item.captions) ? item.captions.filter(value => typeof value === 'string').slice(0, 5).map(value => text(value, 6000)) : [], hashtags: Array.isArray(item.hashtags) ? item.hashtags.slice(0, 50) : [] };
+  }
+  function copyConfig() {
+    const source = pipeline.connections.copy || {}, provider = pipeline.settings.copy_provider || source.provider;
+    return { provider: provider === 'openrouter' ? 'openrouter' : 'openai', model: text(pipeline.settings.copy_model || source.model, 140), label: provider === 'openrouter' ? 'OpenRouter' : 'OpenAI' };
   }
   function link(label, href, className = '') { const result = el('a', className, label); result.href = href; if (href.startsWith('https:')) { result.target = '_blank'; result.rel = 'noopener noreferrer'; } else if (/\b(?:create|review|settings)\.html/.test(href)) result.dataset.workspace = ''; return result; }
   function button(label, handler, className = 'button') { const result = el('button', className, label); result.type = 'button'; result.addEventListener('click', handler); return result; }
@@ -75,11 +80,13 @@
     const paid = ['copy', 'retry', 'sync'].includes(action);
     if (paid && extra.consent !== true) { notify('请先确认本次操作可使用云端生成额度。', 'error'); return; }
     if (item && !revision(item.revision)) { notify('这条记录还没有可核对的版本，请等待云端更新。', 'error'); return; }
+    const copyOperation = action === 'copy' || action === 'retry' && Boolean(item?.video), expectedCopy = extra.copyConfig || copyConfig();
     busy = true; paintSession();
     try {
       await loadPipeline({ quiet: true, render: false });
       const current = item ? pipeline.items.find(row => row.id === item.id) : null;
       if (item && (!current || current.revision !== item.revision)) throw new Error('云端内容已更新。请刷新并重新确认，尚未发送请求。');
+      if (copyOperation) { const currentCopy = copyConfig(); if (currentCopy.provider !== expectedCopy.provider || currentCopy.model !== expectedCopy.model) throw new Error('文案服务或模型设置已更新，请刷新并重新确认额度使用。'); }
       const caption = action === 'approve' ? text(extra.caption, 2200) : '', hashtags = action === 'approve' ? text(extra.hashtags, 2000) : '';
       if ([caption, hashtags].some(value => value.includes(githubToken) || /(?:github_pat_|ghp_|sk-(?:or-)?)[A-Za-z0-9_-]{12,}/.test(value))) throw new Error('文案或标签中包含凭证格式的内容，已停止提交。');
       if (action === 'approve' && (!caption || !hashtags || !hashtags.split(/\s+/).every(tag => /^#[\p{L}\p{N}_]{1,100}$/u.test(tag)))) throw new Error('请填写文案；标签以 # 开头，用空格分隔。');
@@ -145,8 +152,9 @@
     const stale = draft.revision !== item.revision;
     if (stale) { const warn = el('div', 'inline-note warning', '云端版本已更新，请重新载入后再审核。'); warn.append(button('重新载入审核版本', () => { drafts.delete(item.id); lastReview = ''; renderReview(); }, 'text-button')); edit.append(warn); }
     if (!item.revision) edit.append(el('p', 'inline-note warning', '这条记录还没有可核对的审核版本，等待云端同步。'));
-    const consentBox = consent('允许这次生成文案与标签使用 OpenAI 额度。');
-      if (item.video && ['generating_copy', 'needs_attention'].includes(item.status)) { edit.append(consentBox.wrap); const copyAction = button('生成文案与标签', () => dispatch('copy', item, { consent: consentBox.input.checked })); copyAction.dataset.cloudAction = ''; copyAction.dataset.actionBlocked = stale || !item.revision ? 'true' : ''; copyAction.disabled = stale || !item.revision; edit.append(copyAction); }
+    const copyRoute = copyConfig(), consentBox = consent(`允许这次生成文案与标签使用 ${copyRoute.label} 额度。`);
+    if (item.copy_provider || item.copy_model) edit.append(el('p', 'subtle', '本次文案服务：' + (item.copy_provider === 'openrouter' ? 'OpenRouter' : 'OpenAI') + (item.copy_model ? ' · ' + text(item.copy_model, 140) : '')));
+      if (item.video && ['generating_copy', 'needs_attention'].includes(item.status)) { edit.append(consentBox.wrap); const copyAction = button('生成文案与标签', () => dispatch('copy', item, { consent: consentBox.input.checked, copyConfig: copyRoute })); copyAction.dataset.cloudAction = ''; copyAction.dataset.actionBlocked = stale || !item.revision ? 'true' : ''; copyAction.disabled = stale || !item.revision; edit.append(copyAction); }
     if (account.configured) edit.append(el('p', 'approval-target', targetAccount ? '发布账号：' + (text(account.account_label, 80) || '已连接的 TikTok 账号') : 'TikTok 账号信息待核对，请先到连接页检查。'));
     const actions = el('div', 'review-actions'), canReview = item.status === 'pending_review' && item.revision && !stale && (!account.configured || targetAccount);
     const approve = button(account.configured ? '通过并送至 TikTok 草稿' : '通过审核', () => dispatch('approve', item, { caption: caption.value, hashtags: tags.value, targetAccount }), 'button primary'); approve.disabled = !canReview; approve.dataset.revisionBlocked = canReview ? '' : 'true';
@@ -157,10 +165,14 @@
   }
   function connectionCard(name, description, key) {
     const value = pipeline.connections[key] || {}, panel = el('section', 'service-card'), top = el('div', 'service-top');
-    const available = value.configured === true && ['connected', 'ok', 'ready', 'succeeded', 'healthy'].includes(value.status), quota = ['insufficient_quota', 'quota_exceeded', 'quota', 'billing_hard_limit_reached', 'insufficient_credits'].includes(value.status), bad = quota || ['failed', 'error', 'needs_attention'].includes(value.status);
+    const copyRoute = copyConfig(), staleCopy = key === 'copy' && (value.provider && value.provider !== copyRoute.provider || value.model && copyRoute.model && value.model !== copyRoute.model);
+    const available = value.configured === true && ['connected', 'ok', 'ready', 'succeeded', 'healthy'].includes(value.status), quota = ['insufficient_quota', 'quota_exceeded', 'quota', 'billing_hard_limit_reached', 'insufficient_credits'].includes(value.status), bad = quota || ['failed', 'error', 'needs_attention', 'auth', 'missing_key', 'missing_model', 'rate_limited', 'invalid_output', 'request_failed'].includes(value.status);
     const unchecked = !value.status || value.status === 'unchecked';
-    top.append(el('h2', '', name), el('span', 'status-badge' + (available ? ' ready' : bad ? ' attention' : ''), quota ? '余额 / 项目额度不足' : unchecked ? '待检查' : !value.configured ? '未设置' : available ? '凭证已验证' : bad ? '需要处理' : '已保存 · 待检查')); panel.append(top, el('p', 'service-description', description));
-    if (quota) panel.append(el('p', 'inline-note warning', '请在服务商账户补充余额或调整项目额度，修复后再检查连接、重试文案。'));
+    const routerCopy = key === 'copy' && (value.provider || pipeline.settings.copy_provider) === 'openrouter';
+    top.append(el('h2', '', name), el('span', 'status-badge' + (available && !staleCopy ? ' ready' : bad && !staleCopy ? ' attention' : ''), staleCopy ? '待重新检查' : quota ? routerCopy || key === 'openrouter' ? 'OpenRouter 余额 / 授权额度不足' : '余额 / 项目额度不足' : key === 'copy' && value.status === 'generating' ? '正在生成文案' : unchecked ? '待检查' : !value.configured ? '未设置' : available ? '凭证已验证' : bad ? '需要处理' : '已保存 · 待检查')); panel.append(top, el('p', 'service-description', description));
+    if (staleCopy) panel.append(el('p', 'subtle', '下次文案使用 ' + copyRoute.label + '；以下为上次服务的记录。'));
+    if (key === 'copy' && value.model) panel.append(el('p', 'meta', text(value.model, 140)));
+    if (quota) panel.append(el('p', 'inline-note warning', staleCopy ? '这是上次服务的额度记录；新文案服务仍待实际请求验证。' : key === 'openai' && copyConfig().provider === 'openrouter' ? '这是直接 OpenAI 调用的额度问题，不会阻止经 OpenRouter 生成文案。' : routerCopy ? '请补充 OpenRouter 余额或调整授权额度，修复后重试文案。' : key === 'openrouter' ? '请补充 OpenRouter 余额或调整授权额度，修复后重试视频。' : '请在 OpenAI 补充余额或调整项目额度，修复后再重试。'));
     if (value.message && /[\u3400-\u9fff]/.test(value.message)) panel.append(el('p', 'subtle', safeMessage(value.message)));
     if (key === 'tiktok' && value.configured && value.account_label) panel.append(el('p', 'subtle', '发布账号：' + text(value.account_label, 80)));
     if (key !== 'tiktok') panel.append(link(value.configured ? '管理云端凭证 ↗' : '设置云端凭证 ↗', `https://github.com/${REPO}/settings/secrets/actions`, 'text-link'));
@@ -177,19 +189,20 @@
       const setup = el('details', 'small-details'); setup.append(el('summary', '', '第一次连接怎么设置？'), el('p', '', '创建仅限 yjr927/idore_tools 的 fine-grained token，开放 Actions 读写、Contents 读取权限。它只保留在当前标签页内，不写入浏览器存储。'), link('创建 GitHub 凭证 ↗', `https://github.com/settings/personal-access-tokens/new?target_name=yjr927&name=idore-workspace&description=idore%20cloud%20workspace`, 'text-link')); session.append(setup);
     } else { const row = el('div', 'settings-actions'); row.append(link('返回工作台 →', returnTo, 'button primary')); const disconnect = button('断开当前会话', () => { if (busy) return; githubToken = ''; renderSettings(); paintSession(); notify('当前工作台已断开。云端服务仍按原设置运行。'); }); disconnect.id = 'disconnect-workspace'; row.append(disconnect); session.append(row); }
     const serviceHeading = el('div', 'section-heading settings-section-title'); serviceHeading.append(el('h2', '', '云端服务')); const check = button('检查连接（不生成）', () => dispatch('check')); check.dataset.cloudAction = ''; serviceHeading.append(check);
-    const services = el('div', 'service-grid'); services.append(connectionCard('OpenAI', '变装造型图、英文文案与标签。', 'openai'), connectionCard('OpenRouter', '使用角色图和动作白模生成视频。', 'openrouter'));
+    const services = el('div', 'service-grid'), copyRoute = copyConfig(); services.append(connectionCard('英文文案与标签', copyRoute.provider === 'openrouter' ? 'OpenAI 模型，经 OpenRouter 分析成片、搜索资料并准备英文文案与标签。' : '通过直接 OpenAI 调用分析成片并准备文案与标签。', 'copy'), connectionCard('OpenRouter · 视频', '使用角色图和动作白模生成视频。', 'openrouter'));
     const tiktok = connectionCard('TikTok', '审核后送至草稿，在 TikTok 中完成最终编辑。', 'tiktok');
     if (!pipeline.connections.tiktok?.configured) { const disabled = button('连接 TikTok', () => {}); disabled.disabled = true; tiktok.append(disabled); const steps = el('details', 'small-details'); steps.append(el('summary', '', '接入前需要准备什么？'), el('p', '', '先创建 TikTok 开发者应用，申请视频上传权限并完成平台审核，再连接发布账号。当前尚未接入，网页不会假装上传成功。'), link('查看 TikTok 官方接入步骤 ↗', 'https://developers.tiktok.com/doc/content-posting-api-get-started/', 'text-link')); tiktok.append(steps); }
     services.append(tiktok);
-    const keys = el('p', 'subtle'); keys.append(document.createTextNode('OpenAI 与 OpenRouter 的密钥保存在 GitHub Secrets，网页不会读取或展示密钥。 '), link('管理云端凭证 ↗', `https://github.com/${REPO}/settings/secrets/actions`, 'text-link'));
+    const optionalStyles = el('details', 'small-details material-section'); optionalStyles.append(el('summary', '', '可选 · OpenAI 变装造型图'), connectionCard('OpenAI · 可选造型图', '仅用于可选的变装造型图，不影响 OpenRouter 文案服务。', 'openai'));
+    const keys = el('p', 'subtle'); keys.append(document.createTextNode('视频与当前文案共用云端 OpenRouter 密钥；直接 OpenAI 密钥仅供可选造型图。密钥保存在 GitHub Secrets，网页不会读取或展示。 '), link('管理云端凭证 ↗', `https://github.com/${REPO}/settings/secrets/actions`, 'text-link'));
     const materials = el('section', 'settings-panel material-section'); materials.append(el('h2', '', '角色素材')); const enabled = characters.filter(item => item.enabled === true), list = el('div', 'character-list');
     for (const item of enabled) { const row = el('div', 'character-item'), image = mediaUrl(item.image_url, 'image'); if (image) { const img = el('img'); img.src = image; img.alt = text(item.name, 80) + '角色形象'; img.loading = 'lazy'; row.append(img); } row.append(el('strong', '', text(item.name, 80)), el('span', 'meta', (MATERIALS[item.material_group] || MATERIALS.unknown) + ' · ' + (CASTS[item.cast_type] || CASTS.unknown))); list.append(row); }
     materials.append(list.children.length ? list : el('p', 'subtle', '角色素材清单尚未发布。'));
     if (pipeline.items.some(item => item.status === 'waiting_material' && item.material_group === 'female') && !enabled.some(item => item.material_group === 'female')) materials.append(el('p', 'inline-note warning', '女生角色素材待补充；对应参考视频会等待，不会换成男生角色。'));
     const fallback = el('p', 'subtle settings-fallback'); fallback.append(document.createTextNode('网页暂时无法连接时，也可使用 '), link('手动云端入口 ↗', WORKFLOW, 'text-link'));
-    root.replaceChildren(session, serviceHeading, services, keys, materials, fallback);
+    root.replaceChildren(session, serviceHeading, services, keys, optionalStyles, materials, fallback);
   }
-  function context() { return { pipeline, characters, el, text, date, link, button, badge, meta, empty, consent, authHint, itemLink, selectItem, currentItem, mediaPanel, dispatch, connected: Boolean(githubToken), busy, notify }; }
+  function context() { return { pipeline, characters, el, text, date, link, button, badge, meta, empty, consent, authHint, itemLink, selectItem, currentItem, mediaPanel, dispatch, copyConfig, connected: Boolean(githubToken), busy, notify }; }
   function renderPage() { const page = document.body.dataset.page; if (!loaded && readError && page !== 'settings') { const root = $(page === 'review' ? '#review-root' : '#production-root'); root?.replaceChildren(empty('云端记录暂时无法读取。', '请稍后刷新，现有任务不会因此重新提交。')); root?.setAttribute('aria-busy', 'false'); return; } if (page === 'review') renderReview(); else if (page === 'settings') renderSettings(); else renderers.get(page)?.(context()); paintSession(); }
   async function navigate(href, push = true) {
     const url = new URL(href, location.href), name = url.pathname.split('/').pop(); if (url.origin !== location.origin || !PAGES[name] || navigating) return;

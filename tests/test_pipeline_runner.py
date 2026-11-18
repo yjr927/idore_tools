@@ -51,6 +51,20 @@ class PipelineRunnerTests(unittest.TestCase):
         self.assertEqual(document['connections']['openai']['status'], 'insufficient_quota')
         self.assertEqual(document['connections']['openrouter']['status'], 'connected')
 
+    def test_router_copy_success_and_errors_do_not_clear_direct_openai_history(self):
+        item = self.approved()
+        document = self.document(item)
+        document['connections']['openai'] = {'configured': True, 'status': 'insufficient_quota'}
+        with patch('scripts.pipeline_copy.generate_copy', return_value={'caption': 'KAI in motion.', 'hashtags': [{'tag': '#KAI'}]}):
+            runner.copy_for(document, item)
+        self.assertEqual(document['connections']['copy']['provider'], 'openrouter')
+        self.assertEqual(document['connections']['copy']['status'], 'connected')
+        self.assertEqual(document['connections']['openai']['status'], 'insufficient_quota')
+        item['stage'] = 'copy'
+        runner.record_failure(document, item, PipelineError('insufficient_quota', 'OpenRouter quota test'))
+        self.assertEqual(document['connections']['copy']['status'], 'insufficient_quota')
+        self.assertEqual(document['connections']['openai']['status'], 'insufficient_quota')
+
     @staticmethod
     def document(item):
         return {'schema_version': 1, 'items': [item], 'connections': {}, 'requests': []}
