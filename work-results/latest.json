@@ -1,74 +1,68 @@
 {
   "schema_version": 2,
-  "run_id": "work-tiktok-20261117T140951Z-v2",
-  "observed_at": "2026-11-17T14:09:51Z",
+  "run_id": "work-tiktok-20261118T140231Z-v2",
+  "observed_at": "2026-11-18T14:02:31Z",
   "status": "partial",
-  "message": "纽约当日先前未使用名额；本轮收录2条新原视频（K-pop 1条、虚拟偶像1条），均已播放查看关键画面。未凑满4条。Love Options另查看2名作者，但完整动作顺序未确认一致；NOXEN未找到其他作者同玩法原片，均不足3名作者同玩法充分核验。原片日期保留页面原样，精确日期及播放量未核验；本批指标未使用K/M换算，不代表美国榜单热度。素材分组仅为角色用途；当前公开目录仅KAI男生单人，候选缺少相应女生单人或男生多人素材。仅完成采集交接，尚未生成测试。",
+  "message": "本轮新增2条单人动作参考：K-pop 1条、虚拟偶像1条；当日此前无已用名额。优先检查7天，K-pop扩展至30天窗口。未凑满4条。原片均已播放观察关键帧，但造型变化、重复周期及至少3名不同作者同玩法证据不足；美国受众参与程度未核验，不代表美国热榜。指标为页面可见值，未使用K/M换算，播放量及精确日期未知。仅采集交接，尚未生成测试。",
   "videos": [
     {
-      "url": "https://www.tiktok.com/@ajdpimentel/video/7707863885826493716",
-      "title": "Love Options — solo hand dance",
+      "url": "https://www.tiktok.com/@dydvt0gqj0kb/video/7702801829414964500",
+      "title": "TWICE Turtle — front-facing hand gestures",
       "trend_category": "kpop",
-      "material_group": "female",
+      "material_group": "unknown",
       "kind": "hands",
       "transformation": "unknown",
       "original_watched": true,
-      "motion_summary": "实际播放中画面仅见1名表演者，正面站在门口，浅紫色荷叶边无袖上装，带花朵/爱心叠加效果；双手在胸前翻掌，再举至双颊附近配合微笑。机位和背景稳定。页面歌曲为BESTie《Love Options》，归入K-pop；按柔美荷叶边服装与表演造型规划女生角色素材，不判断原片人物真实性别。已见关键帧造型相同，但全片妆容/服装变化及动作重复周期未充分核验。",
+      "motion_summary": "已播放14秒原片并观察关键画面：仅1名人物在门前正面出镜，穿浅色衬衫、黑白条纹领部配饰，双辫、头顶眼镜；双手交叠放胸前，随后一掌竖起、另一手向下摆动。门框与机位稳定。页面文案标注TWICE/乌龟，作为K-pop动作参考；角色素材分组缺少充分依据，保留unknown，不判断人物真实性别。已见画面造型相同，但未确认全片无妆容/服装变化；动作重复周期未核验。",
       "checks": {
         "solo": true,
         "repetitive": null,
         "fixed_camera": true
       },
-      "recreation_notes": "短时长、正面上半身构图适合作为手势参考；注意手指靠近脸部、装饰叠加特效及遮挡。当前目录仅KAI男生单人，未找到同组女生角色，保留候选并等待适配素材，不强行配对。尚未生成测试；后续制作仍须先提取动作并生成无脸白模。",
+      "recreation_notes": "上半身居中、背景简单，适合拆解短手势；手指、衣袖和发丝遮挡需注意。公开目录有男女单人素材，但本条分组待确认，不自动指定角色。尚未生成测试；后续须先提取动作并渲染无脸白模。",
       "published_at": null,
-      "published_text": "2d ago",
+      "published_text": "10-31",
       "metrics": {
         "views": null,
-        "likes": 7,
-        "comments": 0,
-        "shares": 0
+        "likes": 178,
+        "comments": 6,
+        "shares": 10
       },
       "related_videos": [
         {
-          "url": "https://www.tiktok.com/@xinxin.go/video/7690088748360518920",
+          "url": "https://www.tiktok.com/@hanamileniaa/video/7070332133591485722",
           "original_watched": true,
           "same_pattern": null,
-          "note": "已播放，黑色吊带单人中近景，观察到脸旁举掌、双掌在下巴附近展开；主片有双颊旁举手动作，但完整手势顺序未确认一致，不能仅凭歌曲判定同玩法。页面9-27，作为较早参考，不作近期主候选。"
-        },
-        {
-          "url": "https://www.tiktok.com/@patriciamulyana/video/7693132349088845062",
-          "original_watched": true,
-          "same_pattern": null,
-          "note": "已播放，单人黑色短上衣、蓝色下装，双臂在腰侧展开，随后一手叉腰、另一手举到头侧；表情和全身幅度与主片不同，完整手势顺序未确认一致。页面10-5，仅作较早关联参考。"
+          "note": "实际播放，页面2022-3-2；单人戴卡通帽披粉色布料，从手托下巴到双拇指指向自身。与主片胸前交手和上下摆掌的可见段落不同，不能确认同一完整动作序列；仅作为较早同歌曲参考，不是近期跟拍证据。仅1名其他作者，不足3人核验。"
         }
       ],
-      "music_name": "Love Options - BESTie"
+      "music_name": "suara asli - *傻孩子别关注我"
     },
     {
-      "url": "https://www.tiktok.com/@vaxis.entertainment/video/7707258503991168278",
-      "title": "NOXEN — seated five-character hand dance",
+      "url": "https://www.tiktok.com/@yuki.fox.idol/video/7707884994542292244",
+      "title": "Yuki Fox Idol — solo stage arm sweep",
       "trend_category": "virtual_idol",
-      "material_group": "male",
+      "material_group": "female",
       "kind": "hands",
       "transformation": "unknown",
       "original_watched": true,
-      "motion_summary": "实际播放可见5名虚拟男团角色在混凝土台阶上纵向排坐：手掌横盖眼部，另一只手靠近脸或胸前，随后双手移向头侧/耳后、肘部张开；机位固定，角色座位不变。页面描述Five boys及AI生成标识，与虚拟男团角色画面共同支持virtual_idol主题及男生角色素材用途；5名同时可见故为多人，不用mixed代替多人。已见关键帧服装相同，完整造型变化和动作重复周期仍未充分核验。",
+      "motion_summary": "已播放12秒原片并观察关键画面：仅1名白发狐耳、带尾巴的动漫虚拟角色，红白裙装与长袖，在樱花舞台正面全身出镜；从双臂低位展开到前臂横过胸前向侧方展开，双腿由交叉站姿转为侧开步，尾巴随动作摆动。舞台构图基本固定。虚拟角色画面及页面Fox Idol、AI生成标识支持virtual_idol主题；按裙装偶像造型规划女生角色素材，不判断真人性别。已见造型相同，未完整确认妆容/服装变化及重复周期。",
       "checks": {
-        "solo": false,
+        "solo": true,
         "repetitive": null,
         "fixed_camera": true
       },
-      "recreation_notes": "固定座位与短手势序列易拆解，但5角色纵向遮挡、手掌盖眼及同步动作会提高难度。当前KAI男生单人素材无法直接满足5角色构图，需等待足够多人角色素材，不能宣称单人匹配。尚未生成测试；后续制作仍须先提取动作并生成无脸白模。",
+      "recreation_notes": "单角色全身与清晰背景有利于动作提取；长袖、发丝、尾巴和飘落花瓣增加遮挡。可由后续流程检查公开目录Lila整体等女生单人素材，角色风格与狐耳尾巴适配尚未确认，不承诺匹配效果。尚未生成测试；须保留无脸白模步骤。",
       "published_at": null,
-      "published_text": "5d ago",
+      "published_text": "4d ago",
       "metrics": {
         "views": null,
-        "likes": 249,
-        "comments": 16,
-        "shares": 11
+        "likes": 29,
+        "comments": 0,
+        "shares": 1
       },
       "related_videos": [],
-      "music_name": "original sound - V-AXIS ENTERTAINMENT"
+      "music_name": "Treat You Better - Shawn Mendes"
     }
   ]
 }
