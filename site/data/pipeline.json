@@ -100,9 +100,9 @@
       "created_at": "2026-11-16T02:15:10Z",
       "model": "bytedance/seedance-2.5",
       "id": "review-video-36dc967ec3fc7e4cd1060f94",
-      "status": "needs_attention",
+      "status": "generating_copy",
       "stage": "copy",
-      "message": "OpenAI credits or a project spending limit blocked this request. Check billing before requesting again.",
+      "message": "正在读取成片画面，匹配美国英文文案与标签。",
       "approval": {
         "status": "pending"
       },
@@ -112,10 +112,12 @@
       "motion_summary": "Single-character hand gesture dance with a phone-hand gesture; no transformation.",
       "transformation": "none",
       "clay_path": "https://raw.githubusercontent.com/yjr927/idore_tools/cce63dabd044b1a8131fc49158479bffa31aaee5/reference-assets/clay-bizzyboom.mp4",
-      "updated_at": "2026-11-17T01:22:10.235696Z",
-      "revision": "0046d0c2b21076ac4809acb988c8713febb5a71c0f6fae87ec73d017511ee83f",
+      "updated_at": "2026-11-18T01:28:14.867620Z",
+      "revision": "bff4f581dbd0205ad26afac69d07a63787fab4fe7c2e977abcec25380eb58205",
       "copy_reserved": true,
-      "error_code": "insufficient_quota"
+      "error_code": "",
+      "copy_provider": "openrouter",
+      "copy_model": "openai/gpt-5.4-mini"
     }
   ],
   "connections": {
@@ -136,6 +138,14 @@
       "configured": false,
       "status": "not_configured",
       "message": "等待开发者应用与 video.upload 账号授权。"
+    },
+    "copy": {
+      "provider": "openrouter",
+      "model": "openai/gpt-5.4-mini",
+      "configured": true,
+      "status": "generating",
+      "message": "正在核对成片并联网搜索标签。",
+      "checked_at": "2026-11-18T01:28:14.867605Z"
     }
   },
   "requests": [
@@ -160,5 +170,5 @@
     "copy_provider": "openrouter",
     "copy_model": "openai/gpt-5.4-mini"
   },
-  "updated_at": "2026-11-18T01:28:13.828657Z"
+  "updated_at": "2026-11-18T01:28:14.867674Z"
 }
