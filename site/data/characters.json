@@ -3,8 +3,8 @@
   "items": [
     {
       "id": "role-d2b04a47e0f92282",
-      "collection": "常规",
-      "ip": "Elias",
+      "collection": "万圣节图",
+      "ip": "Muyu Works",
       "name": "Elias cos",
       "filename": "Elias cos.png",
       "subfolders": [],
@@ -23,12 +23,13 @@
       "sha256": "d2b04a47e0f92282b3ebb967767e71603dca3e0f5d656d26b4e196f77e2bea86",
       "bytes": 2728395,
       "width": 1024,
-      "height": 1536
+      "height": 1536,
+      "character_group": "Elias"
     },
     {
       "id": "role-233b88621a7848c1",
-      "collection": "常规",
-      "ip": "Elias",
+      "collection": "日常图",
+      "ip": "Muyu Works",
       "name": "Elias 日常",
       "filename": "Elias 日常.png",
       "subfolders": [],
@@ -47,12 +48,13 @@
       "sha256": "233b88621a7848c13f19e2c9934fba444e6c0d345e1e4dbdaceee15d08499500",
       "bytes": 1915406,
       "width": 1254,
-      "height": 1254
+      "height": 1254,
+      "character_group": "Elias"
     },
     {
       "id": "role-f2ce28a97f17ea0c",
-      "collection": "常规",
-      "ip": "Elias",
+      "collection": "万圣节图",
+      "ip": "Muyu Works",
       "name": "Elias整体",
       "filename": "Elias整体.png",
       "subfolders": [],
@@ -69,12 +71,13 @@
       "sha256": "f2ce28a97f17ea0c9cb06d40a9c53af1ff70cf1c3344c2b7aed32176e0a3ae01",
       "bytes": 2526136,
       "width": 1086,
-      "height": 1448
+      "height": 1448,
+      "character_group": "Elias"
     },
     {
       "id": "role-e1c8a93db43c4202",
-      "collection": "常规",
-      "ip": "Jace",
+      "collection": "万圣节图",
+      "ip": "Muyu Works",
       "name": "Jace cos妆",
       "filename": "Jace cos妆.png",
       "subfolders": [],
@@ -93,12 +96,13 @@
       "sha256": "e1c8a93db43c42023f2460f6b0956dd5648b8c7149363e8bfad451b1cff3a950",
       "bytes": 2039472,
       "width": 1086,
-      "height": 1448
+      "height": 1448,
+      "character_group": "Jace"
     },
     {
       "id": "role-323c636618027cbd",
-      "collection": "常规",
-      "ip": "Jace",
+      "collection": "万圣节图",
+      "ip": "Muyu Works",
       "name": "Jace整体",
       "filename": "Jace整体.png",
       "subfolders": [],
@@ -115,12 +119,13 @@
       "sha256": "323c636618027cbd6d200dcb82eb823ba8d2c83a66a89a2d2f4b7b3eecd0318c",
       "bytes": 2779615,
       "width": 1086,
-      "height": 1448
+      "height": 1448,
+      "character_group": "Jace"
     },
     {
       "id": "role-03bab2e519e60926",
-      "collection": "常规",
-      "ip": "Jace",
+      "collection": "日常图",
+      "ip": "Muyu Works",
       "name": "杰斯日常妆",
       "filename": "杰斯日常妆.png",
       "subfolders": [],
@@ -139,12 +144,13 @@
       "sha256": "03bab2e519e60926ea27cab38b93e738db461f798e361d94bfb88439ec16c41d",
       "bytes": 2101215,
       "width": 1086,
-      "height": 1448
+      "height": 1448,
+      "character_group": "Jace"
     },
     {
       "id": "role-da07aeae64845c87",
-      "collection": "常规",
-      "ip": "Lila",
+      "collection": "万圣节图",
+      "ip": "Muyu Works",
       "name": "Lila整体",
       "filename": "Lila整体.png",
       "subfolders": [],
@@ -161,12 +167,13 @@
       "sha256": "da07aeae64845c87a7681793027c5d524c642094983b36bc2ec5157d8b852518",
       "bytes": 2661296,
       "width": 1024,
-      "height": 1536
+      "height": 1536,
+      "character_group": "Lila"
     },
     {
       "id": "role-78e518d96dad0af7",
-      "collection": "常规",
-      "ip": "Lila",
+      "collection": "日常图",
+      "ip": "Muyu Works",
       "name": "Lila日常",
       "filename": "Lila日常.png",
       "subfolders": [],
@@ -185,12 +192,13 @@
       "sha256": "78e518d96dad0af7c16774f1241985ecdb3a6c8e64e95bfcb81a8cad5f0c6f20",
       "bytes": 2116427,
       "width": 1122,
-      "height": 1402
+      "height": 1402,
+      "character_group": "Lila"
     },
     {
       "id": "role-44a3ad057757a4ae",
-      "collection": "常规",
-      "ip": "Lila",
+      "collection": "万圣节图",
+      "ip": "Muyu Works",
       "name": "cos妆造",
       "filename": "cos妆造.png",
       "subfolders": [],
@@ -209,12 +217,13 @@
       "sha256": "44a3ad057757a4ae18f5e8ffad34e98e49bc5da3bdcdf2a9f4d70eed632dabd8",
       "bytes": 2448231,
       "width": 1122,
-      "height": 1402
+      "height": 1402,
+      "character_group": "Lila"
     },
     {
       "id": "role-c216ee39da2fd783",
-      "collection": "常规",
-      "ip": "kai",
+      "collection": "万圣节图",
+      "ip": "Muyu Works",
       "name": "kai妆容",
       "filename": "kai妆容.png",
       "subfolders": [],
@@ -233,12 +242,13 @@
       "sha256": "c216ee39da2fd7835a6a953b381ec5fca803908f739367c0821028a6621f65bc",
       "bytes": 2273183,
       "width": 1086,
-      "height": 1448
+      "height": 1448,
+      "character_group": "kai"
     },
     {
       "id": "kai",
-      "collection": "常规",
-      "ip": "kai",
+      "collection": "万圣节图",
+      "ip": "Muyu Works",
       "name": "kai整体",
       "filename": "kai整体.png",
       "subfolders": [],
@@ -255,12 +265,13 @@
       "sha256": "7b92a2a9e4b10f791b2997f8b5e3c14dce48a3e02b82c1a17ba5c974856ef358",
       "bytes": 2066727,
       "width": 1086,
-      "height": 1448
+      "height": 1448,
+      "character_group": "kai"
     },
     {
       "id": "role-d038bc09a24579ac",
-      "collection": "常规",
-      "ip": "kai",
+      "collection": "日常图",
+      "ip": "Muyu Works",
       "name": "kai日常",
       "filename": "kai日常.png",
       "subfolders": [],
@@ -279,12 +290,13 @@
       "sha256": "d038bc09a24579ace20d028174a0932af300cd218f827a780f25eaf1c91b6285",
       "bytes": 1693237,
       "width": 960,
-      "height": 1280
+      "height": 1280,
+      "character_group": "kai"
     },
     {
       "id": "role-aac8e61888c39b14",
-      "collection": "常规",
-      "ip": "kai",
+      "collection": "场景素材",
+      "ip": "Muyu Works",
       "name": "场景",
       "filename": "场景.png",
       "subfolders": [],
@@ -303,12 +315,13 @@
       "sha256": "aac8e61888c39b148bf1732750977645aa8896b7fbb9b0d4d33ea7865207fc15",
       "bytes": 2367287,
       "width": 1044,
-      "height": 1507
+      "height": 1507,
+      "character_group": "kai"
     },
     {
       "id": "role-20cef82932ff94e7",
-      "collection": "万圣节",
-      "ip": "Lumen",
+      "collection": "万圣节图",
+      "ip": "kk金丹老师",
       "name": "冷峻白发魔法贵族肖像",
       "filename": "冷峻白发魔法贵族肖像.png",
       "subfolders": [],
@@ -325,12 +338,13 @@
       "sha256": "20cef82932ff94e75b0fc26586385fdc4fece25e4b56995d0046988027b064f0",
       "bytes": 2191507,
       "width": 1024,
-      "height": 1536
+      "height": 1536,
+      "character_group": "Lumen"
     },
     {
       "id": "role-1f0a5df585180c9b",
-      "collection": "万圣节",
-      "ip": "Lumen",
+      "collection": "万圣节图",
+      "ip": "kk金丹老师",
       "name": "斯莱特林魔法大厅中的咒术贵族",
       "filename": "斯莱特林魔法大厅中的咒术贵族.png",
       "subfolders": [],
@@ -349,12 +363,13 @@
       "sha256": "1f0a5df585180c9ba027e114eb0eb489c23c5e1da886852598335405d5ace1f5",
       "bytes": 2523648,
       "width": 941,
-      "height": 1672
+      "height": 1672,
+      "character_group": "Lumen"
     },
     {
       "id": "role-0bb7fe3a22a70a40",
-      "collection": "万圣节",
-      "ip": "Matthew",
+      "collection": "万圣节图",
+      "ip": "kk金丹老师",
       "name": "双子",
       "filename": "双子.png",
       "subfolders": [],
@@ -373,12 +388,13 @@
       "sha256": "0bb7fe3a22a70a407ef987bd44c5a37282d7d6aed42cfcdb6fc51007aaecbe2d",
       "bytes": 8433911,
       "width": 3072,
-      "height": 4096
+      "height": 4096,
+      "character_group": "Matthew"
     },
     {
       "id": "role-5cb4654737bd5cdb",
-      "collection": "万圣节",
-      "ip": "Matthew",
+      "collection": "万圣节图",
+      "ip": "kk金丹老师",
       "name": "湿发恶魔纹身男子特写",
       "filename": "湿发恶魔纹身男子特写.png",
       "subfolders": [],
@@ -397,12 +413,13 @@
       "sha256": "5cb4654737bd5cdbee25c0d47c03755092d9709fc9706ba1b100e7f1e26557d8",
       "bytes": 2421739,
       "width": 1080,
-      "height": 1456
+      "height": 1456,
+      "character_group": "Matthew"
     },
     {
       "id": "role-b10f9871ca8ff6a3",
-      "collection": "万圣节",
-      "ip": "Matthew",
+      "collection": "万圣节图",
+      "ip": "kk金丹老师",
       "name": "湿身红黑发刺青角色肖像",
       "filename": "湿身红黑发刺青角色肖像.png",
       "subfolders": [],
@@ -421,12 +438,13 @@
       "sha256": "b10f9871ca8ff6a3f40ac48aff3e26e89d76df2e7173dd23abbe17aab82e1440",
       "bytes": 2338024,
       "width": 1024,
-      "height": 1536
+      "height": 1536,
+      "character_group": "Matthew"
     },
     {
       "id": "role-fb3873908e24c095",
-      "collection": "万圣节",
-      "ip": "elio",
+      "collection": "万圣节图",
+      "ip": "kk金丹老师",
       "name": "冷峻枪口下的战损特工",
       "filename": "冷峻枪口下的战损特工.png",
       "subfolders": [],
@@ -445,12 +463,13 @@
       "sha256": "fb3873908e24c095f4ed91b06cb1451355849e684bd2cfdde8bdcd677a577146",
       "bytes": 2211397,
       "width": 1024,
-      "height": 1536
+      "height": 1536,
+      "character_group": "elio"
     },
     {
       "id": "role-5385bdbec873f7f3",
-      "collection": "万圣节",
-      "ip": "elio",
+      "collection": "万圣节图",
+      "ip": "kk金丹老师",
       "name": "水瓶",
       "filename": "水瓶.png",
       "subfolders": [],
@@ -467,12 +486,13 @@
       "sha256": "5385bdbec873f7f38664a944329283fd71eb1932d005cb6b86758d0626cb75a4",
       "bytes": 1876025,
       "width": 1086,
-      "height": 1448
+      "height": 1448,
+      "character_group": "elio"
     },
     {
       "id": "role-910a13246d5c5560",
-      "collection": "万圣节",
-      "ip": "elio",
+      "collection": "万圣节图",
+      "ip": "kk金丹老师",
       "name": "阴影废墟中的精准瞄准者",
       "filename": "阴影废墟中的精准瞄准者.png",
       "subfolders": [],
@@ -491,12 +511,13 @@
       "sha256": "910a13246d5c5560ad71799b1bf786633624283bebdfdf62ab9c8f860891d63c",
       "bytes": 2150414,
       "width": 1086,
-      "height": 1448
+      "height": 1448,
+      "character_group": "elio"
     },
     {
       "id": "role-0f923b1081ddb0b5",
-      "collection": "万圣节",
-      "ip": "jiho",
+      "collection": "万圣节图",
+      "ip": "kk金丹老师",
       "name": "处女",
       "filename": "处女.png",
       "subfolders": [],
@@ -513,12 +534,13 @@
       "sha256": "0f923b1081ddb0b5294c3fb2013eb355e869c7083dccc283b2cecb6417e10085",
       "bytes": 1901494,
       "width": 1296,
-      "height": 1728
+      "height": 1728,
+      "character_group": "jiho"
     },
     {
       "id": "role-43905a64de17c402",
-      "collection": "万圣节",
-      "ip": "jiho",
+      "collection": "万圣节图",
+      "ip": "kk金丹老师",
       "name": "紫晶帽影下的魅惑少年",
       "filename": "紫晶帽影下的魅惑少年.png",
       "subfolders": [],
@@ -537,12 +559,13 @@
       "sha256": "43905a64de17c40210520726fb3e9e5422ebbe8f777f21e7be663169e1f9bd6d",
       "bytes": 1951392,
       "width": 941,
-      "height": 1672
+      "height": 1672,
+      "character_group": "jiho"
     },
     {
       "id": "role-44e9f7c3c9484c8b",
-      "collection": "万圣节",
-      "ip": "jiho",
+      "collection": "万圣节图",
+      "ip": "kk金丹老师",
       "name": "霓虹幻影下的魅惑巫帽男子",
       "filename": "霓虹幻影下的魅惑巫帽男子.png",
       "subfolders": [],
@@ -561,12 +584,13 @@
       "sha256": "44e9f7c3c9484c8babee31d447364aa645644187a16f83fb9d35355b386b78ac",
       "bytes": 1804694,
       "width": 1086,
-      "height": 1448
+      "height": 1448,
+      "character_group": "jiho"
     },
     {
       "id": "role-1dcf68caa593051a",
-      "collection": "万圣节",
-      "ip": "ren",
+      "collection": "万圣节图",
+      "ip": "kk金丹老师",
       "name": "天秤",
       "filename": "天秤.png",
       "subfolders": [],
@@ -585,12 +609,13 @@
       "sha256": "1dcf68caa593051aa535d0262e080572ff4dbc49096133d2d7a8ce153635b85e",
       "bytes": 7018294,
       "width": 3072,
-      "height": 4096
+      "height": 4096,
+      "character_group": "ren"
     },
     {
       "id": "role-2c0a9fe54b8cfeb9",
-      "collection": "万圣节",
-      "ip": "ren",
+      "collection": "万圣节图",
+      "ip": "kk金丹老师",
       "name": "白发蒙眼的暗影行者",
       "filename": "白发蒙眼的暗影行者.png",
       "subfolders": [],
@@ -610,12 +635,13 @@
       "sha256": "2c0a9fe54b8cfeb9b9dd3f0c050280b2dc09996c0e8414cb0afb97a0c9d45194",
       "bytes": 2099351,
       "width": 941,
-      "height": 1672
+      "height": 1672,
+      "character_group": "ren"
     },
     {
       "id": "role-518b7255772fd661",
-      "collection": "万圣节",
-      "ip": "ren",
+      "collection": "万圣节图",
+      "ip": "kk金丹老师",
       "name": "银发青年揭起黑色眼罩",
       "filename": "银发青年揭起黑色眼罩.png",
       "subfolders": [],
@@ -635,12 +661,13 @@
       "sha256": "518b7255772fd66103a4a560339a611cdccab8dcf95e20b391d14b142918aa73",
       "bytes": 2190095,
       "width": 941,
-      "height": 1671
+      "height": 1671,
+      "character_group": "ren"
     },
     {
       "id": "role-f457c693c37aa615",
-      "collection": "无限综艺",
-      "ip": "NPC",
+      "collection": "日常图",
+      "ip": "260924无限综艺美术人物资产(1)",
       "name": "冥河NPC",
       "filename": "冥河NPC.png",
       "subfolders": [
@@ -662,12 +689,13 @@
       "sha256": "f457c693c37aa615841c59975ccad4d3cc06adacd4a3301eadb8ae24a6e2e955",
       "bytes": 1930441,
       "width": 1920,
-      "height": 1080
+      "height": 1080,
+      "character_group": "NPC"
     },
     {
       "id": "role-cce392a9770aa390",
-      "collection": "无限综艺",
-      "ip": "NPC",
+      "collection": "日常图",
+      "ip": "260924无限综艺美术人物资产(1)",
       "name": "伤民NPC",
       "filename": "伤民NPC.png",
       "subfolders": [
@@ -690,12 +718,13 @@
       "sha256": "cce392a9770aa390dec613b17a50197786a5857fb8eaab2c999b39010864d521",
       "bytes": 1873635,
       "width": 1774,
-      "height": 887
+      "height": 887,
+      "character_group": "NPC"
     },
     {
       "id": "role-24bcb4df1fd41a3b",
-      "collection": "无限综艺",
-      "ip": "NPC",
+      "collection": "日常图",
+      "ip": "260924无限综艺美术人物资产(1)",
       "name": "伤民NPC2",
       "filename": "伤民NPC2.png",
       "subfolders": [
@@ -718,12 +747,13 @@
       "sha256": "24bcb4df1fd41a3bc5bf2888677d24b58a153da1c9cb5ca45f8679c799f2cf63",
       "bytes": 2190341,
       "width": 1672,
-      "height": 941
+      "height": 941,
+      "character_group": "NPC"
     },
     {
       "id": "role-211e4fbd5ab12c9d",
-      "collection": "无限综艺",
-      "ip": "NPC",
+      "collection": "日常图",
+      "ip": "260924无限综艺美术人物资产(1)",
       "name": "凯利斯妈妈",
       "filename": "凯利斯妈妈.png",
       "subfolders": [
@@ -745,12 +775,13 @@
       "sha256": "211e4fbd5ab12c9dd0ded5236ec337be1936416ce8d2434c84e42d7321951ced",
       "bytes": 2573232,
       "width": 1672,
-      "height": 941
+      "height": 941,
+      "character_group": "NPC"
     },
     {
       "id": "role-45903ab55100bf24",
-      "collection": "无限综艺",
-      "ip": "NPC",
+      "collection": "日常图",
+      "ip": "260924无限综艺美术人物资产(1)",
       "name": "凯利斯希娜NPC",
       "filename": "凯利斯希娜NPC.png",
       "subfolders": [
@@ -773,12 +804,13 @@
       "sha256": "45903ab55100bf24f18bb6f87e155591d2f4388a30791c4d5ac1d7242b02204b",
       "bytes": 1625390,
       "width": 1672,
-      "height": 941
+      "height": 941,
+      "character_group": "NPC"
     },
     {
       "id": "role-0ca0bad71ef958b9",
-      "collection": "无限综艺",
-      "ip": "NPC",
+      "collection": "日常图",
+      "ip": "260924无限综艺美术人物资产(1)",
       "name": "凯利斯爸爸",
       "filename": "凯利斯爸爸.png",
       "subfolders": [
@@ -800,12 +832,13 @@
       "sha256": "0ca0bad71ef958b959f35328105ec25708dd888965c538e1e2947af28a33f6c1",
       "bytes": 2572202,
       "width": 1672,
-      "height": 941
+      "height": 941,
+      "character_group": "NPC"
     },
     {
       "id": "role-05f48d94311593d2",
-      "collection": "无限综艺",
-      "ip": "NPC",
+      "collection": "日常图",
+      "ip": "260924无限综艺美术人物资产(1)",
       "name": "审判官",
       "filename": "审判官.png",
       "subfolders": [
@@ -828,12 +861,13 @@
       "sha256": "05f48d94311593d20d4cc766babf4c3b8ff64ee702774a135b15a29f7c0cb325",
       "bytes": 1996756,
       "width": 1672,
-      "height": 941
+      "height": 941,
+      "character_group": "NPC"
     },
     {
       "id": "role-217bded3697ccedc",
-      "collection": "无限综艺",
-      "ip": "NPC",
+      "collection": "日常图",
+      "ip": "260924无限综艺美术人物资产(1)",
       "name": "乔治",
       "filename": "乔治.png",
       "subfolders": [
@@ -855,12 +889,13 @@
       "sha256": "217bded3697ccedcfd7f1117cd2d3494bf21ee4cbd6e9da8b01f18d388bb6877",
       "bytes": 2358260,
       "width": 1672,
-      "height": 941
+      "height": 941,
+      "character_group": "NPC"
     },
     {
       "id": "role-35d8b4443c5e87af",
-      "collection": "无限综艺",
-      "ip": "NPC",
+      "collection": "日常图",
+      "ip": "260924无限综艺美术人物资产(1)",
       "name": "劳拉",
       "filename": "劳拉.png",
       "subfolders": [
@@ -882,12 +917,13 @@
       "sha256": "35d8b4443c5e87af7e27dfa0439f61909bef0aebfefad395d8c1e42bb068e235",
       "bytes": 2116799,
       "width": 1672,
-      "height": 941
+      "height": 941,
+      "character_group": "NPC"
     },
     {
       "id": "role-7f25ee1f6efbecfd",
-      "collection": "无限综艺",
-      "ip": "NPC",
+      "collection": "日常图",
+      "ip": "260924无限综艺美术人物资产(1)",
       "name": "薇薇安",
       "filename": "薇薇安.png",
       "subfolders": [
@@ -909,12 +945,13 @@
       "sha256": "7f25ee1f6efbecfd3dbe0499cb9f56460fd62b37f28aae004c24ce4b0f1b7639",
       "bytes": 2059207,
       "width": 1672,
-      "height": 941
+      "height": 941,
+      "character_group": "NPC"
     },
     {
       "id": "role-2a7238b1a991cdce",
-      "collection": "无限综艺",
-      "ip": "NPC",
+      "collection": "日常图",
+      "ip": "260924无限综艺美术人物资产(1)",
       "name": "乔治脸模",
       "filename": "乔治脸模.png",
       "subfolders": [
@@ -933,12 +970,13 @@
       "sha256": "2a7238b1a991cdced4e68ea455ecde93c2f662929d1f477216c1481c62f29e29",
       "bytes": 943111,
       "width": 771,
-      "height": 941
+      "height": 941,
+      "character_group": "NPC"
     },
     {
       "id": "role-6bd7853e3bff9983",
-      "collection": "无限综艺",
-      "ip": "NPC",
+      "collection": "日常图",
+      "ip": "260924无限综艺美术人物资产(1)",
       "name": "乔治2",
       "filename": "乔治2.png",
       "subfolders": [
@@ -960,12 +998,13 @@
       "sha256": "6bd7853e3bff9983bbb5bc793e9a55744d47bbb88a7dfd02d76a79cbe64ea55b",
       "bytes": 1783709,
       "width": 1672,
-      "height": 941
+      "height": 941,
+      "character_group": "NPC"
     },
     {
       "id": "role-96fe6b0b5c972db0",
-      "collection": "无限综艺",
-      "ip": "NPC",
+      "collection": "日常图",
+      "ip": "260924无限综艺美术人物资产(1)",
       "name": "亚瑟",
       "filename": "亚瑟.png",
       "subfolders": [
@@ -987,12 +1026,13 @@
       "sha256": "96fe6b0b5c972db0911d8c9766d3860b12eacbfd87036e9b97e9c25f067e2425",
       "bytes": 2268254,
       "width": 1672,
-      "height": 941
+      "height": 941,
+      "character_group": "NPC"
     },
     {
       "id": "role-8dfbfdef6f6493eb",
-      "collection": "无限综艺",
-      "ip": "NPC",
+      "collection": "日常图",
+      "ip": "260924无限综艺美术人物资产(1)",
       "name": "克拉拉",
       "filename": "克拉拉.png",
       "subfolders": [
@@ -1014,12 +1054,13 @@
       "sha256": "8dfbfdef6f6493eb3d3ea02e30306b44668bde86870eebb4d6484a510ad44efc",
       "bytes": 2059188,
       "width": 1024,
-      "height": 1536
+      "height": 1536,
+      "character_group": "NPC"
     },
     {
       "id": "role-99b37e17aa592f12",
-      "collection": "无限综艺",
-      "ip": "NPC",
+      "collection": "日常图",
+      "ip": "260924无限综艺美术人物资产(1)",
       "name": "劳拉2",
       "filename": "劳拉2.png",
       "subfolders": [
@@ -1041,12 +1082,13 @@
       "sha256": "99b37e17aa592f12b372630884207ad47f64bdf0f7808b4953cf97aea1ecaef0",
       "bytes": 1982771,
       "width": 1672,
-      "height": 941
+      "height": 941,
+      "character_group": "NPC"
     },
     {
       "id": "role-66d7a37870170d8b",
-      "collection": "无限综艺",
-      "ip": "NPC",
+      "collection": "日常图",
+      "ip": "260924无限综艺美术人物资产(1)",
       "name": "博尔",
       "filename": "博尔.png",
       "subfolders": [
@@ -1068,12 +1110,13 @@
       "sha256": "66d7a37870170d8b4fcf30ecc58caa726b22ec11eb2fab656e5635f67b6c6d03",
       "bytes": 2090998,
       "width": 1672,
-      "height": 941
+      "height": 941,
+      "character_group": "NPC"
     },
     {
       "id": "role-94ea9a0132493304",
-      "collection": "无限综艺",
-      "ip": "NPC",
+      "collection": "日常图",
+      "ip": "260924无限综艺美术人物资产(1)",
       "name": "炮灰男",
       "filename": "炮灰男.png",
       "subfolders": [
@@ -1095,12 +1138,13 @@
       "sha256": "94ea9a013249330475433ef2327c555370facba920fa0f116a6c8025436951df",
       "bytes": 2170383,
       "width": 1672,
-      "height": 941
+      "height": 941,
+      "character_group": "NPC"
     },
     {
       "id": "role-793a9ec0e1edacb3",
-      "collection": "无限综艺",
-      "ip": "NPC",
+      "collection": "日常图",
+      "ip": "260924无限综艺美术人物资产(1)",
       "name": "特种兵",
       "filename": "特种兵.png",
       "subfolders": [
@@ -1123,12 +1167,13 @@
       "sha256": "793a9ec0e1edacb30e739d0e4d91d097e630de45dadef40639dace9e1b032590",
       "bytes": 1911986,
       "width": 1024,
-      "height": 1536
+      "height": 1536,
+      "character_group": "NPC"
     },
     {
       "id": "role-302d23d77d7e9072",
-      "collection": "无限综艺",
-      "ip": "NPC",
+      "collection": "日常图",
+      "ip": "260924无限综艺美术人物资产(1)",
       "name": "薇薇安2",
       "filename": "薇薇安2.png",
       "subfolders": [
@@ -1150,12 +1195,13 @@
       "sha256": "302d23d77d7e90723a61e9dc3dc5d2693f39881c0bc14c4a80c004e13bdc021a",
       "bytes": 1903897,
       "width": 1672,
-      "height": 941
+      "height": 941,
+      "character_group": "NPC"
     },
     {
       "id": "role-1cbd22e1c03475c9",
-      "collection": "无限综艺",
-      "ip": "NPC",
+      "collection": "日常图",
+      "ip": "260924无限综艺美术人物资产(1)",
       "name": "贝丝",
       "filename": "贝丝.png",
       "subfolders": [
@@ -1177,12 +1223,13 @@
       "sha256": "1cbd22e1c03475c9df66c28208a4e72067aae0febcb775f92f16ae38d1b17ecb",
       "bytes": 2475198,
       "width": 1672,
-      "height": 941
+      "height": 941,
+      "character_group": "NPC"
     },
     {
       "id": "role-3305de9aa8ac6577",
-      "collection": "无限综艺",
-      "ip": "NPC",
+      "collection": "日常图",
+      "ip": "260924无限综艺美术人物资产(1)",
       "name": "贝丝小精灵",
       "filename": "贝丝小精灵.png",
       "subfolders": [
@@ -1204,12 +1251,13 @@
       "sha256": "3305de9aa8ac657768910eacce96804fab025f749ad3c912915e5092298bb5b4",
       "bytes": 1899043,
       "width": 1672,
-      "height": 941
+      "height": 941,
+      "character_group": "NPC"
     },
     {
       "id": "role-fcc1a50e2c88d878",
-      "collection": "无限综艺",
-      "ip": "NPC",
+      "collection": "日常图",
+      "ip": "260924无限综艺美术人物资产(1)",
       "name": "魔法学院NPC",
       "filename": "魔法学院NPC.png",
       "subfolders": [
@@ -1232,12 +1280,13 @@
       "sha256": "fcc1a50e2c88d878e6aa4c93f0463d1eb65b919e6ad2e62a4c983709b19c252e",
       "bytes": 1874297,
       "width": 1774,
-      "height": 887
+      "height": 887,
+      "character_group": "NPC"
     },
     {
       "id": "role-ae0fc1eb3d2c3fb9",
-      "collection": "无限综艺",
-      "ip": "NPC",
+      "collection": "日常图",
+      "ip": "260924无限综艺美术人物资产(1)",
       "name": "魔法学院NPC2",
       "filename": "魔法学院NPC2.png",
       "subfolders": [
@@ -1260,12 +1309,13 @@
       "sha256": "ae0fc1eb3d2c3fb9e1c372adcfabc180192b1d0a0bdc6ac4a4215a07a82ddf1e",
       "bytes": 2123199,
       "width": 1774,
-      "height": 887
+      "height": 887,
+      "character_group": "NPC"
     },
     {
       "id": "role-a07fdb877a25fbe0",
-      "collection": "无限综艺",
-      "ip": "NPC",
+      "collection": "日常图",
+      "ip": "260924无限综艺美术人物资产(1)",
       "name": "鲁迪",
       "filename": "鲁迪.png",
       "subfolders": [
@@ -1287,12 +1337,13 @@
       "sha256": "a07fdb877a25fbe01880eeebb0dbb36e0a8e5da7ad0a1cbc810e39648fd974a8",
       "bytes": 2200870,
       "width": 1672,
-      "height": 941
+      "height": 941,
+      "character_group": "NPC"
     },
     {
       "id": "role-056f9d3e5160a4e6",
-      "collection": "无限综艺",
-      "ip": "伊莱恩",
+      "collection": "日常图",
+      "ip": "260924无限综艺美术人物资产(1)",
       "name": "!伊莱恩-特写三视图",
       "filename": "!伊莱恩-特写三视图.png",
       "subfolders": [],
@@ -1312,12 +1363,13 @@
       "sha256": "056f9d3e5160a4e6ae692077f50bfa85173d4e01181463218835bcb5196f3e3a",
       "bytes": 2753647,
       "width": 1888,
-      "height": 941
+      "height": 941,
+      "character_group": "伊莱恩"
     },
     {
       "id": "role-4429cc6154edc4ef",
-      "collection": "无限综艺",
-      "ip": "伊莱恩",
+      "collection": "日常图",
+      "ip": "260924无限综艺美术人物资产(1)",
       "name": "JUNE",
       "filename": "JUNE.png",
       "subfolders": [],
@@ -1337,12 +1389,13 @@
       "sha256": "4429cc6154edc4ef32464258f7445a281f0358520cc676fd995ee988a37d4759",
       "bytes": 2422505,
       "width": 1586,
-      "height": 992
+      "height": 992,
+      "character_group": "伊莱恩"
     },
     {
       "id": "role-793bbeb3c352f6ba",
-      "collection": "无限综艺",
-      "ip": "伊莱恩",
+      "collection": "日常图",
+      "ip": "260924无限综艺美术人物资产(1)",
       "name": "伊莱恩",
       "filename": "伊莱恩.png",
       "subfolders": [],
@@ -1361,12 +1414,13 @@
       "sha256": "793bbeb3c352f6ba3ddf92b97c6189755a42a19773c471698bb60d1fb03ee1fa",
       "bytes": 2479041,
       "width": 1672,
-      "height": 941
+      "height": 941,
+      "character_group": "伊莱恩"
     },
     {
       "id": "role-9bfc20e979caf932",
-      "collection": "无限综艺",
-      "ip": "伊莱恩",
+      "collection": "日常图",
+      "ip": "260924无限综艺美术人物资产(1)",
       "name": "伊莱恩特写三视图",
       "filename": "伊莱恩特写三视图.png",
       "subfolders": [],
@@ -1386,12 +1440,13 @@
       "sha256": "9bfc20e979caf93208061f25fa8744cc1e0162ac36482cfabe6ab01784e37cae",
       "bytes": 2767017,
       "width": 1888,
-      "height": 941
+      "height": 941,
+      "character_group": "伊莱恩"
     },
     {
       "id": "role-334fdbed25a92fa2",
-      "collection": "无限综艺",
-      "ip": "凯利斯",
+      "collection": "日常图",
+      "ip": "260924无限综艺美术人物资产(1)",
       "name": "!凯利斯青年",
       "filename": "!凯利斯青年.png",
       "subfolders": [],
@@ -1411,12 +1466,13 @@
       "sha256": "334fdbed25a92fa2d3e8d096278f2e02ce283d91ae02e58da3787a453fe88f0a",
       "bytes": 1979577,
       "width": 1672,
-      "height": 941
+      "height": 941,
+      "character_group": "凯利斯"
     },
     {
       "id": "role-3ad09dd1fd46094a",
-      "collection": "无限综艺",
-      "ip": "凯利斯",
+      "collection": "日常图",
+      "ip": "260924无限综艺美术人物资产(1)",
       "name": "!真·凯利斯月亮终版",
       "filename": "!真·凯利斯月亮终版.png",
       "subfolders": [],
@@ -1436,12 +1492,13 @@
       "sha256": "3ad09dd1fd46094ac6c53a699cc5795aa34346f83cfdafbbcaf9f03fdb25e8c6",
       "bytes": 3001126,
       "width": 1672,
-      "height": 941
+      "height": 941,
+      "character_group": "凯利斯"
     },
     {
       "id": "role-306df91feeee7eff",
-      "collection": "无限综艺",
-      "ip": "凯利斯",
+      "collection": "日常图",
+      "ip": "260924无限综艺美术人物资产(1)",
       "name": "!真·凯利斯特写多视图终版-面颊凹陷",
       "filename": "!真·凯利斯特写多视图终版-面颊凹陷.png",
       "subfolders": [],
@@ -1461,12 +1518,13 @@
       "sha256": "306df91feeee7eff1e49134f3bec1ef0102194b7dae6ca963a6badf0d04ca685",
       "bytes": 4759081,
       "width": 1672,
-      "height": 1714
+      "height": 1714,
+      "character_group": "凯利斯"
     },
     {
       "id": "role-880b0046537a544a",
-      "collection": "无限综艺",
-      "ip": "凯利斯",
+      "collection": "日常图",
+      "ip": "260924无限综艺美术人物资产(1)",
       "name": "!真·凯利斯特写多视图终版",
       "filename": "!真·凯利斯特写多视图终版.png",
       "subfolders": [],
@@ -1486,12 +1544,13 @@
       "sha256": "880b0046537a544a88fb87219b02d5b03c8c31c110250d48197b274850972d33",
       "bytes": 3900953,
       "width": 1672,
-      "height": 1601
+      "height": 1601,
+      "character_group": "凯利斯"
     },
     {
       "id": "role-c8d5c9e3342e4263",
-      "collection": "无限综艺",
-      "ip": "凯利斯",
+      "collection": "日常图",
+      "ip": "260924无限综艺美术人物资产(1)",
       "name": "!真·凯利斯终版 - 副本",
       "filename": "!真·凯利斯终版 - 副本.png",
       "subfolders": [],
@@ -1508,12 +1567,13 @@
       "sha256": "c8d5c9e3342e4263f3efeaae48533c677035c0fc06c14bd93e2e22dddd76d77e",
       "bytes": 1076675,
       "width": 681,
-      "height": 941
+      "height": 941,
+      "character_group": "凯利斯"
     },
     {
       "id": "role-23b9ff767ce58e8e",
-      "collection": "无限综艺",
-      "ip": "凯利斯",
+      "collection": "日常图",
+      "ip": "260924无限综艺美术人物资产(1)",
       "name": "!真·凯利斯终版",
       "filename": "!真·凯利斯终版.png",
       "subfolders": [],
@@ -1533,12 +1593,13 @@
       "sha256": "23b9ff767ce58e8eff9085e03792f245ca22a037b056ff7666f5c0a856d0fac6",
       "bytes": 2615263,
       "width": 1672,
-      "height": 941
+      "height": 941,
+      "character_group": "凯利斯"
     },
     {
       "id": "role-007af0f31287364b",
-      "collection": "无限综艺",
-      "ip": "凯利斯",
+      "collection": "日常图",
+      "ip": "260924无限综艺美术人物资产(1)",
       "name": "!真·月亮凯利斯特写多视图终版-面颊凹陷",
       "filename": "!真·月亮凯利斯特写多视图终版-面颊凹陷.png",
       "subfolders": [],
@@ -1558,12 +1619,13 @@
       "sha256": "007af0f31287364b741acf495f794ab504ca2e72d58a32fe8c8e784c71b6bae6",
       "bytes": 3211916,
       "width": 1281,
-      "height": 1226
+      "height": 1226,
+      "character_group": "凯利斯"
     },
     {
       "id": "role-0183a4c0f0ca24f1",
-      "collection": "无限综艺",
-      "ip": "凯利斯",
+      "collection": "日常图",
+      "ip": "260924无限综艺美术人物资产(1)",
       "name": "3",
       "filename": "3.png",
       "subfolders": [],
@@ -1582,12 +1644,13 @@
       "sha256": "0183a4c0f0ca24f1b566c2a5d6658a833d0d50f935b668edc7257b9b012f1855",
       "bytes": 2556548,
       "width": 1088,
-      "height": 1446
+      "height": 1446,
+      "character_group": "凯利斯"
     },
     {
       "id": "role-d287225a25a1feca",
-      "collection": "无限综艺",
-      "ip": "凯利斯",
+      "collection": "日常图",
+      "ip": "260924无限综艺美术人物资产(1)",
       "name": "4.1",
       "filename": "4.1.png",
       "subfolders": [],
@@ -1606,12 +1669,13 @@
       "sha256": "d287225a25a1feca9f3052884ebfc1d4b3748ea58eeddc08eca10d691ab109fa",
       "bytes": 2395606,
       "width": 1067,
-      "height": 1474
+      "height": 1474,
+      "character_group": "凯利斯"
     },
     {
       "id": "role-63124c16ba819593",
-      "collection": "无限综艺",
-      "ip": "凯利斯",
+      "collection": "日常图",
+      "ip": "260924无限综艺美术人物资产(1)",
       "name": "4.2",
       "filename": "4.2.png",
       "subfolders": [],
@@ -1631,12 +1695,13 @@
       "sha256": "63124c16ba81959345fc265af5fc111f36b5295e1efc02e56315360a61cfdfd2",
       "bytes": 2550762,
       "width": 1275,
-      "height": 1233
+      "height": 1233,
+      "character_group": "凯利斯"
     },
     {
       "id": "role-4ef8697bdc19b4af",
-      "collection": "无限综艺",
-      "ip": "凯利斯",
+      "collection": "日常图",
+      "ip": "260924无限综艺美术人物资产(1)",
       "name": "4",
       "filename": "4.png",
       "subfolders": [],
@@ -1655,12 +1720,13 @@
       "sha256": "4ef8697bdc19b4afcc6248e6d1d1825941dcb6042a55b30a46a7a5889c6d4e8d",
       "bytes": 2151398,
       "width": 1122,
-      "height": 1402
+      "height": 1402,
+      "character_group": "凯利斯"
     },
     {
       "id": "role-33d8c0f5294b59da",
-      "collection": "无限综艺",
-      "ip": "凯利斯",
+      "collection": "日常图",
+      "ip": "260924无限综艺美术人物资产(1)",
       "name": "凯利斯-正式白昼特写三视图",
       "filename": "凯利斯-正式白昼特写三视图.png",
       "subfolders": [],
@@ -1680,12 +1746,13 @@
       "sha256": "33d8c0f5294b59da2cf7df20857c71dc0e8ac440b7cc0bce9ac8279ae34e621a",
       "bytes": 2517424,
       "width": 1887,
-      "height": 941
+      "height": 941,
+      "character_group": "凯利斯"
     },
     {
       "id": "role-0a16609d06b8b47d",
-      "collection": "无限综艺",
-      "ip": "凯利斯",
+      "collection": "日常图",
+      "ip": "260924无限综艺美术人物资产(1)",
       "name": "凯利斯-正式黑夜特写三视图",
       "filename": "凯利斯-正式黑夜特写三视图.png",
       "subfolders": [],
@@ -1705,12 +1772,13 @@
       "sha256": "0a16609d06b8b47df2281183425bde7347bbb5088191b74cbd2277ad8190099e",
       "bytes": 3278042,
       "width": 1937,
-      "height": 941
+      "height": 941,
+      "character_group": "凯利斯"
     },
     {
       "id": "role-48b7c9e0365ac694",
-      "collection": "无限综艺",
-      "ip": "凯利斯",
+      "collection": "日常图",
+      "ip": "260924无限综艺美术人物资产(1)",
       "name": "凯利斯3版",
       "filename": "凯利斯3版.png",
       "subfolders": [],
@@ -1730,12 +1798,13 @@
       "sha256": "48b7c9e0365ac694bf3f9b904dedc4aebd2878a8cd4801f306f6b391e87a4bf3",
       "bytes": 1878909,
       "width": 1774,
-      "height": 887
+      "height": 887,
+      "character_group": "凯利斯"
     },
     {
       "id": "role-584fee70b7e7c196",
-      "collection": "无限综艺",
-      "ip": "凯利斯",
+      "collection": "日常图",
+      "ip": "260924无限综艺美术人物资产(1)",
       "name": "凯利斯人脸模板",
       "filename": "凯利斯人脸模板.png",
       "subfolders": [],
@@ -1754,12 +1823,13 @@
       "sha256": "584fee70b7e7c196df003f24192b20815fa89a6f55044beefbd4dc202ded053a",
       "bytes": 1956853,
       "width": 1086,
-      "height": 1448
+      "height": 1448,
+      "character_group": "凯利斯"
     },
     {
       "id": "role-76b4c88b8c456ab9",
-      "collection": "无限综艺",
-      "ip": "凯利斯",
+      "collection": "日常图",
+      "ip": "260924无限综艺美术人物资产(1)",
       "name": "凯利斯人脸模板2",
       "filename": "凯利斯人脸模板2.png",
       "subfolders": [],
@@ -1778,12 +1848,13 @@
       "sha256": "76b4c88b8c456ab9c9f3e66510ac4c3e5633966f27a772b913873900b56f3b6d",
       "bytes": 1843963,
       "width": 1122,
-      "height": 1402
+      "height": 1402,
+      "character_group": "凯利斯"
     },
     {
       "id": "role-619c7a42474266c1",
-      "collection": "无限综艺",
-      "ip": "凯利斯",
+      "collection": "日常图",
+      "ip": "260924无限综艺美术人物资产(1)",
       "name": "凯利斯定版",
       "filename": "凯利斯定版.png",
       "subfolders": [],
@@ -1802,12 +1873,13 @@
       "sha256": "619c7a42474266c18a034e7215c87bbaa0bdff9990493f1af5a2bcc67497155a",
       "bytes": 2662728,
       "width": 1122,
-      "height": 1402
+      "height": 1402,
+      "character_group": "凯利斯"
     },
     {
       "id": "role-651f6d889d2c73d9",
-      "collection": "无限综艺",
-      "ip": "凯利斯",
+      "collection": "日常图",
+      "ip": "260924无限综艺美术人物资产(1)",
       "name": "凯利斯白昼",
       "filename": "凯利斯白昼.png",
       "subfolders": [],
@@ -1827,12 +1899,13 @@
       "sha256": "651f6d889d2c73d9da3b9cf350e6f1514095a65b4af17ecf2bd231823727dd21",
       "bytes": 2293684,
       "width": 1672,
-      "height": 941
+      "height": 941,
+      "character_group": "凯利斯"
     },
     {
       "id": "role-3b116437d3364b00",
-      "collection": "无限综艺",
-      "ip": "凯利斯",
+      "collection": "日常图",
+      "ip": "260924无限综艺美术人物资产(1)",
       "name": "凯利斯白昼特写三视图",
       "filename": "凯利斯白昼特写三视图.png",
       "subfolders": [],
@@ -1852,12 +1925,13 @@
       "sha256": "3b116437d3364b005d28fbd93651997719621d9b472d468ea4902dadacbda24a",
       "bytes": 2619991,
       "width": 1888,
-      "height": 941
+      "height": 941,
+      "character_group": "凯利斯"
     },
     {
       "id": "role-607628fbad8132a7",
-      "collection": "无限综艺",
-      "ip": "凯利斯",
+      "collection": "日常图",
+      "ip": "260924无限综艺美术人物资产(1)",
       "name": "凯利斯黑夜",
       "filename": "凯利斯黑夜.png",
       "subfolders": [],
@@ -1877,12 +1951,13 @@
       "sha256": "607628fbad8132a72b7c2c97924e2ffcbe055a49ff45a8817e6ee489042f61ab",
       "bytes": 2919745,
       "width": 1672,
-      "height": 941
+      "height": 941,
+      "character_group": "凯利斯"
     },
     {
       "id": "role-18a229cf7a73c128",
-      "collection": "无限综艺",
-      "ip": "凯利斯",
+      "collection": "日常图",
+      "ip": "260924无限综艺美术人物资产(1)",
       "name": "凯利斯黑夜特写三视图",
       "filename": "凯利斯黑夜特写三视图.png",
       "subfolders": [],
@@ -1902,12 +1977,13 @@
       "sha256": "18a229cf7a73c1284e722ffaeaeed59a1d80da9ae62658b033e3e083ccf17079",
       "bytes": 3324084,
       "width": 1888,
-      "height": 941
+      "height": 941,
+      "character_group": "凯利斯"
     },
     {
       "id": "role-14563e4d4d4afd51",
-      "collection": "无限综艺",
-      "ip": "凯利斯",
+      "collection": "日常图",
+      "ip": "260924无限综艺美术人物资产(1)",
       "name": "月亮面颊凹陷",
       "filename": "月亮面颊凹陷.png",
       "subfolders": [],
@@ -1926,12 +2002,13 @@
       "sha256": "14563e4d4d4afd512748082e3f2b8e6c7972f50dcd9bd389bac5e265b891d03a",
       "bytes": 1171775,
       "width": 710,
-      "height": 941
+      "height": 941,
+      "character_group": "凯利斯"
     },
     {
       "id": "role-c0cf0d74b3ad73e9",
-      "collection": "无限综艺",
-      "ip": "凯利斯",
+      "collection": "日常图",
+      "ip": "260924无限综艺美术人物资产(1)",
       "name": "月终版1",
       "filename": "月终版1.png",
       "subfolders": [],
@@ -1951,12 +2028,13 @@
       "sha256": "c0cf0d74b3ad73e99955905ccaa785b5f624ce5acb91032621b4f3cca2aa4468",
       "bytes": 2830706,
       "width": 1254,
-      "height": 1254
+      "height": 1254,
+      "character_group": "凯利斯"
     },
     {
       "id": "role-be83571b30067f54",
-      "collection": "无限综艺",
-      "ip": "凯利斯",
+      "collection": "日常图",
+      "ip": "260924无限综艺美术人物资产(1)",
       "name": "面板",
       "filename": "面板.png",
       "subfolders": [],
@@ -1976,12 +2054,13 @@
       "sha256": "be83571b30067f5433ee54b42aff3d247a3f3f1fe9d0cb38daa285d1720134a0",
       "bytes": 2096756,
       "width": 1086,
-      "height": 1448
+      "height": 1448,
+      "character_group": "凯利斯"
     },
     {
       "id": "role-7f1997ebc4fc431b",
-      "collection": "无限综艺",
-      "ip": "凯利斯",
+      "collection": "日常图",
+      "ip": "260924无限综艺美术人物资产(1)",
       "name": "面颊凹陷",
       "filename": "面颊凹陷.png",
       "subfolders": [],
@@ -2000,12 +2079,13 @@
       "sha256": "7f1997ebc4fc431b6bf4b0647117674e07014be16bc811fe8472eab4f2d9501e",
       "bytes": 2086285,
       "width": 1067,
-      "height": 1474
+      "height": 1474,
+      "character_group": "凯利斯"
     },
     {
       "id": "role-4fe0755d21361e19",
-      "collection": "无限综艺",
-      "ip": "卡斯帕",
+      "collection": "日常图",
+      "ip": "260924无限综艺美术人物资产(1)",
       "name": "卡斯帕脸模",
       "filename": "卡斯帕脸模.png",
       "subfolders": [],
@@ -2022,12 +2102,13 @@
       "sha256": "4fe0755d21361e1971e2e33b5209396f51837f7d55f2a6284d817f868779bcf3",
       "bytes": 1652380,
       "width": 1145,
-      "height": 1145
+      "height": 1145,
+      "character_group": "卡斯帕"
     },
     {
       "id": "role-54af467ef6cf6d4c",
-      "collection": "无限综艺",
-      "ip": "吉迪恩",
+      "collection": "日常图",
+      "ip": "260924无限综艺美术人物资产(1)",
       "name": "!吉迪恩-特写三视图",
       "filename": "!吉迪恩-特写三视图.png",
       "subfolders": [],
@@ -2047,12 +2128,13 @@
       "sha256": "54af467ef6cf6d4c7f86931470b12b9b0968af609d135586755badaceb580dcf",
       "bytes": 2593251,
       "width": 1888,
-      "height": 941
+      "height": 941,
+      "character_group": "吉迪恩"
     },
     {
       "id": "role-47d6df6a6b8d45ea",
-      "collection": "无限综艺",
-      "ip": "吉迪恩",
+      "collection": "日常图",
+      "ip": "260924无限综艺美术人物资产(1)",
       "name": "吉迪恩",
       "filename": "吉迪恩.png",
       "subfolders": [],
@@ -2072,12 +2154,13 @@
       "sha256": "47d6df6a6b8d45ea53215c6d3d6d78927e583e971b1f4f412ff240b7a523e158",
       "bytes": 2197522,
       "width": 1672,
-      "height": 941
+      "height": 941,
+      "character_group": "吉迪恩"
     },
     {
       "id": "role-3f85d163ed1d6617",
-      "collection": "无限综艺",
-      "ip": "吉迪恩",
+      "collection": "日常图",
+      "ip": "260924无限综艺美术人物资产(1)",
       "name": "吉迪恩人脸模板",
       "filename": "吉迪恩人脸模板.png",
       "subfolders": [],
@@ -2094,12 +2177,13 @@
       "sha256": "3f85d163ed1d6617a384be4c8ad75ef8446e982bc02dab29613376e0c88af051",
       "bytes": 1597313,
       "width": 1086,
-      "height": 1448
+      "height": 1448,
+      "character_group": "吉迪恩"
     },
     {
       "id": "role-4850cef00a37f2c5",
-      "collection": "无限综艺",
-      "ip": "吉迪恩",
+      "collection": "日常图",
+      "ip": "260924无限综艺美术人物资产(1)",
       "name": "吉迪恩特写三视图",
       "filename": "吉迪恩特写三视图.png",
       "subfolders": [],
@@ -2119,12 +2203,13 @@
       "sha256": "4850cef00a37f2c502ff65779c9c68d6aa372e53a747046114d5bedefc29a9b2",
       "bytes": 2607162,
       "width": 1888,
-      "height": 941
+      "height": 941,
+      "character_group": "吉迪恩"
     },
     {
       "id": "role-0e26fcf3eb81d64a",
-      "collection": "无限综艺",
-      "ip": "吉迪恩",
+      "collection": "日常图",
+      "ip": "260924无限综艺美术人物资产(1)",
       "name": "吉迪恩狼人特写三视图",
       "filename": "吉迪恩狼人特写三视图.png",
       "subfolders": [],
@@ -2144,12 +2229,13 @@
       "sha256": "0e26fcf3eb81d64a67bdf8ac4e6e1f39d5c8e3a019e91ca5572fe9dbc1b0e44f",
       "bytes": 3268024,
       "width": 2011,
-      "height": 941
+      "height": 941,
+      "character_group": "吉迪恩"
     },
     {
       "id": "role-89b088b752b62cbc",
-      "collection": "无限综艺",
-      "ip": "塞纳菲娜",
+      "collection": "日常图",
+      "ip": "260924无限综艺美术人物资产(1)",
       "name": "!塞拉菲娜-特写三视图",
       "filename": "!塞拉菲娜-特写三视图.png",
       "subfolders": [],
@@ -2170,12 +2256,13 @@
       "sha256": "89b088b752b62cbcb14dacbafab03382c23aadb2404a31f184637a81dd6b27eb",
       "bytes": 2844040,
       "width": 1888,
-      "height": 941
+      "height": 941,
+      "character_group": "塞纳菲娜"
     },
     {
       "id": "role-4cb05257b26eb018",
-      "collection": "无限综艺",
-      "ip": "塞纳菲娜",
+      "collection": "日常图",
+      "ip": "260924无限综艺美术人物资产(1)",
       "name": "塞拉菲娜",
       "filename": "塞拉菲娜.png",
       "subfolders": [],
@@ -2196,12 +2283,13 @@
       "sha256": "4cb05257b26eb0183733cf380afd6c1d0aaf97c88cb4a658be23b15dc6ac22a2",
       "bytes": 2190894,
       "width": 1672,
-      "height": 941
+      "height": 941,
+      "character_group": "塞纳菲娜"
     },
     {
       "id": "role-1b56f61bfbce7dfd",
-      "collection": "无限综艺",
-      "ip": "塞纳菲娜",
+      "collection": "日常图",
+      "ip": "260924无限综艺美术人物资产(1)",
       "name": "塞拉菲娜兜帽",
       "filename": "塞拉菲娜兜帽.png",
       "subfolders": [],
@@ -2222,12 +2310,13 @@
       "sha256": "1b56f61bfbce7dfde021c022bdc84aab13461c4c909bfd75586dbd50607bb202",
       "bytes": 2809818,
       "width": 1672,
-      "height": 941
+      "height": 941,
+      "character_group": "塞纳菲娜"
     },
     {
       "id": "role-4ac2a09e59bc2681",
-      "collection": "无限综艺",
-      "ip": "塞纳菲娜",
+      "collection": "日常图",
+      "ip": "260924无限综艺美术人物资产(1)",
       "name": "塞拉菲娜特写三视图",
       "filename": "塞拉菲娜特写三视图.png",
       "subfolders": [],
@@ -2248,12 +2337,13 @@
       "sha256": "4ac2a09e59bc2681753f82b1c20129d38d50ced734c93e38237ed6ded5ecdb19",
       "bytes": 2852889,
       "width": 1888,
-      "height": 941
+      "height": 941,
+      "character_group": "塞纳菲娜"
     },
     {
       "id": "role-7b40052fdf87103f",
-      "collection": "无限综艺",
-      "ip": "瓦伦丁",
+      "collection": "日常图",
+      "ip": "260924无限综艺美术人物资产(1)",
       "name": "!瓦伦丁-特写三视图",
       "filename": "!瓦伦丁-特写三视图.png",
       "subfolders": [],
@@ -2273,12 +2363,13 @@
       "sha256": "7b40052fdf87103f0f0c3ff48574f60c5ef7252da3a230e66ec8cb715a3c5272",
       "bytes": 2595122,
       "width": 1888,
-      "height": 941
+      "height": 941,
+      "character_group": "瓦伦丁"
     },
     {
       "id": "role-41903db8fa79290c",
-      "collection": "无限综艺",
-      "ip": "瓦伦丁",
+      "collection": "日常图",
+      "ip": "260924无限综艺美术人物资产(1)",
       "name": "瓦伦丁",
       "filename": "瓦伦丁.png",
       "subfolders": [],
@@ -2298,12 +2389,13 @@
       "sha256": "41903db8fa79290c6d6e57ccb70904d05fc9de71887fe5b0c23fc0e8e0a6b456",
       "bytes": 2086058,
       "width": 1672,
-      "height": 941
+      "height": 941,
+      "character_group": "瓦伦丁"
     },
     {
       "id": "role-f95f979d5783e2c0",
-      "collection": "无限综艺",
-      "ip": "瓦伦丁",
+      "collection": "日常图",
+      "ip": "260924无限综艺美术人物资产(1)",
       "name": "瓦伦丁特写三视图",
       "filename": "瓦伦丁特写三视图.png",
       "subfolders": [],
@@ -2323,12 +2415,13 @@
       "sha256": "f95f979d5783e2c0a8c1a6b00b6da4d4ca80b9acb6684ac531e553004dfb9e67",
       "bytes": 2606525,
       "width": 1888,
-      "height": 941
+      "height": 941,
+      "character_group": "瓦伦丁"
     },
     {
       "id": "role-689dd67565c51d17",
-      "collection": "无限综艺",
-      "ip": "瓦伦丁",
+      "collection": "日常图",
+      "ip": "260924无限综艺美术人物资产(1)",
       "name": "瓦伦丁脸模",
       "filename": "瓦伦丁脸模.png",
       "subfolders": [],
@@ -2345,12 +2438,13 @@
       "sha256": "689dd67565c51d1783fff56e8580a436dfb3c389e8b80efaea6fc259875d65ec",
       "bytes": 2312331,
       "width": 1050,
-      "height": 1498
+      "height": 1498,
+      "character_group": "瓦伦丁"
     },
     {
       "id": "role-cee778bdf81c9e38",
-      "collection": "无限综艺",
-      "ip": "罗文",
+      "collection": "日常图",
+      "ip": "260924无限综艺美术人物资产(1)",
       "name": "!罗文-特写三视图",
       "filename": "!罗文-特写三视图.png",
       "subfolders": [],
@@ -2370,12 +2464,13 @@
       "sha256": "cee778bdf81c9e381293c5e084d69e13868c6f84b6ab58111db41ebdcc64c326",
       "bytes": 2677710,
       "width": 1888,
-      "height": 941
+      "height": 941,
+      "character_group": "罗文"
     },
     {
       "id": "role-d5a33389cd94c4a3",
-      "collection": "无限综艺",
-      "ip": "罗文",
+      "collection": "日常图",
+      "ip": "260924无限综艺美术人物资产(1)",
       "name": "罗文",
       "filename": "罗文.png",
       "subfolders": [],
@@ -2395,12 +2490,13 @@
       "sha256": "d5a33389cd94c4a392dbd28b2a6160efad9b08452c5e43d5d86e8890cc1459b3",
       "bytes": 2143443,
       "width": 1672,
-      "height": 941
+      "height": 941,
+      "character_group": "罗文"
     },
     {
       "id": "role-8d112653da5d2e1d",
-      "collection": "无限综艺",
-      "ip": "罗文",
+      "collection": "日常图",
+      "ip": "260924无限综艺美术人物资产(1)",
       "name": "罗文特写三视图",
       "filename": "罗文特写三视图.png",
       "subfolders": [],
@@ -2420,12 +2516,13 @@
       "sha256": "8d112653da5d2e1d6d17486d8c3c278085f7d3e216c913a1643c1772205d7799",
       "bytes": 2692056,
       "width": 1888,
-      "height": 941
+      "height": 941,
+      "character_group": "罗文"
     },
     {
       "id": "role-b07e4bd76afca558",
-      "collection": "无限综艺",
-      "ip": "罗文",
+      "collection": "日常图",
+      "ip": "260924无限综艺美术人物资产(1)",
       "name": "罗文脸模",
       "filename": "罗文脸模.png",
       "subfolders": [],
@@ -2442,12 +2539,13 @@
       "sha256": "b07e4bd76afca558e62bc086f0e33d905ad49a9a48e71fd059b3376d63e90b32",
       "bytes": 2113925,
       "width": 1086,
-      "height": 1448
+      "height": 1448,
+      "character_group": "罗文"
     },
     {
       "id": "role-38244e61876d62a0",
-      "collection": "无限综艺",
-      "ip": "艾略特",
+      "collection": "日常图",
+      "ip": "260924无限综艺美术人物资产(1)",
       "name": "!艾略特-特写三视图",
       "filename": "!艾略特-特写三视图.png",
       "subfolders": [],
@@ -2467,12 +2565,13 @@
       "sha256": "38244e61876d62a0c6881b842e20d4b1b91ac856f9700afb9bff25e88a0cca94",
       "bytes": 2412761,
       "width": 1888,
-      "height": 941
+      "height": 941,
+      "character_group": "艾略特"
     },
     {
       "id": "role-e83f6cc3486519b7",
-      "collection": "无限综艺",
-      "ip": "艾略特",
+      "collection": "日常图",
+      "ip": "260924无限综艺美术人物资产(1)",
       "name": "艾略特",
       "filename": "艾略特.png",
       "subfolders": [],
@@ -2491,12 +2590,13 @@
       "sha256": "e83f6cc3486519b711875949ef748d20ed24c2689cea629d3281e3ff265eff57",
       "bytes": 1857692,
       "width": 1672,
-      "height": 941
+      "height": 941,
+      "character_group": "艾略特"
     },
     {
       "id": "role-19cdaa6c84dc1d0e",
-      "collection": "无限综艺",
-      "ip": "艾略特",
+      "collection": "日常图",
+      "ip": "260924无限综艺美术人物资产(1)",
       "name": "艾略特特写三视图",
       "filename": "艾略特特写三视图.png",
       "subfolders": [],
@@ -2516,11 +2616,12 @@
       "sha256": "19cdaa6c84dc1d0e42bb6f97b59646e0516f821fe6b98acdf9d29c24179e954c",
       "bytes": 2425273,
       "width": 1888,
-      "height": 941
+      "height": 941,
+      "character_group": "艾略特"
     },
     {
       "id": "role-dc3900069fdaa5da",
-      "collection": "凌峰&Leo",
+      "collection": "万圣节图",
       "ip": "凌峰&Leo",
       "name": "Beckett Hale-吸血鬼美妆图",
       "filename": "Beckett Hale-吸血鬼美妆图.png",
@@ -2540,11 +2641,12 @@
       "sha256": "dc3900069fdaa5da7e75903a664bdae429e70affd34a2daadfc4eb1bd726d342",
       "bytes": 2046252,
       "width": 941,
-      "height": 1672
+      "height": 1672,
+      "character_group": "凌峰&Leo"
     },
     {
       "id": "role-ec56315d54d09916",
-      "collection": "凌峰&Leo",
+      "collection": "万圣节图",
       "ip": "凌峰&Leo",
       "name": "Beckett Hale-完整贵族吸血鬼变装",
       "filename": "Beckett Hale-完整贵族吸血鬼变装.png",
@@ -2564,11 +2666,12 @@
       "sha256": "ec56315d54d0991618a1c93c431e6f97ee8cf74739fc2a6e3ec6ce137ac7f859",
       "bytes": 2103759,
       "width": 941,
-      "height": 1672
+      "height": 1672,
+      "character_group": "凌峰&Leo"
     },
     {
       "id": "role-d69db462fd69b439",
-      "collection": "凌峰&Leo",
+      "collection": "日常图",
       "ip": "凌峰&Leo",
       "name": "Beckett Hale-日常妆",
       "filename": "Beckett Hale-日常妆.png",
@@ -2586,11 +2689,12 @@
       "sha256": "d69db462fd69b439b322455f5efb575fb440e7cb7078db1f0314d1e592ff7481",
       "bytes": 2129306,
       "width": 941,
-      "height": 1672
+      "height": 1672,
+      "character_group": "凌峰&Leo"
     },
     {
       "id": "role-68380d03e06bd760",
-      "collection": "凌峰&Leo",
+      "collection": "万圣节图",
       "ip": "凌峰&Leo",
       "name": "Isaiah Marsh-完整月夜狼人变装",
       "filename": "Isaiah Marsh-完整月夜狼人变装.png",
@@ -2610,11 +2714,12 @@
       "sha256": "68380d03e06bd760932f7f062cdd5cc052a91b761a9f135c42846c07912232a8",
       "bytes": 2350437,
       "width": 941,
-      "height": 1672
+      "height": 1672,
+      "character_group": "凌峰&Leo"
     },
     {
       "id": "role-4647f75bf89c818e",
-      "collection": "凌峰&Leo",
+      "collection": "日常图",
       "ip": "凌峰&Leo",
       "name": "Isaiah Marsh-日常妆",
       "filename": "Isaiah Marsh-日常妆.png",
@@ -2632,11 +2737,12 @@
       "sha256": "4647f75bf89c818e6213a02a053d385faef24213513a55a19b3d270d124c674c",
       "bytes": 2214797,
       "width": 941,
-      "height": 1672
+      "height": 1672,
+      "character_group": "凌峰&Leo"
     },
     {
       "id": "role-8dc0c5ef392ff35f",
-      "collection": "凌峰&Leo",
+      "collection": "万圣节图",
       "ip": "凌峰&Leo",
       "name": "Isaiah Marsh-狼人美妆图",
       "filename": "Isaiah Marsh-狼人美妆图.png",
@@ -2656,11 +2762,12 @@
       "sha256": "8dc0c5ef392ff35fc13a188314d9f20c6f84a59becd56055f14314479fd3596c",
       "bytes": 2113958,
       "width": 941,
-      "height": 1672
+      "height": 1672,
+      "character_group": "凌峰&Leo"
     },
     {
       "id": "role-5fd6a1fe25f4aa49",
-      "collection": "凌峰&Leo",
+      "collection": "万圣节图",
       "ip": "凌峰&Leo",
       "name": "Lena Reyes-完整黑天鹅变装",
       "filename": "Lena Reyes-完整黑天鹅变装.png",
@@ -2680,11 +2787,12 @@
       "sha256": "5fd6a1fe25f4aa492e40f946ff9bdf22edda887ab5464cdcc8bb6d21fbdd627e",
       "bytes": 2172851,
       "width": 941,
-      "height": 1672
+      "height": 1672,
+      "character_group": "凌峰&Leo"
     },
     {
       "id": "role-060b517f8f3e524a",
-      "collection": "凌峰&Leo",
+      "collection": "日常图",
       "ip": "凌峰&Leo",
       "name": "Lena Reyes-日常妆",
       "filename": "Lena Reyes-日常妆.png",
@@ -2702,11 +2810,12 @@
       "sha256": "060b517f8f3e524a8d06630e8c52586afd8e66a3562c22f13ff971aaa14ea8bf",
       "bytes": 2130671,
       "width": 941,
-      "height": 1672
+      "height": 1672,
+      "character_group": "凌峰&Leo"
     },
     {
       "id": "role-245dc6f5cefa1200",
-      "collection": "凌峰&Leo",
+      "collection": "万圣节图",
       "ip": "凌峰&Leo",
       "name": "Lena Reyes-黑天鹅美妆图",
       "filename": "Lena Reyes-黑天鹅美妆图.png",
@@ -2726,11 +2835,12 @@
       "sha256": "245dc6f5cefa12002fedc6dc99a84f97b6b874836149d9205ff54c4f0ba0fed3",
       "bytes": 1998423,
       "width": 941,
-      "height": 1672
+      "height": 1672,
+      "character_group": "凌峰&Leo"
     },
     {
       "id": "role-cdf3ade6f1088288",
-      "collection": "Danny+脆脆宝 同剧演员守则",
+      "collection": "万圣节图",
       "ip": "Danny+脆脆宝 同剧演员守则",
       "name": "乌尔里克妆造加服装",
       "filename": "乌尔里克妆造加服装.png",
@@ -2751,11 +2861,12 @@
       "sha256": "cdf3ade6f10882889f544ab3eb24a6228274929e4c54152b6ae94a43aa4636cd",
       "bytes": 7544777,
       "width": 1696,
-      "height": 2528
+      "height": 2528,
+      "character_group": "Danny+脆脆宝 同剧演员守则"
     },
     {
       "id": "role-7b054ca200abd70e",
-      "collection": "Danny+脆脆宝 同剧演员守则",
+      "collection": "日常图",
       "ip": "Danny+脆脆宝 同剧演员守则",
       "name": "乌尔里克日常",
       "filename": "乌尔里克日常.png",
@@ -2773,11 +2884,12 @@
       "sha256": "7b054ca200abd70e995603b1b8fc8a4a162076ae9edbaeb6923affbdbded7a5b",
       "bytes": 1730472,
       "width": 1024,
-      "height": 1536
+      "height": 1536,
+      "character_group": "Danny+脆脆宝 同剧演员守则"
     },
     {
       "id": "role-3529b2086efe74d9",
-      "collection": "Danny+脆脆宝 同剧演员守则",
+      "collection": "万圣节图",
       "ip": "Danny+脆脆宝 同剧演员守则",
       "name": "乌尔里克狼人妆造",
       "filename": "乌尔里克狼人妆造.png",
@@ -2797,11 +2909,12 @@
       "sha256": "3529b2086efe74d9434c8d6d8ee6ffa27f3f145dd79ed891e45aac1822962237",
       "bytes": 2919341,
       "width": 1344,
-      "height": 2016
+      "height": 2016,
+      "character_group": "Danny+脆脆宝 同剧演员守则"
     },
     {
       "id": "role-dd411c234efa0b7d",
-      "collection": "Danny+脆脆宝 同剧演员守则",
+      "collection": "万圣节图",
       "ip": "Danny+脆脆宝 同剧演员守则",
       "name": "伊格尼斯剪刀手爱德华妆造",
       "filename": "伊格尼斯剪刀手爱德华妆造.png",
@@ -2822,11 +2935,12 @@
       "sha256": "dd411c234efa0b7dd1487982dc7615dd21874b9c7068600e2bfb6e294588b59d",
       "bytes": 6178521,
       "width": 1696,
-      "height": 2528
+      "height": 2528,
+      "character_group": "Danny+脆脆宝 同剧演员守则"
     },
     {
       "id": "role-1e68176555b63722",
-      "collection": "Danny+脆脆宝 同剧演员守则",
+      "collection": "万圣节图",
       "ip": "Danny+脆脆宝 同剧演员守则",
       "name": "伊格尼斯妆造加服装",
       "filename": "伊格尼斯妆造加服装.png",
@@ -2847,11 +2961,12 @@
       "sha256": "1e68176555b63722bcbcfde795b7d05f60409ea5f0e5907321b72125c4a1c86c",
       "bytes": 8034747,
       "width": 1696,
-      "height": 2528
+      "height": 2528,
+      "character_group": "Danny+脆脆宝 同剧演员守则"
     },
     {
       "id": "role-6ff163e8b49276c9",
-      "collection": "Danny+脆脆宝 同剧演员守则",
+      "collection": "日常图",
       "ip": "Danny+脆脆宝 同剧演员守则",
       "name": "伊格尼斯日常",
       "filename": "伊格尼斯日常.png",
@@ -2869,11 +2984,12 @@
       "sha256": "6ff163e8b49276c9363b8a677f1b0c7ab30ef1736c2f9dddfbac1a7ae243aa9d",
       "bytes": 2059725,
       "width": 1024,
-      "height": 1536
+      "height": 1536,
+      "character_group": "Danny+脆脆宝 同剧演员守则"
     },
     {
       "id": "role-d782e154fbc806c4",
-      "collection": "Danny+脆脆宝 同剧演员守则",
+      "collection": "万圣节图",
       "ip": "Danny+脆脆宝 同剧演员守则",
       "name": "伊芙琳修女妆造",
       "filename": "伊芙琳修女妆造.png",
@@ -2893,11 +3009,12 @@
       "sha256": "d782e154fbc806c4cb72cf6b25a566cfbd517665812a59d76718589b59082de2",
       "bytes": 5217248,
       "width": 1696,
-      "height": 2528
+      "height": 2528,
+      "character_group": "Danny+脆脆宝 同剧演员守则"
     },
     {
       "id": "role-1ae400663e8b514f",
-      "collection": "Danny+脆脆宝 同剧演员守则",
+      "collection": "万圣节图",
       "ip": "Danny+脆脆宝 同剧演员守则",
       "name": "伊芙琳妆造加服装",
       "filename": "伊芙琳妆造加服装.png",
@@ -2918,11 +3035,12 @@
       "sha256": "1ae400663e8b514f57fe2294e780f4f36b01619d1438e209aa4c344d831bc34d",
       "bytes": 5419803,
       "width": 1696,
-      "height": 2528
+      "height": 2528,
+      "character_group": "Danny+脆脆宝 同剧演员守则"
     },
     {
       "id": "role-3abb96e025889f47",
-      "collection": "Danny+脆脆宝 同剧演员守则",
+      "collection": "日常图",
       "ip": "Danny+脆脆宝 同剧演员守则",
       "name": "伊芙琳日常",
       "filename": "伊芙琳日常.png",
@@ -2940,11 +3058,12 @@
       "sha256": "3abb96e025889f477fd976ab634e8fd79dee3c7bf70a92157d617bcb614cbf85",
       "bytes": 1842478,
       "width": 1024,
-      "height": 1536
+      "height": 1536,
+      "character_group": "Danny+脆脆宝 同剧演员守则"
     },
     {
       "id": "role-c6ed739e354d7a1a",
-      "collection": "Danny+脆脆宝 同剧演员守则",
+      "collection": "万圣节图",
       "ip": "Danny+脆脆宝 同剧演员守则",
       "name": "凯尔 怪奇物语 水手妆造",
       "filename": "凯尔 怪奇物语 水手妆造.png",
@@ -2964,11 +3083,12 @@
       "sha256": "c6ed739e354d7a1a7f6b1d8c990be137ed62594af2037201b27fc9a0675ea52e",
       "bytes": 3250635,
       "width": 1344,
-      "height": 2016
+      "height": 2016,
+      "character_group": "Danny+脆脆宝 同剧演员守则"
     },
     {
       "id": "role-bce9326fea870c07",
-      "collection": "Danny+脆脆宝 同剧演员守则",
+      "collection": "万圣节图",
       "ip": "Danny+脆脆宝 同剧演员守则",
       "name": "凯尔妆造加服装",
       "filename": "凯尔妆造加服装.png",
@@ -2989,11 +3109,12 @@
       "sha256": "bce9326fea870c077e3151dcafabb2a2fdbdf9b95c98e4ab41883cafb6df851e",
       "bytes": 7545282,
       "width": 1696,
-      "height": 2528
+      "height": 2528,
+      "character_group": "Danny+脆脆宝 同剧演员守则"
     },
     {
       "id": "role-5d6e35999219d216",
-      "collection": "Danny+脆脆宝 同剧演员守则",
+      "collection": "日常图",
       "ip": "Danny+脆脆宝 同剧演员守则",
       "name": "凯尔日常",
       "filename": "凯尔日常.png",
@@ -3011,11 +3132,12 @@
       "sha256": "5d6e35999219d21616cc6fa443364acd51b7ed5964b427ed94cc1035e3eb285b",
       "bytes": 2043982,
       "width": 1024,
-      "height": 1536
+      "height": 1536,
+      "character_group": "Danny+脆脆宝 同剧演员守则"
     },
     {
       "id": "role-bce8bd4ff8caed90",
-      "collection": "Danny+脆脆宝 同剧演员守则",
+      "collection": "万圣节图",
       "ip": "Danny+脆脆宝 同剧演员守则",
       "name": "卡斯平加勒比妆造",
       "filename": "卡斯平加勒比妆造.png",
@@ -3035,11 +3157,12 @@
       "sha256": "bce8bd4ff8caed90daccecf9becc16baf542eb70e56894627ff96d1831dc9fc0",
       "bytes": 1840936,
       "width": 1024,
-      "height": 1536
+      "height": 1536,
+      "character_group": "Danny+脆脆宝 同剧演员守则"
     },
     {
       "id": "role-7e1b2416647cfcd0",
-      "collection": "Danny+脆脆宝 同剧演员守则",
+      "collection": "万圣节图",
       "ip": "Danny+脆脆宝 同剧演员守则",
       "name": "卡斯平妆造加服装",
       "filename": "卡斯平妆造加服装.png",
@@ -3060,11 +3183,12 @@
       "sha256": "7e1b2416647cfcd01edb1ab5a8fce902d52ce7d14e1c2fb66facc1753b2a5dd3",
       "bytes": 7877565,
       "width": 1696,
-      "height": 2528
+      "height": 2528,
+      "character_group": "Danny+脆脆宝 同剧演员守则"
     },
     {
       "id": "role-59a3ee49a73427df",
-      "collection": "Danny+脆脆宝 同剧演员守则",
+      "collection": "日常图",
       "ip": "Danny+脆脆宝 同剧演员守则",
       "name": "卡斯平日常",
       "filename": "卡斯平日常.png",
@@ -3082,11 +3206,12 @@
       "sha256": "59a3ee49a73427df865cdb3274c39f176d733428b24b9bf53b9c7a00b8c20f3d",
       "bytes": 1874773,
       "width": 1024,
-      "height": 1536
+      "height": 1536,
+      "character_group": "Danny+脆脆宝 同剧演员守则"
     },
     {
       "id": "role-e790358a9068983e",
-      "collection": "Danny+脆脆宝 同剧演员守则",
+      "collection": "万圣节图",
       "ip": "Danny+脆脆宝 同剧演员守则",
       "name": "卢西安吸血鬼妆造",
       "filename": "卢西安吸血鬼妆造.png",
@@ -3107,11 +3232,12 @@
       "sha256": "e790358a9068983eb588f190b3bd3355248400cd07d89e87985c93aff5d8594c",
       "bytes": 6178367,
       "width": 1664,
-      "height": 2496
+      "height": 2496,
+      "character_group": "Danny+脆脆宝 同剧演员守则"
     },
     {
       "id": "role-1d67a62af1283dab",
-      "collection": "Danny+脆脆宝 同剧演员守则",
+      "collection": "万圣节图",
       "ip": "Danny+脆脆宝 同剧演员守则",
       "name": "卢西安妆造加服装",
       "filename": "卢西安妆造加服装.png",
@@ -3132,11 +3258,12 @@
       "sha256": "1d67a62af1283daba5f87097e89207263b2fbcf10f24dcd136a2ed0e30ee73d5",
       "bytes": 7277773,
       "width": 1696,
-      "height": 2528
+      "height": 2528,
+      "character_group": "Danny+脆脆宝 同剧演员守则"
     },
     {
       "id": "role-768a1b629b11e272",
-      "collection": "Danny+脆脆宝 同剧演员守则",
+      "collection": "日常图",
       "ip": "Danny+脆脆宝 同剧演员守则",
       "name": "卢西安日常",
       "filename": "卢西安日常.png",
@@ -3154,11 +3281,12 @@
       "sha256": "768a1b629b11e272c1b763af152ee333dacb978a63357696f9d4d9b88690a9a9",
       "bytes": 1879738,
       "width": 1024,
-      "height": 1536
+      "height": 1536,
+      "character_group": "Danny+脆脆宝 同剧演员守则"
     },
     {
       "id": "role-cc046c2b1d2b932c",
-      "collection": "Danny+脆脆宝 同剧演员守则",
+      "collection": "万圣节图",
       "ip": "Danny+脆脆宝 同剧演员守则",
       "name": "达米安妆造加服装",
       "filename": "达米安妆造加服装.png",
@@ -3179,11 +3307,12 @@
       "sha256": "cc046c2b1d2b932c70da56e2d08dbacbd1ef950f048783cba645bc67412f10b4",
       "bytes": 6131147,
       "width": 1696,
-      "height": 2528
+      "height": 2528,
+      "character_group": "Danny+脆脆宝 同剧演员守则"
     },
     {
       "id": "role-98f93a4004fe60d8",
-      "collection": "Danny+脆脆宝 同剧演员守则",
+      "collection": "万圣节图",
       "ip": "Danny+脆脆宝 同剧演员守则",
       "name": "达米安小丑妆容",
       "filename": "达米安小丑妆容.png",
@@ -3203,11 +3332,12 @@
       "sha256": "98f93a4004fe60d800fac163ca015856192b0018f37be764119e03811287b433",
       "bytes": 4104374,
       "width": 1536,
-      "height": 2048
+      "height": 2048,
+      "character_group": "Danny+脆脆宝 同剧演员守则"
     },
     {
       "id": "role-f3d6b49c978ef618",
-      "collection": "Danny+脆脆宝 同剧演员守则",
+      "collection": "日常图",
       "ip": "Danny+脆脆宝 同剧演员守则",
       "name": "达米安日常",
       "filename": "达米安日常.png",
@@ -3225,7 +3355,8 @@
       "sha256": "f3d6b49c978ef618a6d41ebfd9bdc450d516989cd4d813f478157372b1ae5529",
       "bytes": 2202687,
       "width": 1024,
-      "height": 1536
+      "height": 1536,
+      "character_group": "Danny+脆脆宝 同剧演员守则"
     }
   ]
 }
