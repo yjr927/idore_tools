@@ -1412,9 +1412,286 @@
           "transformation": "unknown"
         }
       ]
+    },
+    {
+      "trend_category": "kpop",
+      "material_group": "unknown",
+      "transformation": "unknown",
+      "url": "https://www.tiktok.com/@dydvt0gqj0kb/video/7702801829414964500",
+      "title": "TWICE Turtle — front-facing hand gestures",
+      "kind": "hands",
+      "original_watched": true,
+      "motion_summary": "已播放14秒原片并观察关键画面：仅1名人物在门前正面出镜，穿浅色衬衫、黑白条纹领部配饰，双辫、头顶眼镜；双手交叠放胸前，随后一掌竖起、另一手向下摆动。门框与机位稳定。页面文案标注TWICE/乌龟，作为K-pop动作参考；角色素材分组缺少充分依据，保留unknown，不判断人物真实性别。已见画面造型相同，但未确认全片无妆容/服装变化；动作重复周期未核验。",
+      "checks": {
+        "fixed_camera": true,
+        "repetitive": null,
+        "solo": true
+      },
+      "recreation_notes": "上半身居中、背景简单，适合拆解短手势；手指、衣袖和发丝遮挡需注意。公开目录有男女单人素材，但本条分组待确认，不自动指定角色。尚未生成测试；后续须先提取动作并渲染无脸白模。",
+      "published_at": null,
+      "published_text": "10-31",
+      "metrics": {
+        "comments": 6,
+        "likes": 178,
+        "shares": 10,
+        "views": null
+      },
+      "related_videos": [
+        {
+          "url": "https://www.tiktok.com/@hanamileniaa/video/7070332133591485722",
+          "original_watched": true,
+          "same_pattern": null,
+          "note": "实际播放，页面2022-3-2；单人戴卡通帽披粉色布料，从手托下巴到双拇指指向自身。与主片胸前交手和上下摆掌的可见段落不同，不能确认同一完整动作序列；仅作为较早同歌曲参考，不是近期跟拍证据。仅1名其他作者，不足3人核验。"
+        }
+      ],
+      "music_name": "suara asli - *傻孩子别关注我",
+      "id": "tiktok-7702801829414964500",
+      "video_id": "7702801829414964500",
+      "author": "dydvt0gqj0kb",
+      "kinds": [
+        "hands"
+      ],
+      "first_seen_at": "2026-11-18T14:02:31+00:00",
+      "last_seen_at": "2026-11-18T14:02:31+00:00",
+      "duration": null,
+      "music_id": "",
+      "source": "ChatGPT Work 云端浏览器",
+      "source_url": "https://www.tiktok.com/@dydvt0gqj0kb/video/7702801829414964500",
+      "source_kind": "chatgpt_work",
+      "search_query": "",
+      "assessment": "待核验候选",
+      "assessment_note": "已播放14秒原片并观察关键画面：仅1名人物在门前正面出镜，穿浅色衬衫、黑白条纹领部配饰，双辫、头顶眼镜；双手交叠放胸前，随后一掌竖起、另一手向下摆动。门框与机位稳定。页面文案标注TWICE/乌龟，作为K-pop动作参考；角色素材分组缺少充分依据，保留unknown，不判断人物真实性别。已见画面造型相同，但未确认全片无妆容/服装变化；动作重复周期未核验。",
+      "motion_verified": false,
+      "trend_verified": false,
+      "favorite": false,
+      "availability": "Work 已观看原片",
+      "observations": [
+        {
+          "run_id": "work-tiktok-20261118T140231Z-v2",
+          "observed_at": "2026-11-18T14:02:31+00:00",
+          "metrics": {
+            "comments": 6,
+            "likes": 178,
+            "shares": 10,
+            "views": null
+          },
+          "original_watched": true,
+          "motion_summary": "已播放14秒原片并观察关键画面：仅1名人物在门前正面出镜，穿浅色衬衫、黑白条纹领部配饰，双辫、头顶眼镜；双手交叠放胸前，随后一掌竖起、另一手向下摆动。门框与机位稳定。页面文案标注TWICE/乌龟，作为K-pop动作参考；角色素材分组缺少充分依据，保留unknown，不判断人物真实性别。已见画面造型相同，但未确认全片无妆容/服装变化；动作重复周期未核验。",
+          "checks": {
+            "fixed_camera": true,
+            "repetitive": null,
+            "solo": true
+          },
+          "recreation_notes": "上半身居中、背景简单，适合拆解短手势；手指、衣袖和发丝遮挡需注意。公开目录有男女单人素材，但本条分组待确认，不自动指定角色。尚未生成测试；后续须先提取动作并渲染无脸白模。",
+          "related_videos": [
+            {
+              "url": "https://www.tiktok.com/@hanamileniaa/video/7070332133591485722",
+              "original_watched": true,
+              "same_pattern": null,
+              "note": "实际播放，页面2022-3-2；单人戴卡通帽披粉色布料，从手托下巴到双拇指指向自身。与主片胸前交手和上下摆掌的可见段落不同，不能确认同一完整动作序列；仅作为较早同歌曲参考，不是近期跟拍证据。仅1名其他作者，不足3人核验。"
+            }
+          ],
+          "motion_verified": false,
+          "trend_verified": false,
+          "trend_category": "kpop",
+          "material_group": "unknown",
+          "transformation": "unknown"
+        }
+      ]
+    },
+    {
+      "trend_category": "virtual_idol",
+      "material_group": "female",
+      "transformation": "unknown",
+      "url": "https://www.tiktok.com/@yuki.fox.idol/video/7707884994542292244",
+      "title": "Yuki Fox Idol — solo stage arm sweep",
+      "kind": "hands",
+      "original_watched": true,
+      "motion_summary": "已播放12秒原片并观察关键画面：仅1名白发狐耳、带尾巴的动漫虚拟角色，红白裙装与长袖，在樱花舞台正面全身出镜；从双臂低位展开到前臂横过胸前向侧方展开，双腿由交叉站姿转为侧开步，尾巴随动作摆动。舞台构图基本固定。虚拟角色画面及页面Fox Idol、AI生成标识支持virtual_idol主题；按裙装偶像造型规划女生角色素材，不判断真人性别。已见造型相同，未完整确认妆容/服装变化及重复周期。",
+      "checks": {
+        "fixed_camera": true,
+        "repetitive": null,
+        "solo": true
+      },
+      "recreation_notes": "单角色全身与清晰背景有利于动作提取；长袖、发丝、尾巴和飘落花瓣增加遮挡。可由后续流程检查公开目录Lila整体等女生单人素材，角色风格与狐耳尾巴适配尚未确认，不承诺匹配效果。尚未生成测试；须保留无脸白模步骤。",
+      "published_at": null,
+      "published_text": "4d ago",
+      "metrics": {
+        "comments": 0,
+        "likes": 29,
+        "shares": 1,
+        "views": null
+      },
+      "related_videos": [],
+      "music_name": "Treat You Better - Shawn Mendes",
+      "id": "tiktok-7707884994542292244",
+      "video_id": "7707884994542292244",
+      "author": "yuki.fox.idol",
+      "kinds": [
+        "hands"
+      ],
+      "first_seen_at": "2026-11-18T14:02:31+00:00",
+      "last_seen_at": "2026-11-18T14:02:31+00:00",
+      "duration": null,
+      "music_id": "",
+      "source": "ChatGPT Work 云端浏览器",
+      "source_url": "https://www.tiktok.com/@yuki.fox.idol/video/7707884994542292244",
+      "source_kind": "chatgpt_work",
+      "search_query": "",
+      "assessment": "待核验候选",
+      "assessment_note": "已播放12秒原片并观察关键画面：仅1名白发狐耳、带尾巴的动漫虚拟角色，红白裙装与长袖，在樱花舞台正面全身出镜；从双臂低位展开到前臂横过胸前向侧方展开，双腿由交叉站姿转为侧开步，尾巴随动作摆动。舞台构图基本固定。虚拟角色画面及页面Fox Idol、AI生成标识支持virtual_idol主题；按裙装偶像造型规划女生角色素材，不判断真人性别。已见造型相同，未完整确认妆容/服装变化及重复周期。",
+      "motion_verified": false,
+      "trend_verified": false,
+      "favorite": false,
+      "availability": "Work 已观看原片",
+      "observations": [
+        {
+          "run_id": "work-tiktok-20261118T140231Z-v2",
+          "observed_at": "2026-11-18T14:02:31+00:00",
+          "metrics": {
+            "comments": 0,
+            "likes": 29,
+            "shares": 1,
+            "views": null
+          },
+          "original_watched": true,
+          "motion_summary": "已播放12秒原片并观察关键画面：仅1名白发狐耳、带尾巴的动漫虚拟角色，红白裙装与长袖，在樱花舞台正面全身出镜；从双臂低位展开到前臂横过胸前向侧方展开，双腿由交叉站姿转为侧开步，尾巴随动作摆动。舞台构图基本固定。虚拟角色画面及页面Fox Idol、AI生成标识支持virtual_idol主题；按裙装偶像造型规划女生角色素材，不判断真人性别。已见造型相同，未完整确认妆容/服装变化及重复周期。",
+          "checks": {
+            "fixed_camera": true,
+            "repetitive": null,
+            "solo": true
+          },
+          "recreation_notes": "单角色全身与清晰背景有利于动作提取；长袖、发丝、尾巴和飘落花瓣增加遮挡。可由后续流程检查公开目录Lila整体等女生单人素材，角色风格与狐耳尾巴适配尚未确认，不承诺匹配效果。尚未生成测试；须保留无脸白模步骤。",
+          "related_videos": [],
+          "motion_verified": false,
+          "trend_verified": false,
+          "trend_category": "virtual_idol",
+          "material_group": "female",
+          "transformation": "unknown"
+        }
+      ]
     }
   ],
   "runs": [
+    {
+      "id": "work-tiktok-20261118T140231Z-v2",
+      "run_id": "work-tiktok-20261118T140231Z-v2",
+      "payload_sha256": "a14b68426bdccd5a4a9b3aeaaaa076349d83eb65898ff98f891fce04eb5aadd7",
+      "collector": "chatgpt_work",
+      "status": "partial",
+      "kind": "all",
+      "query": "",
+      "started_at": "2026-11-18T14:02:31+00:00",
+      "finished_at": "2026-11-18T14:02:31+00:00",
+      "observed_at": "2026-11-18T14:02:31+00:00",
+      "found": 2,
+      "added": 2,
+      "message": "本轮新增2条单人动作参考：K-pop 1条、虚拟偶像1条；当日此前无已用名额。优先检查7天，K-pop扩展至30天窗口。未凑满4条。原片均已播放观察关键帧，但造型变化、重复周期及至少3名不同作者同玩法证据不足；美国受众参与程度未核验，不代表美国热榜。指标为页面可见值，未使用K/M换算，播放量及精确日期未知。仅采集交接，尚未生成测试。",
+      "ingestion_status": "imported",
+      "video_snapshots": [
+        {
+          "id": "tiktok-7702801829414964500",
+          "video_id": "7702801829414964500",
+          "url": "https://www.tiktok.com/@dydvt0gqj0kb/video/7702801829414964500",
+          "title": "TWICE Turtle — front-facing hand gestures",
+          "author": "dydvt0gqj0kb",
+          "kind": "hands",
+          "original_watched": true,
+          "motion_summary": "已播放14秒原片并观察关键画面：仅1名人物在门前正面出镜，穿浅色衬衫、黑白条纹领部配饰，双辫、头顶眼镜；双手交叠放胸前，随后一掌竖起、另一手向下摆动。门框与机位稳定。页面文案标注TWICE/乌龟，作为K-pop动作参考；角色素材分组缺少充分依据，保留unknown，不判断人物真实性别。已见画面造型相同，但未确认全片无妆容/服装变化；动作重复周期未核验。",
+          "checks": {
+            "fixed_camera": true,
+            "repetitive": null,
+            "solo": true
+          },
+          "recreation_notes": "上半身居中、背景简单，适合拆解短手势；手指、衣袖和发丝遮挡需注意。公开目录有男女单人素材，但本条分组待确认，不自动指定角色。尚未生成测试；后续须先提取动作并渲染无脸白模。",
+          "published_at": null,
+          "published_text": "10-31",
+          "metrics": {
+            "comments": 6,
+            "likes": 178,
+            "shares": 10,
+            "views": null
+          },
+          "related_videos": [
+            {
+              "url": "https://www.tiktok.com/@hanamileniaa/video/7070332133591485722",
+              "original_watched": true,
+              "same_pattern": null,
+              "note": "实际播放，页面2022-3-2；单人戴卡通帽披粉色布料，从手托下巴到双拇指指向自身。与主片胸前交手和上下摆掌的可见段落不同，不能确认同一完整动作序列；仅作为较早同歌曲参考，不是近期跟拍证据。仅1名其他作者，不足3人核验。"
+            }
+          ],
+          "music_name": "suara asli - *傻孩子别关注我",
+          "motion_verified": false,
+          "trend_verified": false,
+          "source": "ChatGPT Work 云端浏览器",
+          "source_url": "https://www.tiktok.com/@dydvt0gqj0kb/video/7702801829414964500",
+          "source_kind": "chatgpt_work",
+          "assessment": "待核验候选",
+          "assessment_note": "已播放14秒原片并观察关键画面：仅1名人物在门前正面出镜，穿浅色衬衫、黑白条纹领部配饰，双辫、头顶眼镜；双手交叠放胸前，随后一掌竖起、另一手向下摆动。门框与机位稳定。页面文案标注TWICE/乌龟，作为K-pop动作参考；角色素材分组缺少充分依据，保留unknown，不判断人物真实性别。已见画面造型相同，但未确认全片无妆容/服装变化；动作重复周期未核验。",
+          "trend_category": "kpop",
+          "material_group": "unknown",
+          "transformation": "unknown",
+          "observed_at": "2026-11-18T14:02:31+00:00"
+        },
+        {
+          "id": "tiktok-7707884994542292244",
+          "video_id": "7707884994542292244",
+          "url": "https://www.tiktok.com/@yuki.fox.idol/video/7707884994542292244",
+          "title": "Yuki Fox Idol — solo stage arm sweep",
+          "author": "yuki.fox.idol",
+          "kind": "hands",
+          "original_watched": true,
+          "motion_summary": "已播放12秒原片并观察关键画面：仅1名白发狐耳、带尾巴的动漫虚拟角色，红白裙装与长袖，在樱花舞台正面全身出镜；从双臂低位展开到前臂横过胸前向侧方展开，双腿由交叉站姿转为侧开步，尾巴随动作摆动。舞台构图基本固定。虚拟角色画面及页面Fox Idol、AI生成标识支持virtual_idol主题；按裙装偶像造型规划女生角色素材，不判断真人性别。已见造型相同，未完整确认妆容/服装变化及重复周期。",
+          "checks": {
+            "fixed_camera": true,
+            "repetitive": null,
+            "solo": true
+          },
+          "recreation_notes": "单角色全身与清晰背景有利于动作提取；长袖、发丝、尾巴和飘落花瓣增加遮挡。可由后续流程检查公开目录Lila整体等女生单人素材，角色风格与狐耳尾巴适配尚未确认，不承诺匹配效果。尚未生成测试；须保留无脸白模步骤。",
+          "published_at": null,
+          "published_text": "4d ago",
+          "metrics": {
+            "comments": 0,
+            "likes": 29,
+            "shares": 1,
+            "views": null
+          },
+          "related_videos": [],
+          "music_name": "Treat You Better - Shawn Mendes",
+          "motion_verified": false,
+          "trend_verified": false,
+          "source": "ChatGPT Work 云端浏览器",
+          "source_url": "https://www.tiktok.com/@yuki.fox.idol/video/7707884994542292244",
+          "source_kind": "chatgpt_work",
+          "assessment": "待核验候选",
+          "assessment_note": "已播放12秒原片并观察关键画面：仅1名白发狐耳、带尾巴的动漫虚拟角色，红白裙装与长袖，在樱花舞台正面全身出镜；从双臂低位展开到前臂横过胸前向侧方展开，双腿由交叉站姿转为侧开步，尾巴随动作摆动。舞台构图基本固定。虚拟角色画面及页面Fox Idol、AI生成标识支持virtual_idol主题；按裙装偶像造型规划女生角色素材，不判断真人性别。已见造型相同，未完整确认妆容/服装变化及重复周期。",
+          "trend_category": "virtual_idol",
+          "material_group": "female",
+          "transformation": "unknown",
+          "observed_at": "2026-11-18T14:02:31+00:00"
+        }
+      ],
+      "sources": [
+        {
+          "name": "ChatGPT Work 云端浏览器",
+          "url": "https://www.tiktok.com/@dydvt0gqj0kb/video/7702801829414964500",
+          "status": "ok",
+          "found": 1
+        },
+        {
+          "name": "ChatGPT Work 云端浏览器",
+          "url": "https://www.tiktok.com/@hanamileniaa/video/7070332133591485722",
+          "status": "ok",
+          "found": 1
+        },
+        {
+          "name": "ChatGPT Work 云端浏览器",
+          "url": "https://www.tiktok.com/@yuki.fox.idol/video/7707884994542292244",
+          "status": "ok",
+          "found": 1
+        }
+      ]
+    },
     {
       "id": "work-tiktok-20261117T140951Z-v2",
       "run_id": "work-tiktok-20261117T140951Z-v2",
@@ -2454,8 +2731,8 @@
       ]
     }
   ],
-  "last_attempt_at": "2026-11-17T14:09:51+00:00",
-  "last_success_at": "2026-11-17T14:09:51+00:00",
+  "last_attempt_at": "2026-11-18T14:02:31+00:00",
+  "last_success_at": "2026-11-18T14:02:31+00:00",
   "work_imports": {
     "work-tiktok-20261112T013104Z-7704859708200389902": "3f8b1c1e965c6bdb4e2aa62d5664177f4b4188cb0e4652526db2730fb82349c7",
     "work-tiktok-20261112T140658Z-d02c989e": "2f440e348273e22c41cb3b476aaf274262e138159e45dde53425844de921907c",
@@ -2463,7 +2740,8 @@
     "work-tiktok-42496ba06f294957b97fa8c6dd7d3ddc": "e7ef4bacfbd5a54872d6aee2266480cb1ba6d52fcadc83e19e6418b99b51fcd6",
     "work-tiktok-58f0303583004adabe312c55789ab9b0": "033895ff0737f4a440632c2f0444bddb9fdf75ff1713e310b4c0f88a7236cb8b",
     "work-tiktok-20261116T143112979Z-v2": "3e2ca714238977a7aa19d01100e6ee39277e4d28e0c930e41c2e69e639d44d6e",
-    "work-tiktok-20261117T140951Z-v2": "e4d9ebfd85b7d4c9fd0ede215aa058fe634ad7bbea63c8df49dbc1d7b1775050"
+    "work-tiktok-20261117T140951Z-v2": "e4d9ebfd85b7d4c9fd0ede215aa058fe634ad7bbea63c8df49dbc1d7b1775050",
+    "work-tiktok-20261118T140231Z-v2": "a14b68426bdccd5a4a9b3aeaaaa076349d83eb65898ff98f891fce04eb5aadd7"
   },
   "material_classification_imports": {
     "2026-11-15T22:22:39.724000+00:00": "8cd3e17433a336f4ee0bcc3b43c3920f593ebf1d3c38b5039ecfc571ac1215ed"
@@ -2483,6 +2761,14 @@
       ],
       "virtual_idol": [
         "tiktok-7707258503991168278"
+      ]
+    },
+    "2026-11-18": {
+      "kpop": [
+        "tiktok-7702801829414964500"
+      ],
+      "virtual_idol": [
+        "tiktok-7707884994542292244"
       ]
     }
   }
