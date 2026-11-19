@@ -3,6 +3,8 @@ const START = '/auth/tiktok/start';
 const CALLBACK = '/auth/tiktok/callback';
 const PREVIEW_SCRIPT = HOME + '/preview.js';
 export const SANDBOX_CLIP_SHA256 = '7e1eb940cf5df0df19febd86ed94d549cbf3ff9263247e85bc9c4618bc615bcb';
+const KAI_PATH = '/generated/video-36dc967ec3fc7e4cd1060f94.mp4';
+const KAI = {hash:'36dc967ec3fc7e4cd1060f94cf9572ee4a1a7e2def4c2bcdeb6d9648518a3b68', size:6909394};
 const API = 'https://open.tiktokapis.com';
 const SCOPES = ['user.info.basic', 'video.upload'];
 const STATE = '__Host-idore-tt-state';
@@ -17,7 +19,7 @@ const headers = {
   'Cache-Control': 'no-store, private',
   'Referrer-Policy': 'no-referrer',
   'X-Content-Type-Options': 'nosniff',
-  'Content-Security-Policy': "default-src 'none'; style-src 'unsafe-inline'; script-src 'self'; media-src blob:; form-action 'self'; base-uri 'none'; frame-ancestors 'none'",
+  'Content-Security-Policy': "default-src 'none'; style-src 'unsafe-inline'; script-src 'self'; media-src 'self' blob:; form-action 'self'; base-uri 'none'; frame-ancestors 'none'",
 };
 
 function escape(value) {
@@ -272,22 +274,27 @@ if (form) {
   window.addEventListener('pagehide', () => { generation++; clearPreview(); });
 }`;
 
-async function landing(env, auth, clipHash) {
-  if (!auth) return page('Test a TikTok draft', `<p>Connect your JJ TEST account to preview a short idore test clip and send it to your TikTok inbox.</p><p><a class="action" href="${START}">Connect TikTok</a></p>`);
+async function landing(env, auth, clipHash, isKai) {
+  if (!auth) return page('Test a TikTok draft', `<p>Connect your JJ TEST account to preview KAI · 手势舞 and send it to your TikTok inbox.</p><p><a class="action" href="${START}">Connect TikTok</a></p>`);
   const {session, grant} = auth;
   const row = await inside(receiptActor(env, grant, clipHash), 'read');
   const fields = hidden('csrf', session.csrf) + hidden('clip', clipHash);
   let actions = '';
   if (row.state) actions += `<p role="status">${escape(states[row.state] || states.uncertain)} ${escape(rejectionReason[row.reason] || '')}</p>`;
   if (!row.state || row.state === 'rejected' && row.sid !== session.sid) {
-    actions += `<form id="sandbox-upload" method="post" enctype="multipart/form-data" action="${HOME}/upload">${fields}
+    if (isKai) actions += `<form method="post" action="${HOME}/upload">${fields}
+      <label><input type="checkbox" name="confirm" value="inbox" required> I reviewed KAI · 手势舞 and want to send it to the TikTok inbox for ${escape(grant.display)}.</label>
+      <button>Send KAI video to TikTok inbox</button></form>`;
+    else actions += `<form id="sandbox-upload" method="post" enctype="multipart/form-data" action="${HOME}/upload">${fields}
       <label>Choose the local idore sandbox test clip <input type="file" name="video" accept="video/mp4,.mp4" required></label>
       <p role="status">The preview stays on this device until you choose Send.</p><video controls playsinline preload="metadata" hidden></video>
       <label><input type="checkbox" name="confirm" value="inbox" required disabled> I reviewed this clip and want to send it to the TikTok inbox for ${escape(grant.display)}.</label>
       <button disabled>Send test video to TikTok inbox</button><noscript>Enable JavaScript to preview your local clip.</noscript></form><script src="${PREVIEW_SCRIPT}" defer></script>`;
   }
   if (row.publishId && !['delivered','published','failed'].includes(row.state)) actions += `<form method="post" action="${HOME}/status">${fields}<button>Refresh TikTok status</button></form>`;
-  const preview = page('Preview your sandbox draft', `<p>Connected TikTok account: <strong>${escape(grant.display)}</strong></p>${actions}<p><a href="${START}">Reconnect TikTok</a></p>`);
+  const media = isKai ? `<h2>KAI · 手势舞</h2><video controls playsinline preload="metadata" src="${KAI_PATH}"></video>` : '';
+  const alternative = isKai ? `<a href="${HOME}?clip=sample">Use the local test clip</a>` : `<a href="${HOME}">Preview KAI · 手势舞</a>`;
+  const preview = page('Preview your sandbox draft', `<p>Connected TikTok account: <strong>${escape(grant.display)}</strong></p>${media}${actions}<p>${alternative} · <a href="${START}">Reconnect TikTok</a></p>`);
   // Form navigations need an Origin header for the same-origin check on POST.
   preview.headers.set('Referrer-Policy', 'same-origin');
   return preview;
@@ -340,36 +347,51 @@ async function status(stub, grant) {
   if (next) await inside(stub, 'update', {attempt:row.attempt, state:next});
 }
 
-async function action(request, url, env, auth, clipHash) {
+async function action(request, url, env, auth, sampleHash, kai) {
   if (request.headers.get('Origin') !== url.origin || !auth) return problem(403, 'Reconnect TikTok and use the form in this browser.');
   const isUpload = url.pathname === HOME + '/upload';
   const contentType = request.headers.get('content-type') || '';
-  const expectedType = isUpload ? 'multipart/form-data' : 'application/x-www-form-urlencoded';
-  if (contentType.split(';')[0].trim().toLowerCase() !== expectedType) return problem(415, 'Use the sandbox review form.');
+  const kind = contentType.split(';')[0].trim().toLowerCase();
+  const multipart = kind === 'multipart/form-data';
+  if (kind !== 'application/x-www-form-urlencoded' && !(isUpload && multipart)) return problem(415, 'Use the sandbox review form.');
   let form;
   let body;
-  try { body = await limitedBytes(request, isUpload ? MAX_VIDEO + 16384 : 2048); }
+  try { body = await limitedBytes(request, multipart ? MAX_VIDEO + 16384 : 2048); }
   catch { return problem(413, 'The submitted form is too large or empty.'); }
   try {
-    form = isUpload ? await new Response(body, {headers:{'Content-Type':contentType}}).formData() : new URLSearchParams(decoder.decode(body));
+    form = multipart ? await new Response(body, {headers:{'Content-Type':contentType}}).formData() : new URLSearchParams(decoder.decode(body));
   } catch { return problem(400, 'Invalid review form.'); }
   if (form.getAll('csrf').length !== 1 || form.get('csrf') !== auth.session.csrf || form.getAll('clip').length !== 1) return problem(403, 'The review session changed. Open the preview again.');
-  if (clipHash !== form.get('clip')) return problem(409, 'The test clip changed. Review the new preview before continuing.');
+  const clipHash = form.get('clip');
+  const isKai = clipHash === kai.hash;
+  if (!isKai && clipHash !== sampleHash) return problem(409, 'The clip changed. Review the new preview before continuing.');
+  if (isUpload && multipart === isKai) return problem(415, 'Submit the review form for the selected clip.');
   const stub = receiptActor(env, auth.grant, clipHash);
   if (isUpload) {
     if (form.getAll('confirm').length !== 1 || form.get('confirm') !== 'inbox') return problem(400, 'Review the clip and confirm the destination before sending.');
-    const file = form.get('video');
-    if (form.getAll('video').length !== 1 || !file || typeof file.arrayBuffer !== 'function' || file.size < 12) return problem(400, 'Select the original idore sandbox MP4.');
-    if (file.size > MAX_VIDEO) return problem(413, 'The selected test clip is too large.');
-    const bytes = new Uint8Array(await file.arrayBuffer());
-    if (decoder.decode(bytes.subarray(4, 8)) !== 'ftyp' || await fingerprint(bytes) !== clipHash) return problem(409, 'The selected file does not match the approved sandbox test clip.');
+    let bytes;
+    if (isKai) {
+      if ([...form.keys()].some(k => !['csrf','clip','confirm'].includes(k))) return problem(400, 'Use the displayed KAI review form.');
+      if (!env.ASSETS) return problem(503, 'The KAI video is unavailable.');
+      const asset = await env.ASSETS.fetch(new Request(new URL(KAI_PATH, url.origin), {signal:AbortSignal.timeout(15000)}));
+      if (asset.status !== 200) return problem(503, 'The KAI video is unavailable.');
+      try { bytes = await limitedBytes(asset, kai.size); } catch { return problem(409, 'The stored KAI video differs from the reviewed version.'); }
+      if (bytes.length !== kai.size) return problem(409, 'The stored KAI video differs from the reviewed version.');
+    } else {
+      const file = form.get('video');
+      if (form.getAll('video').length !== 1 || !file || typeof file.arrayBuffer !== 'function' || file.size < 12) return problem(400, 'Select the original idore sandbox MP4.');
+      if (file.size > MAX_VIDEO) return problem(413, 'The selected test clip is too large.');
+      bytes = new Uint8Array(await file.arrayBuffer());
+    }
+    if (decoder.decode(bytes.subarray(4, 8)) !== 'ftyp' || await fingerprint(bytes) !== clipHash) return problem(409, 'The video does not match the reviewed version.');
     await upload(stub, auth.session, auth.grant, {bytes});
   } else await status(stub, auth.grant);
-  return redirect(HOME);
+  return redirect(isKai ? HOME : HOME + '?clip=sample');
 }
 
-export function createSandboxWorker(clipHash = SANDBOX_CLIP_SHA256) {
-  if (!/^[a-f0-9]{64}$/.test(clipHash)) throw new Error('Invalid sandbox clip hash');
+export function createSandboxWorker(clipHash = SANDBOX_CLIP_SHA256, kai = KAI) {
+  if (!/^[a-f0-9]{64}$/.test(clipHash) || !/^[a-f0-9]{64}$/.test(kai.hash) || kai.hash === clipHash ||
+      !Number.isSafeInteger(kai.size) || kai.size < 12 || kai.size > MAX_VIDEO) throw new Error('Invalid sandbox clip definition');
   return {
     async fetch(request, env) {
       const url = new URL(request.url);
@@ -391,7 +413,9 @@ export function createSandboxWorker(clipHash = SANDBOX_CLIP_SHA256) {
         if (pathname === START) return await start(url, env);
         if (pathname === CALLBACK) return await callback(request, url, env);
         const auth = await sessionFor(request, url, env);
-        return write ? await action(request, url, env, auth, clipHash) : await landing(env, auth, clipHash);
+        if (write) return await action(request, url, env, auth, clipHash, kai);
+        const isKai = url.searchParams.get('clip') !== 'sample';
+        return await landing(env, auth, isKai ? kai.hash : clipHash, isKai);
       } catch { return problem(503, 'The sandbox could not complete this request. Return to the preview to check your status.'); }
     },
   };

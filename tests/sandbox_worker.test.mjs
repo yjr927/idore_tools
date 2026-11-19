@@ -6,6 +6,10 @@ import deployedWorker, { createSandboxWorker, SandboxAttempt } from '../worker/s
 
 const origin = 'https://idore-tools.yjr927.workers.dev';
 const landing = '/sandbox/tiktok';
+const samplePage = landing + '?clip=sample';
+const kaiPath = '/generated/video-36dc967ec3fc7e4cd1060f94.mp4';
+const kaiDigest = '36dc967ec3fc7e4cd1060f94cf9572ee4a1a7e2def4c2bcdeb6d9648518a3b68';
+const kaiSize = 6909394;
 const callback = '/auth/tiktok/callback';
 const initPath = '/v2/post/publish/inbox/video/init/';
 const statusPath = '/v2/post/publish/status/fetch/';
@@ -32,14 +36,18 @@ class MemoryStorage {
   }
 }
 
-function fixture(t, { scope = 'video.upload,user.info.basic', dropInitResponse = false, useDeployment = false } = {}) {
+function fixture(t, { scope = 'video.upload,user.info.basic', dropInitResponse = false, useDeployment = false, kaiAsset } = {}) {
   const worker = useDeployment ? deployedWorker : createSandboxWorker(clipHash);
   const calls = [];
   const objects = new Map();
   const env = {
     TIKTOK_CLIENT_KEY: 'sandbox-client-key',
     TIKTOK_CLIENT_SECRET: clientSecret,
-    ASSETS: { async fetch() { return new Response('unrelated asset'); } },
+    ASSETS: { async fetch(request) {
+      if (new URL(request.url).pathname !== kaiPath) return new Response('unrelated asset');
+      const bytes = kaiAsset ?? await readFile(new URL('../site' + kaiPath, import.meta.url));
+      return new Response(bytes, { headers: { 'Content-Type': 'video/mp4', 'Content-Length': String(bytes.length) } });
+    } },
     SANDBOX_ATTEMPTS: {
       idFromName: name => name,
       get(id) {
@@ -57,7 +65,7 @@ function fixture(t, { scope = 'video.upload,user.info.basic', dropInitResponse =
     const req = new Request(input, options);
     const url = new URL(req.url);
     const bytes = new Uint8Array(await req.arrayBuffer());
-    const text = new TextDecoder().decode(bytes);
+    const text = req.method === 'PUT' ? '' : new TextDecoder().decode(bytes);
     calls.push({ url, method: req.method, headers: req.headers, bytes, text });
     if (req.url === uploadUrl && req.method === 'PUT') return new Response(null, { status: 201 });
     assert.equal(url.origin, 'https://open.tiktokapis.com');
@@ -113,11 +121,11 @@ function fixture(t, { scope = 'video.upload,user.info.basic', dropInitResponse =
   async function complete(state) {
     return visit(callback + '?' + new URLSearchParams({ code: 'fake-test-auth-code', state }));
   }
-  async function session() {
+  async function session(source = 'sample') {
     const auth = await complete(await start());
     assert.equal(auth.status, 303);
     assert.equal(new URL(auth.headers.get('Location'), origin).pathname, landing);
-    const preview = await visit(landing);
+    const preview = await visit(source === 'sample' ? samplePage : landing);
     assert.equal(preview.headers.get('Referrer-Policy'), 'same-origin');
     const html = await preview.text();
     assert.match(html, /Sandbox Tester/);
@@ -125,11 +133,18 @@ function fixture(t, { scope = 'video.upload,user.info.basic', dropInitResponse =
       Object.fromEntries([...tag.matchAll(/([\w-]+)\s*=\s*["']([^"']*)["']/g)].map(([, k, v]) => [k, v])));
     const field = name => inputs.find(input => input.name === name)?.value;
     assert.ok(field('csrf'));
-    assert.match(html, /enctype="multipart\/form-data"/i);
-    assert.equal(inputs.find(input => input.name === 'video')?.type, 'file');
-    assert.doesNotMatch(html, /src=["'][^"']+\.mp4/i);
     assert.match(field('clip'), /^[0-9a-f]{64}$/);
-    if (!useDeployment) assert.equal(field('clip'), clipHash);
+    if (source === 'sample') {
+      assert.match(html, /enctype="multipart\/form-data"/i);
+      assert.equal(inputs.find(input => input.name === 'video')?.type, 'file');
+      assert.doesNotMatch(html, /src=["'][^"']+\.mp4/i);
+      if (!useDeployment) assert.equal(field('clip'), clipHash);
+    } else {
+      assert.match(html, /KAI/);
+      assert.ok(html.includes(kaiPath));
+      assert.equal(field('clip'), kaiDigest);
+      assert.equal(inputs.some(input => input.type === 'file'), false);
+    }
     return { csrf: field('csrf'), clip: field('clip'), confirm: 'inbox' };
   }
   function post(route, fields, requestOrigin, bytes = clip) {
@@ -230,7 +245,7 @@ test('confirmed clip reaches the inbox once and credentials stay private', async
   assert.equal(fileUploads[0].headers.get('Content-Range'), 'bytes 0-' + (clip.length - 1) + '/' + clip.length);
   assert.deepEqual(Buffer.from(fileUploads[0].bytes), clip);
   assert.ok(h.callsTo(statusPath).length > 0);
-  const page = await h.visit(landing);
+  const page = await h.visit(samplePage);
   const text = await page.text();
   assert.match(text, /Delivered to TikTok inbox/i);
   assert.match(page.headers.get('Cache-Control'), /no-store/);
@@ -241,6 +256,43 @@ test('confirmed clip reaches the inbox once and credentials stay private', async
   const stored = JSON.stringify([...h.objects.values()].map(o => [...o.storage.entries]));
   assert.ok(!stored.includes(accessToken));
   assert.ok(!stored.includes(uploadUrl));
+});
+
+test('KAI draft uses reviewed repository bytes, explicit confirmation and one account receipt', async t => {
+  const media = await readFile(new URL('../site' + kaiPath, import.meta.url));
+  assert.equal(media.length, kaiSize);
+  assert.equal(createHash('sha256').update(media).digest('hex'), kaiDigest);
+  const h = fixture(t, { useDeployment: true, kaiAsset: media });
+  const form = await h.session('kai');
+  const send = fields => h.visit(landing + '/upload', { method: 'POST', form: new URLSearchParams(fields) });
+  assert.equal((await send({ ...form, confirm: '' })).status, 400);
+  assert.equal((await send({ ...form, csrf: 'invalid' })).status, 403);
+  assert.equal((await send({ ...form, url: origin + '/different-video.mp4' })).status, 400);
+  assert.equal(h.callsTo(initPath).length, 0);
+  const results = await Promise.all([send(form), send(form)]);
+  assert.ok(results.some(res => res.status === 303 && new URL(res.headers.get('location'), origin).href === origin + landing));
+  assert.equal(h.callsTo(initPath).length, 1);
+  const init = JSON.parse(h.callsTo(initPath)[0].text);
+  assert.equal(init.source_info.source, 'FILE_UPLOAD');
+  assert.equal(init.source_info.video_size, kaiSize);
+  const transfers = h.calls.filter(call => call.method === 'PUT');
+  assert.equal(transfers.length, 1);
+  assert.equal(createHash('sha256').update(transfers[0].bytes).digest('hex'), kaiDigest);
+  assert.equal(transfers[0].headers.get('Authorization'), null);
+  assert.equal((await h.post('status', form)).status, 303);
+  assert.match(await (await h.visit(landing)).text(), /Delivered to TikTok inbox/i);
+  assert.doesNotMatch(await (await h.visit(samplePage)).text(), /Delivered to TikTok inbox/i);
+});
+
+test('changed KAI bytes in static storage are rejected before contacting TikTok', async t => {
+  const media = await readFile(new URL('../site' + kaiPath, import.meta.url));
+  media[media.length - 1] ^= 1;
+  const h = fixture(t, { useDeployment: true, kaiAsset: media });
+  const form = await h.session('kai');
+  const result = await h.visit(landing + '/upload', { method: 'POST', form: new URLSearchParams(form) });
+  assert.equal(result.status, 409);
+  assert.equal(h.callsTo(initPath).length, 0);
+  assert.equal(h.calls.some(call => call.method === 'PUT'), false);
 });
 
 test('losing a TikTok initialization response never causes an automatic or manual duplicate', async t => {
