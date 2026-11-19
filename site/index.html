@@ -7,6 +7,7 @@
   <meta name="description" content="idore 的 TikTok 公开视频候选库。查看云端采集记录、来源和适合进一步核验的视频玩法。">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; frame-src https://www.tiktok.com; base-uri 'self'; form-action 'none'">
   <title>idore · TikTok 视频发现</title>
+  <link rel="stylesheet" href="./legal.css">
   <link rel="icon" type="image/svg+xml" href="./mark.svg">
   <link rel="stylesheet" href="./styles.css?v=20261115-classification-v3">
   <script defer src="./app.js?v=20261115-web-generation-v1"></script>
@@ -55,7 +56,7 @@
           <div id="history-list" class="history-list" aria-live="polite"></div>
         </section>
       </main>
-      <footer>idore · Create your next story.<span>公开视频线索 · 收藏保存在当前浏览器 · 不自动生成或发布视频</span></footer>
+      <footer>idore · Create your next story.<span>公开视频线索 · 收藏保存在当前浏览器 · 不自动生成或发布视频</span><nav class="legal-links" aria-label="Legal"><a href="./privacy.html">Privacy Policy</a><a href="./terms.html">Terms of Service</a></nav></footer>
     </div>
   </div>
   <dialog id="preview-dialog" aria-labelledby="preview-title"><div class="dialog-head"><div><span class="eyebrow">WATCH THE REFERENCE</span><h2 id="preview-title">查看原片</h2></div><button id="close-preview" class="icon-button" type="button" aria-label="关闭播放器">✕</button></div><div id="preview-container"></div><p class="preview-note">播放器由 TikTok 提供。遇到登录、验证、地域限制或视频不可用时，可打开原链接查看；不保证内嵌播放成功。</p><a class="button" id="preview-original" target="_blank" rel="noopener noreferrer">在 TikTok 打开 ↗</a></dialog>
