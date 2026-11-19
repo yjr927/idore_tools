@@ -117,7 +117,9 @@ function fixture(t, { scope = 'video.upload,user.info.basic', dropInitResponse =
     const auth = await complete(await start());
     assert.equal(auth.status, 303);
     assert.equal(new URL(auth.headers.get('Location'), origin).pathname, landing);
-    const html = await (await visit(landing)).text();
+    const preview = await visit(landing);
+    assert.equal(preview.headers.get('Referrer-Policy'), 'same-origin');
+    const html = await preview.text();
     assert.match(html, /Sandbox Tester/);
     const inputs = [...html.matchAll(/<input\b[^>]*>/gi)].map(([tag]) =>
       Object.fromEntries([...tag.matchAll(/([\w-]+)\s*=\s*["']([^"']*)["']/g)].map(([, k, v]) => [k, v])));

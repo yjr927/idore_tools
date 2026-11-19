@@ -287,7 +287,10 @@ async function landing(env, auth, clipHash) {
       <button disabled>Send test video to TikTok inbox</button><noscript>Enable JavaScript to preview your local clip.</noscript></form><script src="${PREVIEW_SCRIPT}" defer></script>`;
   }
   if (row.publishId && !['delivered','published','failed'].includes(row.state)) actions += `<form method="post" action="${HOME}/status">${fields}<button>Refresh TikTok status</button></form>`;
-  return page('Preview your sandbox draft', `<p>Connected TikTok account: <strong>${escape(grant.display)}</strong></p>${actions}<p><a href="${START}">Reconnect TikTok</a></p>`);
+  const preview = page('Preview your sandbox draft', `<p>Connected TikTok account: <strong>${escape(grant.display)}</strong></p>${actions}<p><a href="${START}">Reconnect TikTok</a></p>`);
+  // Form navigations need an Origin header for the same-origin check on POST.
+  preview.headers.set('Referrer-Policy', 'same-origin');
+  return preview;
 }
 
 function trustedUpload(value) {
@@ -368,29 +371,29 @@ async function action(request, url, env, auth, clipHash) {
 export function createSandboxWorker(clipHash = SANDBOX_CLIP_SHA256) {
   if (!/^[a-f0-9]{64}$/.test(clipHash)) throw new Error('Invalid sandbox clip hash');
   return {
-  async fetch(request, env) {
-    const url = new URL(request.url);
-    const {pathname} = url;
-    if (pathname === PREVIEW_SCRIPT) {
-      if (request.method !== 'GET') return new Response(null, {status:405, headers:{...headers,Allow:'GET'}});
-      return new Response(previewScript, {headers:{...headers, 'Content-Type':'text/javascript; charset=utf-8'}});
-    }
-    if (pathname === '/sandbox-test/idore-sandbox.mp4') return new Response(null, {status:404, headers});
-    if (![HOME, HOME + '/', START, CALLBACK, HOME + '/upload', HOME + '/status'].includes(pathname)) {
-      return env.ASSETS ? env.ASSETS.fetch(request) : new Response('Not found', {status:404});
-    }
-    if (url.protocol !== 'https:') return problem(400, 'Open the secure HTTPS sandbox URL.');
-    const write = pathname === HOME + '/upload' || pathname === HOME + '/status';
-    const method = write ? 'POST' : 'GET';
-    if (request.method !== method) { const res = problem(405, 'Unsupported request method.'); res.headers.set('Allow', method); return res; }
-    if (!configured(env)) return problem(503, 'The sandbox is waiting for its TikTok developer credentials and private session storage.');
-    try {
-      if (pathname === START) return await start(url, env);
-      if (pathname === CALLBACK) return await callback(request, url, env);
-      const auth = await sessionFor(request, url, env);
-      return write ? await action(request, url, env, auth, clipHash) : await landing(env, auth, clipHash);
-    } catch { return problem(503, 'The sandbox could not complete this request. Return to the preview to check your status.'); }
-  },
+    async fetch(request, env) {
+      const url = new URL(request.url);
+      const {pathname} = url;
+      if (pathname === PREVIEW_SCRIPT) {
+        if (request.method !== 'GET') return new Response(null, {status:405, headers:{...headers,Allow:'GET'}});
+        return new Response(previewScript, {headers:{...headers, 'Content-Type':'text/javascript; charset=utf-8'}});
+      }
+      if (pathname === '/sandbox-test/idore-sandbox.mp4') return new Response(null, {status:404, headers});
+      if (![HOME, HOME + '/', START, CALLBACK, HOME + '/upload', HOME + '/status'].includes(pathname)) {
+        return env.ASSETS ? env.ASSETS.fetch(request) : new Response('Not found', {status:404});
+      }
+      if (url.protocol !== 'https:') return problem(400, 'Open the secure HTTPS sandbox URL.');
+      const write = pathname === HOME + '/upload' || pathname === HOME + '/status';
+      const method = write ? 'POST' : 'GET';
+      if (request.method !== method) { const res = problem(405, 'Unsupported request method.'); res.headers.set('Allow', method); return res; }
+      if (!configured(env)) return problem(503, 'The sandbox is waiting for its TikTok developer credentials and private session storage.');
+      try {
+        if (pathname === START) return await start(url, env);
+        if (pathname === CALLBACK) return await callback(request, url, env);
+        const auth = await sessionFor(request, url, env);
+        return write ? await action(request, url, env, auth, clipHash) : await landing(env, auth, clipHash);
+      } catch { return problem(503, 'The sandbox could not complete this request. Return to the preview to check your status.'); }
+    },
   };
 }
 
