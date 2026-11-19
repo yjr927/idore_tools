@@ -19,6 +19,7 @@ const accessToken = 'fake-server-only-token-1259';
 const clientSecret = 'fake-sandbox-client-secret-used-in-tests';
 const uploadUrl = 'https://open-upload.tiktokapis.com/video/?upload_id=demo&upload_token=test-private-capability';
 const openId = 'private-sandbox-open-id';
+const mockRedirect = 'https://redirect.example/private-target';
 
 // The transaction queue also models concurrently arriving requests to one object.
 class MemoryStorage {
@@ -36,7 +37,7 @@ class MemoryStorage {
   }
 }
 
-function fixture(t, { scope = 'video.upload,user.info.basic', dropInitResponse = false, useDeployment = false, kaiAsset } = {}) {
+function fixture(t, { scope = 'video.upload,user.info.basic', dropInitResponse = false, useDeployment = false, kaiAsset, redirectOn } = {}) {
   const worker = useDeployment ? deployedWorker : createSandboxWorker(clipHash);
   const calls = [];
   const objects = new Map();
@@ -66,7 +67,12 @@ function fixture(t, { scope = 'video.upload,user.info.basic', dropInitResponse =
     const url = new URL(req.url);
     const bytes = new Uint8Array(await req.arrayBuffer());
     const text = req.method === 'PUT' ? '' : new TextDecoder().decode(bytes);
-    calls.push({ url, method: req.method, headers: req.headers, bytes, text });
+    calls.push({ url, method: req.method, headers: req.headers, bytes, text, redirect: req.redirect });
+    // workerd accepts manual/follow. These credentialed requests must use manual.
+    assert.equal(req.redirect, 'manual');
+    if (redirectOn === url.pathname) {
+      return new Response('private provider diagnostic', { status: 302, headers: { Location: mockRedirect } });
+    }
     if (req.url === uploadUrl && req.method === 'PUT') return new Response(null, { status: 201 });
     assert.equal(url.origin, 'https://open.tiktokapis.com');
     switch (url.pathname) {
@@ -175,6 +181,22 @@ test('upload permission is required before linking a test account', async t => {
   assert.equal(h.callsTo('/v2/oauth/token/').length, 1);
   assert.equal(h.cookies.has('__Host-idore-tt-session'), false);
   assert.equal(h.callsTo(initPath).length, 0);
+});
+
+test('token exchange refuses redirects without contacting their destination', async t => {
+  const h = fixture(t, { redirectOn: '/v2/oauth/token/' });
+  const response = await h.complete(await h.start());
+  assert.equal(response.status, 502);
+  assert.equal(response.headers.get('Location'), null);
+  assert.equal(h.cookies.has('__Host-idore-tt-session'), false);
+  assert.deepEqual(h.calls.map(call => [call.url.href, call.redirect]), [
+    ['https://open.tiktokapis.com/v2/oauth/token/', 'manual'],
+  ]);
+  const message = await response.text();
+  assert.match(message, /token exchange/i);
+  for (const hidden of [mockRedirect, 'private provider diagnostic', clientSecret, 'fake-test-auth-code']) {
+    assert.ok(!message.includes(hidden));
+  }
 });
 
 test('expired login state is rejected before exchanging the authorization code', async t => {
@@ -302,4 +324,20 @@ test('losing a TikTok initialization response never causes an automatic or manua
   await h.post('upload', form);
   assert.equal(h.callsTo(initPath).length, 1);
   assert.equal(h.calls.filter(c => c.method === 'PUT').length, 0);
+});
+
+test('redirecting signed file upload is never followed or resent', async t => {
+  const h = fixture(t, { redirectOn: '/video/' });
+  const form = await h.session();
+  await h.post('upload', form);
+  await h.post('upload', form);
+  assert.equal(h.callsTo(initPath).length, 1);
+  const transfers = h.calls.filter(call => call.method === 'PUT');
+  assert.equal(transfers.length, 1);
+  assert.equal(transfers[0].url.href, uploadUrl);
+  assert.equal(transfers[0].redirect, 'manual');
+  assert.equal(transfers[0].headers.get('Authorization'), null);
+  assert.equal(h.calls.some(call => call.url.origin === new URL(mockRedirect).origin), false);
+  const page = await (await h.visit(samplePage)).text();
+  assert.doesNotMatch(page, /Delivered to TikTok inbox|private provider diagnostic/i);
 });

@@ -117,9 +117,43 @@ async function limitedBytes(body, maximum) {
   return bytes;
 }
 
+// Only literal reasons, bounded HTTP statuses and recognized TikTok codes may
+// cross into a diagnostic. Raw errors can include the provider URL or tokens.
+class SafeDiagnostic extends Error {}
+
+async function noRedirectFetch(url, options, timeoutMs) {
+  let response;
+  try {
+    response = await fetch(url, {...options, redirect:'manual', signal:AbortSignal.timeout(timeoutMs)});
+  } catch { throw new SafeDiagnostic('connection failed or timed out'); }
+  if (response.status >= 300 && response.status < 400) {
+    if (response.body) await response.body.cancel();
+    throw new SafeDiagnostic('redirect refused (HTTP ' + response.status + ')');
+  }
+  return response;
+}
+
 async function provider(path, options) {
-  const response = await fetch(API + path, {...options, redirect:'error', signal:AbortSignal.timeout(15000)});
-  return {status:response.status, data:JSON.parse(decoder.decode(await limitedBytes(response, 64 * 1024)))};
+  const response = await noRedirectFetch(API + path, options, 15000);
+  let bytes;
+  try { bytes = await limitedBytes(response, 64 * 1024); }
+  catch { throw new SafeDiagnostic('unreadable or oversized response (HTTP ' + response.status + ')'); }
+  let data;
+  try { data = JSON.parse(decoder.decode(bytes)); }
+  catch { throw new SafeDiagnostic('non-JSON response (HTTP ' + response.status + ')'); }
+  if (!data || Array.isArray(data) || typeof data !== 'object') throw new SafeDiagnostic('invalid response (HTTP ' + response.status + ')');
+  return {status:response.status, data};
+}
+
+const safeAuthCodes = new Set(['invalid_request','invalid_client','invalid_grant','invalid_scope','invalid_token',
+  'unauthorized_client','unsupported_grant_type','access_denied','access_token_invalid','scope_not_authorized',
+  'invalid_params','rate_limit_exceeded','server_error','internal_error','temporarily_unavailable']);
+
+function refused(result) {
+  const message = result.data.error;
+  const code = typeof message === 'string' ? message : message?.code;
+  return new SafeDiagnostic('provider refused or returned incomplete data (HTTP ' + result.status +
+    (safeAuthCodes.has(code) ? ', ' + code : '') + ')');
 }
 
 function apiPost(path, token, body) {
@@ -135,7 +169,7 @@ async function inside(stub, path, data = {}) {
   const result = await stub.fetch(new Request('https://internal/' + path, {
     method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data),
   }));
-  if (!result.ok) throw new Error('Private state unavailable');
+  if (!result.ok) throw new SafeDiagnostic('private storage unavailable (HTTP ' + result.status + ')');
   return result.json();
 }
 
@@ -167,31 +201,40 @@ async function callback(request, url, env) {
   if (params.has('error')) return finish(problem(403, 'TikTok authorization was declined or interrupted.'));
   const code = params.get('code');
   if (params.getAll('code').length !== 1 || !validProviderValue(code, 2048)) return finish(problem(400, 'TikTok did not supply a valid authorization code.'));
+  let stage = 'token exchange';
   try {
     const token = await provider('/v2/oauth/token/', {method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'},
       body:new URLSearchParams({client_key:env.TIKTOK_CLIENT_KEY, client_secret:env.TIKTOK_CLIENT_SECRET,
-        code, grant_type:'authorization_code', redirect_uri:url.origin + CALLBACK})});
+        code, grant_type:'authorization_code', redirect_uri:url.origin + CALLBACK}).toString()});
     if (token.status !== 200 || !validProviderValue(token.data.access_token, 4096) || !validProviderValue(token.data.open_id, 256)) {
-      return finish(problem(502, 'TikTok did not complete the token exchange. Check the Sandbox credentials and reconnect.'));
+      throw refused(token);
     }
     const granted = new Set(String(token.data.scope || '').split(/[\s,]+/));
     if (!SCOPES.every(s => granted.has(s))) return finish(problem(403, 'Connect again and allow basic profile access and video uploads.'));
+    stage = 'TikTok profile verification';
     const profile = await provider('/v2/user/info/?fields=open_id,display_name', {headers:{Authorization:'Bearer ' + token.data.access_token}});
     const user = profile.data.data?.user;
     if (profile.status !== 200 || profile.data.error?.code !== 'ok' || user?.open_id !== token.data.open_id ||
         typeof user?.display_name !== 'string' || !user.display_name.trim() || user.display_name.length > 160) {
-      return finish(problem(502, 'TikTok could not verify the connected profile. Reconnect before uploading.'));
+      throw refused(profile);
     }
     const ttl = Math.min(SESSION_SECONDS, Math.floor(Number(token.data.expires_in)));
     if (!Number.isSafeInteger(ttl) || ttl < 1) return finish(problem(502, 'TikTok returned an expired authorization.'));
     const exp = Date.now() + ttl * 1000;
+    stage = 'private authorization sealing';
     const sid = random();
     const grant = {token:token.data.access_token, display:user.display_name,
       account:await fingerprint('account:' + env.TIKTOK_CLIENT_KEY + ':' + user.open_id), exp};
-    await inside(actor(env, 'session:' + sid), 'grant', {box:await seal(env, 'grant:' + sid, grant), exp});
+    const box = await seal(env, 'grant:' + sid, grant);
+    stage = 'Durable Object session persistence';
+    await inside(actor(env, 'session:' + sid), 'grant', {box, exp});
+    stage = 'browser session cookie';
     const session = await seal(env, SESSION, {sid, csrf:random(), origin:url.origin, exp});
     return finish(cookie(redirect(HOME), SESSION, session, ttl));
-  } catch { return finish(problem(502, 'Authorization could not be completed. Start a new connection to try again.')); }
+  } catch (error) {
+    const detail = error instanceof SafeDiagnostic ? ' — ' + error.message : '';
+    return finish(problem(502, 'Sandbox authorization failed at ' + stage + detail + '. Start a new connection to retry.'));
+  }
 }
 
 async function sessionFor(request, url, env) {
@@ -330,8 +373,8 @@ async function upload(stub, session, grant, clip) {
       await update({state:'uncertain'}); return;
     }
     await update({state:'processing', publishId:id});
-    const transfer = await fetch(address, {method:'PUT', body:clip.bytes, redirect:'error', signal:AbortSignal.timeout(30000),
-      headers:{'Content-Type':'video/mp4','Content-Length':String(size),'Content-Range':`bytes 0-${size - 1}/${size}`}});
+    const transfer = await noRedirectFetch(address, {method:'PUT', body:clip.bytes,
+      headers:{'Content-Type':'video/mp4','Content-Length':String(size),'Content-Range':`bytes 0-${size - 1}/${size}`}}, 30000);
     if (transfer.body) await transfer.body.cancel();
     if (transfer.status !== 201) await update({state:'uncertain'});
   } catch { await update({state:'uncertain'}); }
