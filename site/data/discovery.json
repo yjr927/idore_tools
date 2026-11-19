@@ -1570,9 +1570,452 @@
           "transformation": "unknown"
         }
       ]
+    },
+    {
+      "trend_category": "kpop",
+      "material_group": "female",
+      "transformation": "unknown",
+      "url": "https://www.tiktok.com/@onworldserim/video/7709586718143286580",
+      "title": "ONDA：ILLIT You're Under Arrest 半身手势舞",
+      "kind": "hands",
+      "original_watched": true,
+      "motion_summary": "原片关键画面只见1名表演者，白墙背景和机位保持稳定；双肘向外抬起、双手在肩旁指向和摆动，随后单手张掌放胸前、另一手叉腰，再侧身将手放在下巴附近。黑色露肩长袖上衣和黑裤在所见画面一致；未完整核验所有造型细节，变妆换装仍待确认。K-pop依据为页面ILLIT歌曲及挑战文案。female仅用于露肩舞台造型的女生角色素材路由。",
+      "checks": {
+        "fixed_camera": true,
+        "repetitive": null,
+        "solo": true
+      },
+      "recreation_notes": "白墙、单人半身和小幅位移适合先做手臂动作参考；可考虑目录Lila或Lena Reyes同组单人角色，需确认服装及手指遮挡。重复动作和完整变装情况未核验，尚未生成测试；交接制作仍需无脸白模步骤。",
+      "published_at": null,
+      "published_text": "19h ago",
+      "metrics": {
+        "comments": 86,
+        "likes": 1881,
+        "shares": 44,
+        "views": null
+      },
+      "related_videos": [
+        {
+          "url": "https://www.tiktok.com/@oukikk/video/7709466989864996148",
+          "original_watched": true,
+          "same_pattern": null,
+          "note": "已播放7秒原片，见单人白色针织上衣及短裙，在树木背景前将双臂在胸前交叉并下放；与主片同有ILLIT文案，但所见片段不足以确认完整同一编排，不能仅凭音频或标签判定。"
+        },
+        {
+          "url": "https://www.tiktok.com/@lislax_/video/7709739050701294879",
+          "original_watched": true,
+          "same_pattern": false,
+          "note": "已播放，画面文字为illit pop combo pt.1 (0.7x mirrored)，含newjeans - omg段落；见举臂、抬腿和移动步伐，是组合教学，不是主片所见的简短肩旁手势玩法。此链接不计同玩法支持作者。"
+        }
+      ],
+      "music_name": "You’re Under Arrest - ILLIT",
+      "id": "tiktok-7709586718143286580",
+      "video_id": "7709586718143286580",
+      "author": "onworldserim",
+      "kinds": [
+        "hands"
+      ],
+      "first_seen_at": "2026-11-19T14:10:21+00:00",
+      "last_seen_at": "2026-11-19T14:10:21+00:00",
+      "duration": null,
+      "music_id": "",
+      "source": "ChatGPT Work 云端浏览器",
+      "source_url": "https://www.tiktok.com/@onworldserim/video/7709586718143286580",
+      "source_kind": "chatgpt_work",
+      "search_query": "",
+      "assessment": "待核验候选",
+      "assessment_note": "原片关键画面只见1名表演者，白墙背景和机位保持稳定；双肘向外抬起、双手在肩旁指向和摆动，随后单手张掌放胸前、另一手叉腰，再侧身将手放在下巴附近。黑色露肩长袖上衣和黑裤在所见画面一致；未完整核验所有造型细节，变妆换装仍待确认。K-pop依据为页面ILLIT歌曲及挑战文案。female仅用于露肩舞台造型的女生角色素材路由。",
+      "motion_verified": false,
+      "trend_verified": false,
+      "favorite": false,
+      "availability": "Work 已观看原片",
+      "observations": [
+        {
+          "run_id": "work-tiktok-20261119T141021Z-v2",
+          "observed_at": "2026-11-19T14:10:21+00:00",
+          "metrics": {
+            "comments": 86,
+            "likes": 1881,
+            "shares": 44,
+            "views": null
+          },
+          "original_watched": true,
+          "motion_summary": "原片关键画面只见1名表演者，白墙背景和机位保持稳定；双肘向外抬起、双手在肩旁指向和摆动，随后单手张掌放胸前、另一手叉腰，再侧身将手放在下巴附近。黑色露肩长袖上衣和黑裤在所见画面一致；未完整核验所有造型细节，变妆换装仍待确认。K-pop依据为页面ILLIT歌曲及挑战文案。female仅用于露肩舞台造型的女生角色素材路由。",
+          "checks": {
+            "fixed_camera": true,
+            "repetitive": null,
+            "solo": true
+          },
+          "recreation_notes": "白墙、单人半身和小幅位移适合先做手臂动作参考；可考虑目录Lila或Lena Reyes同组单人角色，需确认服装及手指遮挡。重复动作和完整变装情况未核验，尚未生成测试；交接制作仍需无脸白模步骤。",
+          "related_videos": [
+            {
+              "url": "https://www.tiktok.com/@oukikk/video/7709466989864996148",
+              "original_watched": true,
+              "same_pattern": null,
+              "note": "已播放7秒原片，见单人白色针织上衣及短裙，在树木背景前将双臂在胸前交叉并下放；与主片同有ILLIT文案，但所见片段不足以确认完整同一编排，不能仅凭音频或标签判定。"
+            },
+            {
+              "url": "https://www.tiktok.com/@lislax_/video/7709739050701294879",
+              "original_watched": true,
+              "same_pattern": false,
+              "note": "已播放，画面文字为illit pop combo pt.1 (0.7x mirrored)，含newjeans - omg段落；见举臂、抬腿和移动步伐，是组合教学，不是主片所见的简短肩旁手势玩法。此链接不计同玩法支持作者。"
+            }
+          ],
+          "motion_verified": false,
+          "trend_verified": false,
+          "trend_category": "kpop",
+          "material_group": "female",
+          "transformation": "unknown"
+        }
+      ]
+    },
+    {
+      "trend_category": "kpop",
+      "material_group": "unknown",
+      "transformation": "unknown",
+      "url": "https://www.tiktok.com/@mybaybie/video/7709762212679683342",
+      "title": "bay：A2O LITE NEON 半身手臂舞",
+      "kind": "hands",
+      "original_watched": true,
+      "motion_summary": "已播放17秒原片并查看开头、中段和后段关键画面，只见1名表演者在固定柜门背景前；身体侧转时双手平放在脸侧，随后回正将双臂在胸前交叉转动，最后放下手臂并配合表情。白色宽松上衣与长卷发在所见画面一致；完整妆容和换装情况未全面确认。页面dc: A2O LITE NEON及K-pop文案提供主题依据。服装及动作不限定男女角色用途，素材组待确认。",
+      "checks": {
+        "fixed_camera": true,
+        "repetitive": null,
+        "solo": true
+      },
+      "recreation_notes": "近景、固定背景与单人构图便于动作提取，但双臂交叉遮挡胸部，手指需额外检查；先确认角色素材分组再配对，不能仅凭脸或声音指定。尚未生成测试，交接制作必须保留无脸白模。",
+      "published_at": null,
+      "published_text": "7h ago",
+      "metrics": {
+        "comments": 45,
+        "likes": 4752,
+        "shares": 49,
+        "views": null
+      },
+      "related_videos": [
+        {
+          "url": "https://www.tiktok.com/@ads7hr/video/7709776524232101152",
+          "original_watched": true,
+          "same_pattern": null,
+          "note": "已播放22秒原片，见单人在卧室中胸前交叉双臂、向外展开及屈膝侧转；与主片有手臂交叉片段，但此版包含更多腿部动作，现有关键画面不足以确认同一完整编排。只有这1名其他作者的部分证据，未达3人阈值。"
+        }
+      ],
+      "music_name": "原聲 - yuri_1011",
+      "id": "tiktok-7709762212679683342",
+      "video_id": "7709762212679683342",
+      "author": "mybaybie",
+      "kinds": [
+        "hands"
+      ],
+      "first_seen_at": "2026-11-19T14:10:21+00:00",
+      "last_seen_at": "2026-11-19T14:10:21+00:00",
+      "duration": null,
+      "music_id": "",
+      "source": "ChatGPT Work 云端浏览器",
+      "source_url": "https://www.tiktok.com/@mybaybie/video/7709762212679683342",
+      "source_kind": "chatgpt_work",
+      "search_query": "",
+      "assessment": "待核验候选",
+      "assessment_note": "已播放17秒原片并查看开头、中段和后段关键画面，只见1名表演者在固定柜门背景前；身体侧转时双手平放在脸侧，随后回正将双臂在胸前交叉转动，最后放下手臂并配合表情。白色宽松上衣与长卷发在所见画面一致；完整妆容和换装情况未全面确认。页面dc: A2O LITE NEON及K-pop文案提供主题依据。服装及动作不限定男女角色用途，素材组待确认。",
+      "motion_verified": false,
+      "trend_verified": false,
+      "favorite": false,
+      "availability": "Work 已观看原片",
+      "observations": [
+        {
+          "run_id": "work-tiktok-20261119T141021Z-v2",
+          "observed_at": "2026-11-19T14:10:21+00:00",
+          "metrics": {
+            "comments": 45,
+            "likes": 4752,
+            "shares": 49,
+            "views": null
+          },
+          "original_watched": true,
+          "motion_summary": "已播放17秒原片并查看开头、中段和后段关键画面，只见1名表演者在固定柜门背景前；身体侧转时双手平放在脸侧，随后回正将双臂在胸前交叉转动，最后放下手臂并配合表情。白色宽松上衣与长卷发在所见画面一致；完整妆容和换装情况未全面确认。页面dc: A2O LITE NEON及K-pop文案提供主题依据。服装及动作不限定男女角色用途，素材组待确认。",
+          "checks": {
+            "fixed_camera": true,
+            "repetitive": null,
+            "solo": true
+          },
+          "recreation_notes": "近景、固定背景与单人构图便于动作提取，但双臂交叉遮挡胸部，手指需额外检查；先确认角色素材分组再配对，不能仅凭脸或声音指定。尚未生成测试，交接制作必须保留无脸白模。",
+          "related_videos": [
+            {
+              "url": "https://www.tiktok.com/@ads7hr/video/7709776524232101152",
+              "original_watched": true,
+              "same_pattern": null,
+              "note": "已播放22秒原片，见单人在卧室中胸前交叉双臂、向外展开及屈膝侧转；与主片有手臂交叉片段，但此版包含更多腿部动作，现有关键画面不足以确认同一完整编排。只有这1名其他作者的部分证据，未达3人阈值。"
+            }
+          ],
+          "motion_verified": false,
+          "trend_verified": false,
+          "trend_category": "kpop",
+          "material_group": "unknown",
+          "transformation": "unknown"
+        }
+      ]
+    },
+    {
+      "trend_category": "virtual_idol",
+      "material_group": "female",
+      "transformation": "unknown",
+      "url": "https://www.tiktok.com/@itsmomoko.jp/video/7703265627972128021",
+      "title": "MOMOKO：练习室单人虚拟偶像手臂舞",
+      "kind": "hands",
+      "original_watched": true,
+      "motion_summary": "已播放13秒原片，查看约1秒、4秒及11秒关键画面；仅1名角色在黑色练习室墙面与木地板前表演，画面边缘位置稳定。开始屈臂将拳放脸侧，随后双掌在侧边呈交叉角度并抬起一膝，后段再次出现一臂横放胸前、另一拳靠脸侧的动作。黑色短外套、灰色百褶裙和长靴在所见画面一致，完整造型变化仍待核验。页面显示Contains AI-generated media并自称VirtualIdol；female为百褶裙舞台角色的素材用途。",
+      "checks": {
+        "fixed_camera": true,
+        "repetitive": true,
+        "solo": true
+      },
+      "recreation_notes": "全身单角色、背景简单，适合提取短段屈臂和抬膝动作；可考虑目录女生单人角色Lila或伊芙琳，但需相应全身造型和脚部素材。重复判断来自同一播放周期前后相似拳位，不以播放器循环为依据。尚未生成测试，原片本身的AI标记不代表本流程成功，仍需无脸白模。",
+      "published_at": null,
+      "published_text": "11-2",
+      "metrics": {
+        "comments": 0,
+        "likes": 37,
+        "shares": 0,
+        "views": null
+      },
+      "related_videos": [],
+      "music_name": "オリジナル楽曲 - MOMOKO桃子🍑",
+      "id": "tiktok-7703265627972128021",
+      "video_id": "7703265627972128021",
+      "author": "itsmomoko.jp",
+      "kinds": [
+        "hands"
+      ],
+      "first_seen_at": "2026-11-19T14:10:21+00:00",
+      "last_seen_at": "2026-11-19T14:10:21+00:00",
+      "duration": null,
+      "music_id": "",
+      "source": "ChatGPT Work 云端浏览器",
+      "source_url": "https://www.tiktok.com/@itsmomoko.jp/video/7703265627972128021",
+      "source_kind": "chatgpt_work",
+      "search_query": "",
+      "assessment": "已看原片的动作候选",
+      "assessment_note": "已播放13秒原片，查看约1秒、4秒及11秒关键画面；仅1名角色在黑色练习室墙面与木地板前表演，画面边缘位置稳定。开始屈臂将拳放脸侧，随后双掌在侧边呈交叉角度并抬起一膝，后段再次出现一臂横放胸前、另一拳靠脸侧的动作。黑色短外套、灰色百褶裙和长靴在所见画面一致，完整造型变化仍待核验。页面显示Contains AI-generated media并自称VirtualIdol；female为百褶裙舞台角色的素材用途。",
+      "motion_verified": true,
+      "trend_verified": false,
+      "favorite": false,
+      "availability": "Work 已观看原片",
+      "observations": [
+        {
+          "run_id": "work-tiktok-20261119T141021Z-v2",
+          "observed_at": "2026-11-19T14:10:21+00:00",
+          "metrics": {
+            "comments": 0,
+            "likes": 37,
+            "shares": 0,
+            "views": null
+          },
+          "original_watched": true,
+          "motion_summary": "已播放13秒原片，查看约1秒、4秒及11秒关键画面；仅1名角色在黑色练习室墙面与木地板前表演，画面边缘位置稳定。开始屈臂将拳放脸侧，随后双掌在侧边呈交叉角度并抬起一膝，后段再次出现一臂横放胸前、另一拳靠脸侧的动作。黑色短外套、灰色百褶裙和长靴在所见画面一致，完整造型变化仍待核验。页面显示Contains AI-generated media并自称VirtualIdol；female为百褶裙舞台角色的素材用途。",
+          "checks": {
+            "fixed_camera": true,
+            "repetitive": true,
+            "solo": true
+          },
+          "recreation_notes": "全身单角色、背景简单，适合提取短段屈臂和抬膝动作；可考虑目录女生单人角色Lila或伊芙琳，但需相应全身造型和脚部素材。重复判断来自同一播放周期前后相似拳位，不以播放器循环为依据。尚未生成测试，原片本身的AI标记不代表本流程成功，仍需无脸白模。",
+          "related_videos": [],
+          "motion_verified": true,
+          "trend_verified": false,
+          "trend_category": "virtual_idol",
+          "material_group": "female",
+          "transformation": "unknown"
+        }
+      ]
     }
   ],
   "runs": [
+    {
+      "id": "work-tiktok-20261119T141021Z-v2",
+      "run_id": "work-tiktok-20261119T141021Z-v2",
+      "payload_sha256": "e7d79c810d91002ed89a7fc42e1bee99a3dc632e549556a86ada84619ac32cdd",
+      "collector": "chatgpt_work",
+      "status": "partial",
+      "kind": "all",
+      "query": "",
+      "started_at": "2026-11-19T14:10:21+00:00",
+      "finished_at": "2026-11-19T14:10:21+00:00",
+      "observed_at": "2026-11-19T14:10:21+00:00",
+      "found": 3,
+      "added": 3,
+      "message": "本轮新收录3条已播放候选：K-pop 2条、虚拟偶像1条；纽约当日此前未用名额。两条页面分别为19h ago、7h ago；虚拟偶像扩展至30天窗口，页面原样11-2，精确发布时间未核验。尚未取得任何玩法至少3名不同作者的充分原片证据，美国受众参与程度未核验。指标来自本轮原片播放器，无播放量；本轮未使用K/M换算。素材分组只表示角色用途，不判断真实性别。造型变化无法全面确认的保留unknown；AI适配尚未生成测试。仅采集交接，未启动付费制作或发布TikTok。",
+      "ingestion_status": "imported",
+      "video_snapshots": [
+        {
+          "id": "tiktok-7709586718143286580",
+          "video_id": "7709586718143286580",
+          "url": "https://www.tiktok.com/@onworldserim/video/7709586718143286580",
+          "title": "ONDA：ILLIT You're Under Arrest 半身手势舞",
+          "author": "onworldserim",
+          "kind": "hands",
+          "original_watched": true,
+          "motion_summary": "原片关键画面只见1名表演者，白墙背景和机位保持稳定；双肘向外抬起、双手在肩旁指向和摆动，随后单手张掌放胸前、另一手叉腰，再侧身将手放在下巴附近。黑色露肩长袖上衣和黑裤在所见画面一致；未完整核验所有造型细节，变妆换装仍待确认。K-pop依据为页面ILLIT歌曲及挑战文案。female仅用于露肩舞台造型的女生角色素材路由。",
+          "checks": {
+            "fixed_camera": true,
+            "repetitive": null,
+            "solo": true
+          },
+          "recreation_notes": "白墙、单人半身和小幅位移适合先做手臂动作参考；可考虑目录Lila或Lena Reyes同组单人角色，需确认服装及手指遮挡。重复动作和完整变装情况未核验，尚未生成测试；交接制作仍需无脸白模步骤。",
+          "published_at": null,
+          "published_text": "19h ago",
+          "metrics": {
+            "comments": 86,
+            "likes": 1881,
+            "shares": 44,
+            "views": null
+          },
+          "related_videos": [
+            {
+              "url": "https://www.tiktok.com/@oukikk/video/7709466989864996148",
+              "original_watched": true,
+              "same_pattern": null,
+              "note": "已播放7秒原片，见单人白色针织上衣及短裙，在树木背景前将双臂在胸前交叉并下放；与主片同有ILLIT文案，但所见片段不足以确认完整同一编排，不能仅凭音频或标签判定。"
+            },
+            {
+              "url": "https://www.tiktok.com/@lislax_/video/7709739050701294879",
+              "original_watched": true,
+              "same_pattern": false,
+              "note": "已播放，画面文字为illit pop combo pt.1 (0.7x mirrored)，含newjeans - omg段落；见举臂、抬腿和移动步伐，是组合教学，不是主片所见的简短肩旁手势玩法。此链接不计同玩法支持作者。"
+            }
+          ],
+          "music_name": "You’re Under Arrest - ILLIT",
+          "motion_verified": false,
+          "trend_verified": false,
+          "source": "ChatGPT Work 云端浏览器",
+          "source_url": "https://www.tiktok.com/@onworldserim/video/7709586718143286580",
+          "source_kind": "chatgpt_work",
+          "assessment": "待核验候选",
+          "assessment_note": "原片关键画面只见1名表演者，白墙背景和机位保持稳定；双肘向外抬起、双手在肩旁指向和摆动，随后单手张掌放胸前、另一手叉腰，再侧身将手放在下巴附近。黑色露肩长袖上衣和黑裤在所见画面一致；未完整核验所有造型细节，变妆换装仍待确认。K-pop依据为页面ILLIT歌曲及挑战文案。female仅用于露肩舞台造型的女生角色素材路由。",
+          "trend_category": "kpop",
+          "material_group": "female",
+          "transformation": "unknown",
+          "observed_at": "2026-11-19T14:10:21+00:00"
+        },
+        {
+          "id": "tiktok-7709762212679683342",
+          "video_id": "7709762212679683342",
+          "url": "https://www.tiktok.com/@mybaybie/video/7709762212679683342",
+          "title": "bay：A2O LITE NEON 半身手臂舞",
+          "author": "mybaybie",
+          "kind": "hands",
+          "original_watched": true,
+          "motion_summary": "已播放17秒原片并查看开头、中段和后段关键画面，只见1名表演者在固定柜门背景前；身体侧转时双手平放在脸侧，随后回正将双臂在胸前交叉转动，最后放下手臂并配合表情。白色宽松上衣与长卷发在所见画面一致；完整妆容和换装情况未全面确认。页面dc: A2O LITE NEON及K-pop文案提供主题依据。服装及动作不限定男女角色用途，素材组待确认。",
+          "checks": {
+            "fixed_camera": true,
+            "repetitive": null,
+            "solo": true
+          },
+          "recreation_notes": "近景、固定背景与单人构图便于动作提取，但双臂交叉遮挡胸部，手指需额外检查；先确认角色素材分组再配对，不能仅凭脸或声音指定。尚未生成测试，交接制作必须保留无脸白模。",
+          "published_at": null,
+          "published_text": "7h ago",
+          "metrics": {
+            "comments": 45,
+            "likes": 4752,
+            "shares": 49,
+            "views": null
+          },
+          "related_videos": [
+            {
+              "url": "https://www.tiktok.com/@ads7hr/video/7709776524232101152",
+              "original_watched": true,
+              "same_pattern": null,
+              "note": "已播放22秒原片，见单人在卧室中胸前交叉双臂、向外展开及屈膝侧转；与主片有手臂交叉片段，但此版包含更多腿部动作，现有关键画面不足以确认同一完整编排。只有这1名其他作者的部分证据，未达3人阈值。"
+            }
+          ],
+          "music_name": "原聲 - yuri_1011",
+          "motion_verified": false,
+          "trend_verified": false,
+          "source": "ChatGPT Work 云端浏览器",
+          "source_url": "https://www.tiktok.com/@mybaybie/video/7709762212679683342",
+          "source_kind": "chatgpt_work",
+          "assessment": "待核验候选",
+          "assessment_note": "已播放17秒原片并查看开头、中段和后段关键画面，只见1名表演者在固定柜门背景前；身体侧转时双手平放在脸侧，随后回正将双臂在胸前交叉转动，最后放下手臂并配合表情。白色宽松上衣与长卷发在所见画面一致；完整妆容和换装情况未全面确认。页面dc: A2O LITE NEON及K-pop文案提供主题依据。服装及动作不限定男女角色用途，素材组待确认。",
+          "trend_category": "kpop",
+          "material_group": "unknown",
+          "transformation": "unknown",
+          "observed_at": "2026-11-19T14:10:21+00:00"
+        },
+        {
+          "id": "tiktok-7703265627972128021",
+          "video_id": "7703265627972128021",
+          "url": "https://www.tiktok.com/@itsmomoko.jp/video/7703265627972128021",
+          "title": "MOMOKO：练习室单人虚拟偶像手臂舞",
+          "author": "itsmomoko.jp",
+          "kind": "hands",
+          "original_watched": true,
+          "motion_summary": "已播放13秒原片，查看约1秒、4秒及11秒关键画面；仅1名角色在黑色练习室墙面与木地板前表演，画面边缘位置稳定。开始屈臂将拳放脸侧，随后双掌在侧边呈交叉角度并抬起一膝，后段再次出现一臂横放胸前、另一拳靠脸侧的动作。黑色短外套、灰色百褶裙和长靴在所见画面一致，完整造型变化仍待核验。页面显示Contains AI-generated media并自称VirtualIdol；female为百褶裙舞台角色的素材用途。",
+          "checks": {
+            "fixed_camera": true,
+            "repetitive": true,
+            "solo": true
+          },
+          "recreation_notes": "全身单角色、背景简单，适合提取短段屈臂和抬膝动作；可考虑目录女生单人角色Lila或伊芙琳，但需相应全身造型和脚部素材。重复判断来自同一播放周期前后相似拳位，不以播放器循环为依据。尚未生成测试，原片本身的AI标记不代表本流程成功，仍需无脸白模。",
+          "published_at": null,
+          "published_text": "11-2",
+          "metrics": {
+            "comments": 0,
+            "likes": 37,
+            "shares": 0,
+            "views": null
+          },
+          "related_videos": [],
+          "music_name": "オリジナル楽曲 - MOMOKO桃子🍑",
+          "motion_verified": true,
+          "trend_verified": false,
+          "source": "ChatGPT Work 云端浏览器",
+          "source_url": "https://www.tiktok.com/@itsmomoko.jp/video/7703265627972128021",
+          "source_kind": "chatgpt_work",
+          "assessment": "已看原片的动作候选",
+          "assessment_note": "已播放13秒原片，查看约1秒、4秒及11秒关键画面；仅1名角色在黑色练习室墙面与木地板前表演，画面边缘位置稳定。开始屈臂将拳放脸侧，随后双掌在侧边呈交叉角度并抬起一膝，后段再次出现一臂横放胸前、另一拳靠脸侧的动作。黑色短外套、灰色百褶裙和长靴在所见画面一致，完整造型变化仍待核验。页面显示Contains AI-generated media并自称VirtualIdol；female为百褶裙舞台角色的素材用途。",
+          "trend_category": "virtual_idol",
+          "material_group": "female",
+          "transformation": "unknown",
+          "observed_at": "2026-11-19T14:10:21+00:00"
+        }
+      ],
+      "sources": [
+        {
+          "name": "ChatGPT Work 云端浏览器",
+          "url": "https://www.tiktok.com/@onworldserim/video/7709586718143286580",
+          "status": "ok",
+          "found": 1
+        },
+        {
+          "name": "ChatGPT Work 云端浏览器",
+          "url": "https://www.tiktok.com/@oukikk/video/7709466989864996148",
+          "status": "ok",
+          "found": 1
+        },
+        {
+          "name": "ChatGPT Work 云端浏览器",
+          "url": "https://www.tiktok.com/@lislax_/video/7709739050701294879",
+          "status": "ok",
+          "found": 1
+        },
+        {
+          "name": "ChatGPT Work 云端浏览器",
+          "url": "https://www.tiktok.com/@mybaybie/video/7709762212679683342",
+          "status": "ok",
+          "found": 1
+        },
+        {
+          "name": "ChatGPT Work 云端浏览器",
+          "url": "https://www.tiktok.com/@ads7hr/video/7709776524232101152",
+          "status": "ok",
+          "found": 1
+        },
+        {
+          "name": "ChatGPT Work 云端浏览器",
+          "url": "https://www.tiktok.com/@itsmomoko.jp/video/7703265627972128021",
+          "status": "ok",
+          "found": 1
+        }
+      ]
+    },
     {
       "id": "work-tiktok-20261118T140231Z-v2",
       "run_id": "work-tiktok-20261118T140231Z-v2",
@@ -2731,8 +3174,8 @@
       ]
     }
   ],
-  "last_attempt_at": "2026-11-18T14:02:31+00:00",
-  "last_success_at": "2026-11-18T14:02:31+00:00",
+  "last_attempt_at": "2026-11-19T14:10:21+00:00",
+  "last_success_at": "2026-11-19T14:10:21+00:00",
   "work_imports": {
     "work-tiktok-20261112T013104Z-7704859708200389902": "3f8b1c1e965c6bdb4e2aa62d5664177f4b4188cb0e4652526db2730fb82349c7",
     "work-tiktok-20261112T140658Z-d02c989e": "2f440e348273e22c41cb3b476aaf274262e138159e45dde53425844de921907c",
@@ -2741,7 +3184,8 @@
     "work-tiktok-58f0303583004adabe312c55789ab9b0": "033895ff0737f4a440632c2f0444bddb9fdf75ff1713e310b4c0f88a7236cb8b",
     "work-tiktok-20261116T143112979Z-v2": "3e2ca714238977a7aa19d01100e6ee39277e4d28e0c930e41c2e69e639d44d6e",
     "work-tiktok-20261117T140951Z-v2": "e4d9ebfd85b7d4c9fd0ede215aa058fe634ad7bbea63c8df49dbc1d7b1775050",
-    "work-tiktok-20261118T140231Z-v2": "a14b68426bdccd5a4a9b3aeaaaa076349d83eb65898ff98f891fce04eb5aadd7"
+    "work-tiktok-20261118T140231Z-v2": "a14b68426bdccd5a4a9b3aeaaaa076349d83eb65898ff98f891fce04eb5aadd7",
+    "work-tiktok-20261119T141021Z-v2": "e7d79c810d91002ed89a7fc42e1bee99a3dc632e549556a86ada84619ac32cdd"
   },
   "material_classification_imports": {
     "2026-11-15T22:22:39.724000+00:00": "8cd3e17433a336f4ee0bcc3b43c3920f593ebf1d3c38b5039ecfc571ac1215ed"
@@ -2769,6 +3213,15 @@
       ],
       "virtual_idol": [
         "tiktok-7707884994542292244"
+      ]
+    },
+    "2026-11-19": {
+      "kpop": [
+        "tiktok-7709586718143286580",
+        "tiktok-7709762212679683342"
+      ],
+      "virtual_idol": [
+        "tiktok-7703265627972128021"
       ]
     }
   }
