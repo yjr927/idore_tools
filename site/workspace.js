@@ -199,6 +199,7 @@
     const serviceHeading = el('div', 'section-heading settings-section-title'); serviceHeading.append(el('h2', '', '云端服务')); const check = button('检查连接（不生成）', () => dispatch('check')); check.dataset.cloudAction = ''; serviceHeading.append(check);
     const services = el('div', 'service-grid'), copyRoute = copyConfig(); services.append(connectionCard('英文文案与标签', copyRoute.provider === 'openrouter' ? 'OpenAI 模型，经 OpenRouter 分析成片、搜索资料并准备英文文案与标签。' : '通过直接 OpenAI 调用分析成片并准备文案与标签。', 'copy'), connectionCard('OpenRouter · 视频', '使用角色图和动作白模生成视频。', 'openrouter'));
     const tiktok = connectionCard('TikTok', '审核后送至草稿，在 TikTok 中完成最终编辑。', 'tiktok');
+    tiktok.append(link('在 JJ TEST 测试 TikTok 草稿上传 ↗', 'https://idore-tools.yjr927.workers.dev/sandbox/tiktok', 'text-link'));
     if (!pipeline.connections.tiktok?.configured) { const disabled = button('连接 TikTok', () => {}); disabled.disabled = true; tiktok.append(disabled); const steps = el('details', 'small-details'); steps.append(el('summary', '', '接入前需要准备什么？'), el('p', '', '先创建 TikTok 开发者应用，申请视频上传权限并完成平台审核，再连接发布账号。当前尚未接入，网页不会假装上传成功。'), link('查看 TikTok 官方接入步骤 ↗', 'https://developers.tiktok.com/doc/content-posting-api-get-started/', 'text-link')); tiktok.append(steps); }
     services.append(tiktok);
     const optionalStyles = el('details', 'small-details material-section'); optionalStyles.append(el('summary', '', '可选 · OpenAI 变装造型图'), connectionCard('OpenAI · 可选造型图', '仅用于可选的变装造型图，不影响 OpenRouter 文案服务。', 'openai'));

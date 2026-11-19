@@ -30,6 +30,7 @@
       <h2>Sending a draft to TikTok</h2>
       <p>When the connection is enabled, an authorized reviewer can select an approved video and confirm the destination TikTok account. The upload uses TikTok’s <code>video.upload</code> permission. The workflow uses the configured account identifier, account label and access token to send the video and check the transfer. The account holder opens the upload in TikTok, adds or pastes a caption, chooses visibility and decides whether to publish.</p>
       <p>TikTok receives the video for the authorized account. The Studio records the transfer status and identifiers needed to check delivery or prevent a duplicate. You can revoke the app’s access through <a href="https://support.tiktok.com/en/safety-hc/account-and-user-safety/connect-to-third-party-apps">TikTok’s connected-app settings</a>. Manage copies already transferred to TikTok in your TikTok account.</p>
+      <p>In the JJ TEST sandbox, Cloudflare hosts the login and upload service. When you connect TikTok, the service reads your display name and account identifier, keeps your access token encrypted for up to 30 minutes, and sets a session cookie. You can preview the test video on your device. When you confirm the upload, the service forwards the video to TikTok and keeps a receipt associated with a hashed account identifier to prevent duplicate delivery.</p>
     </section>
     <section>
       <h2>Where records are kept</h2>
