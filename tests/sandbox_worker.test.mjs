@@ -37,7 +37,8 @@ class MemoryStorage {
   }
 }
 
-function fixture(t, { scope = 'video.upload,user.info.basic', dropInitResponse = false, useDeployment = false, kaiAsset, redirectOn } = {}) {
+function fixture(t, { scope = 'video.upload,user.info.basic', dropInitResponse = false, useDeployment = false,
+  kaiAsset, redirectOn, initReply, signedUploadUrl = uploadUrl, onPut } = {}) {
   const worker = useDeployment ? deployedWorker : createSandboxWorker(clipHash);
   const calls = [];
   const objects = new Map();
@@ -73,7 +74,7 @@ function fixture(t, { scope = 'video.upload,user.info.basic', dropInitResponse =
     if (redirectOn === url.pathname) {
       return new Response('private provider diagnostic', { status: 302, headers: { Location: mockRedirect } });
     }
-    if (req.url === uploadUrl && req.method === 'PUT') return new Response(null, { status: 201 });
+    if (req.url === signedUploadUrl && req.method === 'PUT') return onPut ? onPut(objects) : new Response(null, { status: 201 });
     assert.equal(url.origin, 'https://open.tiktokapis.com');
     switch (url.pathname) {
       case '/v2/oauth/token/':
@@ -83,7 +84,7 @@ function fixture(t, { scope = 'video.upload,user.info.basic', dropInitResponse =
         return ok({ user: { open_id: openId, display_name: 'Sandbox Tester' } });
       case initPath:
         if (dropInitResponse) throw new Error('Mocked lost initialization response');
-        return ok({ publish_id: 'v_inbox_file~v2.12345', upload_url: uploadUrl });
+        return initReply ? initReply() : ok({ publish_id: 'v_inbox_file~v2.12345', upload_url: signedUploadUrl });
       case statusPath:
         return ok({ status: 'SEND_TO_USER_INBOX' });
       default:
@@ -341,3 +342,101 @@ test('redirecting signed file upload is never followed or resent', async t => {
   const page = await (await h.visit(samplePage)).text();
   assert.doesNotMatch(page, /Delivered to TikTok inbox|private provider diagnostic/i);
 });
+
+test('legacy KAI receipt with no publish ID permits exactly one explicit pre-transfer recovery', async t => {
+  const h = fixture(t, { useDeployment: true, dropInitResponse: true });
+  const form = await h.session('kai');
+  const storage = [...h.objects].find(([key]) => key.endsWith(':' + kaiDigest))[1].storage;
+  await storage.put('attempt', { sid: 'prior-session', attempt: 'prior-attempt', state: 'uncertain' });
+  const review = await (await h.visit(landing)).text();
+  assert.match(review, /action="\/sandbox\/tiktok\/upload"/);
+  const send = fields => h.visit(landing + '/upload', { method: 'POST', form: new URLSearchParams(fields) });
+  await send({ ...form, confirm: '' });
+  assert.equal(h.callsTo(initPath).length, 0);
+  await Promise.all([send(form), send(form)]);
+  await send(form);
+  assert.equal(h.callsTo(initPath).length, 1);
+  assert.equal(h.calls.filter(call => call.method === 'PUT').length, 0);
+  assert.doesNotMatch(await (await h.visit(landing)).text(), /action="\/sandbox\/tiktok\/upload"/);
+});
+
+test('legacy receipt containing a publish ID is polled without resending video', async t => {
+  const h = fixture(t);
+  const form = await h.session('kai');
+  const storage = [...h.objects].find(([key]) => key.endsWith(':' + kaiDigest))[1].storage;
+  await storage.put('attempt', { sid: 'prior-session', attempt: 'prior-attempt',
+    state: 'uncertain', publishId: 'v_inbox_file~v2.legacy' });
+  const html = await (await h.visit(landing)).text();
+  assert.match(html, /action="\/sandbox\/tiktok\/status"/);
+  assert.doesNotMatch(html, /action="\/sandbox\/tiktok\/upload"/);
+  await h.visit(landing + '/upload', { method: 'POST', form: new URLSearchParams(form) });
+  await h.post('status', form);
+  assert.equal(h.callsTo(initPath).length, 0);
+  assert.equal(h.calls.filter(call => call.method === 'PUT').length, 0);
+  assert.equal(JSON.parse(h.callsTo(statusPath)[0].text).publish_id, 'v_inbox_file~v2.legacy');
+});
+
+test('a failed signed PUT keeps the durable publish ID and cannot trigger a second PUT', async t => {
+  let rowAtPut;
+  const h = fixture(t, { onPut(objects) {
+    rowAtPut = [...objects.values()].map(object => object.storage.entries.get('attempt')).find(Boolean);
+    return new Response('private transfer diagnostic', { status: 503 });
+  } });
+  const form = await h.session();
+  await h.post('upload', form);
+  assert.equal(rowAtPut?.publishId, 'v_inbox_file~v2.12345');
+  assert.equal(rowAtPut.stage, 'transfer_started');
+  await h.post('upload', form);
+  assert.equal(h.callsTo(initPath).length, 1);
+  assert.equal(h.calls.filter(call => call.method === 'PUT').length, 1);
+  const html = await (await h.visit(samplePage)).text();
+  assert.match(html, /action="\/sandbox\/tiktok\/status"/);
+  assert.doesNotMatch(html, /private transfer diagnostic|action="\/sandbox\/tiktok\/upload"/);
+});
+
+test('an untrusted transfer address keeps the provider ID for status and sends no bytes', async t => {
+  const h = fixture(t, { signedUploadUrl: 'https://upload.example/video/?private-capability=123' });
+  const form = await h.session();
+  await h.post('upload', form);
+  await h.post('upload', form);
+  assert.equal(h.callsTo(initPath).length, 1);
+  assert.equal(h.calls.filter(call => call.method === 'PUT').length, 0);
+  const html = await (await h.visit(samplePage)).text();
+  assert.match(html, /action="\/sandbox\/tiktok\/status"/);
+  assert.doesNotMatch(html, /private-capability|upload\.example/);
+  await h.post('status', form);
+  assert.equal(JSON.parse(h.callsTo(statusPath)[0].text).publish_id, 'v_inbox_file~v2.12345');
+});
+
+for (const status of [200, 400]) {
+  test('HTTP ' + status + ' TikTok business error is explained without leaking provider details', async t => {
+    const h = fixture(t, { initReply: () => Response.json({
+      error: { code: 'scope_not_authorized', message: 'private provider message', log_id: 'private-provider-trace' },
+    }, { status }) });
+    const form = await h.session();
+    await h.post('upload', form);
+    await h.post('upload', form);
+    const html = await (await h.visit(samplePage)).text();
+    assert.match(html, /permission|scope_not_authorized/i);
+    assert.match(html, new RegExp('HTTP ' + status));
+    assert.doesNotMatch(html, /private provider message|private-provider-trace/);
+    assert.equal(h.callsTo(initPath).length, 1);
+    assert.equal(h.calls.filter(call => call.method === 'PUT').length, 0);
+  });
+}
+
+for (const address of [
+  'https://open-upload-us.tiktokapis.com/upload/?upload_id=demo',
+  'https://upload.us.tiktokapis.com/video?upload_id=demo',
+]) {
+  test('accepts the TikTok FILE_UPLOAD endpoint ' + new URL(address).host + new URL(address).pathname, async t => {
+    const h = fixture(t, { signedUploadUrl: address });
+    const form = await h.session();
+    await h.post('upload', form);
+    const puts = h.calls.filter(call => call.method === 'PUT');
+    assert.equal(puts.length, 1);
+    assert.equal(puts[0].url.href, address);
+    assert.equal(puts[0].headers.get('Authorization'), null);
+    assert.equal(puts[0].redirect, 'manual');
+  });
+}

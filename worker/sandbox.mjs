@@ -262,7 +262,33 @@ const rejectionReason = {
   access_token_invalid:'The TikTok authorization expired.', scope_not_authorized:'Video upload permission was not granted.',
   spam_risk_too_many_pending_share:'TikTok reports too many pending uploads.', spam_risk_user_banned_from_posting:'TikTok restricted uploads for this account.',
   rate_limit_exceeded:'TikTok requested a slower request rate.', invalid_param:'TikTok rejected the upload parameters.',
+  sandbox_user_not_authorized:'TikTok did not recognize this account as a Sandbox target.',
+  sandbox_restriction:'TikTok restricted the operation in this Sandbox.',
+  unaudited_client_can_only_post_to_private_accounts:'TikTok restricted this unaudited client to private accounts.',
+  reached_active_user_cap:'TikTok reports that the app reached its active user limit.',
+  client_not_authorized:'TikTok did not authorize this client for the upload.',
+  invalid_scope:'TikTok rejected the scope.', permission_denied:'TikTok denied the requested permission.',
+  url_ownership_unverified:'TikTok could not verify URL ownership.',
 };
+
+function canReserve(row, sid, kai) {
+  if (!row || Object.keys(row).length === 0) return true;
+  if (row.retryCount || row.publishId) return false;
+  // Only the previous implementation could persist an unstaged uncertain
+  // receipt. It committed publishId before the first PUT and removed that ID
+  // only on a terminal state, so this specific receipt proves no bytes left.
+  if (kai && row.state === 'uncertain' && !Object.hasOwn(row, 'stage')) return true;
+  return row.state === 'rejected' && row.sid !== sid;
+}
+
+function errorCode(data, token) {
+  const code = typeof data.error === 'string' ? data.error : data.error?.code;
+  return typeof code === 'string' && code !== token && code !== 'ok' && /^[a-z_]{1,70}$/.test(code) ? code : '';
+}
+
+function errorDetail(result, code) {
+  return 'TikTok HTTP ' + result.status + (code ? ', code: ' + code : '') + '.';
+}
 
 function hidden(name, value) { return `<input type="hidden" name="${name}" value="${escape(value)}">`; }
 
@@ -323,8 +349,14 @@ async function landing(env, auth, clipHash, isKai) {
   const row = await inside(receiptActor(env, grant, clipHash), 'read');
   const fields = hidden('csrf', session.csrf) + hidden('clip', clipHash);
   let actions = '';
-  if (row.state) actions += `<p role="status">${escape(states[row.state] || states.uncertain)} ${escape(rejectionReason[row.reason] || '')}</p>`;
-  if (!row.state || row.state === 'rejected' && row.sid !== session.sid) {
+  if (row.state) {
+    const beforeTransfer = !['delivered','failed','published'].includes(row.state) &&
+      (row.stage === 'init_only' || row.state === 'uncertain' && !row.publishId && !row.stage);
+    const message = beforeTransfer ? 'Upload initialization. No video bytes were sent.' : states[row.state] || states.uncertain;
+    const reason = Object.hasOwn(rejectionReason, row.reason) ? rejectionReason[row.reason] : '';
+    actions += `<p role="status">${escape(message)} ${escape(row.detail || '')} ${escape(reason)} ${escape(row.checkDetail || '')}</p>`;
+  }
+  if (canReserve(row, session.sid, isKai)) {
     if (isKai) actions += `<form method="post" action="${HOME}/upload">${fields}
       <label><input type="checkbox" name="confirm" value="inbox" required> I reviewed KAI · 手势舞 and want to send it to the TikTok inbox for ${escape(grant.display)}.</label>
       <button>Send KAI video to TikTok inbox</button></form>`;
@@ -343,51 +375,79 @@ async function landing(env, auth, clipHash, isKai) {
   return preview;
 }
 
-function trustedUpload(value) {
-  if (typeof value !== 'string' || value.length > 4096) return null;
+function uploadAddress(value) {
+  if (typeof value !== 'string' || value.length > 8192) return {issue:'TikTok did not return a usable transfer address.'};
   try {
     const u = new URL(value);
-    if (u.protocol !== 'https:' || u.username || u.password || u.port || u.hash || u.pathname !== '/video/' ||
-        !u.search || !/^(open-upload|upload\.(us|eu|sg))\.tiktokapis\.com$/.test(u.hostname)) return null;
-    return u.href;
-  } catch { return null; }
+    // Only a dedicated TikTok upload endpoint supplied directly by the official
+    // initialization response. Both /video/ and /upload/ appear in TikTok's
+    // transfer documentation. Never follow redirects or forward bearer tokens.
+    const owned = /^(?:open-upload|upload)(?:-[a-z0-9]{1,15})?(?:\.[a-z0-9-]{1,20})?\.tiktokapis\.com$/.test(u.hostname);
+    if (!owned) return {issue:'TikTok returned an unexpected transfer host.'};
+    if (u.protocol !== 'https:' || u.username || u.password || u.port || u.hash || !/^\/(video|upload)\/?$/.test(u.pathname) || !u.search) {
+      return {issue:'Unsupported signed transfer address on ' + u.hostname + '.'};
+    }
+    return {href:u.href};
+  } catch { return {issue:'TikTok returned a malformed transfer address.'}; }
 }
 
-async function upload(stub, session, grant, clip) {
+async function upload(stub, session, grant, clip, isKai) {
   const attempt = random();
-  const reservation = await inside(stub, 'reserve', {sid:session.sid, attempt});
+  const reservation = await inside(stub, 'reserve', {sid:session.sid, attempt, kai:isKai});
   if (!reservation.created) return;
   const update = changes => inside(stub, 'update', {attempt, ...changes});
+  let stage = 'init_only';
   try {
     const size = clip.bytes.length;
     const init = await apiPost('/v2/post/publish/inbox/video/init/', grant.token, {
       source_info:{source:'FILE_UPLOAD', video_size:size, chunk_size:size, total_chunk_count:1},
     });
-    const reason = init.data.error?.code;
-    if ([400, 401, 403, 429].includes(init.status) && Object.hasOwn(rejectionReason, reason)) {
-      await update({state:'rejected', reason}); return;
-    }
     const id = init.data.data?.publish_id;
-    const address = trustedUpload(init.data.data?.upload_url);
-    if (init.status !== 200 || reason !== 'ok' || !validProviderValue(id, 64) || !address) {
-      await update({state:'uncertain'}); return;
+    const publishId = validProviderValue(id, 256) ? id : undefined;
+    const reason = errorCode(init.data, grant.token);
+    if (init.status !== 200 || init.data.error?.code !== 'ok') {
+      const rejected = !publishId && reason && [200,400,401,403,429].includes(init.status);
+      await update({state:rejected ? 'rejected' : 'uncertain', stage, reason, publishId,
+        detail:'TikTok declined or could not confirm initialization. ' + errorDetail(init, reason)}); return;
     }
-    await update({state:'processing', publishId:id});
-    const transfer = await noRedirectFetch(address, {method:'PUT', body:clip.bytes,
+    if (!publishId) {
+      await update({state:'uncertain', stage, detail:'TikTok returned no usable status identifier. ' + errorDetail(init, reason)}); return;
+    }
+    const address = uploadAddress(init.data.data?.upload_url);
+    if (!address.href) {
+      await update({state:'uncertain', stage, publishId, detail:address.issue + ' ' + errorDetail(init, reason)}); return;
+    }
+    // This durable write must finish before any bytes can leave the Worker.
+    const permission = await update({state:'processing', stage:'transfer_started', publishId});
+    if (!permission.applied) return;
+    stage = 'transfer_started';
+    const transfer = await noRedirectFetch(address.href, {method:'PUT', body:clip.bytes,
       headers:{'Content-Type':'video/mp4','Content-Length':String(size),'Content-Range':`bytes 0-${size - 1}/${size}`}}, 30000);
     if (transfer.body) await transfer.body.cancel();
-    if (transfer.status !== 201) await update({state:'uncertain'});
-  } catch { await update({state:'uncertain'}); }
+    if (transfer.status !== 201) await update({state:'uncertain', stage, detail:'TikTok transfer returned HTTP ' + transfer.status + '.'});
+    else await update({state:'processing', stage:'transfer_accepted', detail:'TikTok accepted the video bytes (HTTP 201).'});
+  } catch (error) {
+    const detail = error instanceof SafeDiagnostic ? error.message : 'request interrupted';
+    await update({state:'uncertain', stage, detail:(stage === 'init_only' ? 'TikTok initialization: ' : 'TikTok transfer: ') + detail + '.'});
+  }
 }
 
 async function status(stub, grant) {
   const row = await inside(stub, 'read');
   if (!row.publishId || ['delivered','published','failed'].includes(row.state)) return;
-  const fetched = await apiPost('/v2/post/publish/status/fetch/', grant.token, {publish_id:row.publishId});
-  if (fetched.status !== 200 || fetched.data.error?.code !== 'ok') return;
+  const update = changes => inside(stub, 'update', {attempt:row.attempt, ...changes});
+  let fetched;
+  try { fetched = await apiPost('/v2/post/publish/status/fetch/', grant.token, {publish_id:row.publishId}); }
+  catch (error) { await update({checkDetail:'Status check: ' + (error instanceof SafeDiagnostic ? error.message : 'request interrupted') + '.'}); return; }
+  if (fetched.status !== 200 || fetched.data.error?.code !== 'ok') {
+    await update({checkDetail:'Status check: ' + errorDetail(fetched, errorCode(fetched.data, grant.token))}); return;
+  }
   const phase = fetched.data.data?.status;
   const next = {SEND_TO_USER_INBOX:'delivered', PUBLISH_COMPLETE:'published', FAILED:'failed'}[phase];
-  if (next) await inside(stub, 'update', {attempt:row.attempt, state:next});
+  const fail = next === 'failed' ? errorCode({error:fetched.data.data?.fail_reason}, grant.token) : '';
+  const inProgress = ['PROCESSING_UPLOAD','PROCESSING_DOWNLOAD'].includes(phase) ? phase : '';
+  await update(next ? {state:next, checkDetail:fail ? 'TikTok failure: ' + fail + '.' : ''} :
+    {checkDetail:inProgress ? 'TikTok status: ' + inProgress + '.' : 'TikTok has not provided a final status.'});
 }
 
 async function action(request, url, env, auth, sampleHash, kai) {
@@ -427,7 +487,7 @@ async function action(request, url, env, auth, sampleHash, kai) {
       bytes = new Uint8Array(await file.arrayBuffer());
     }
     if (decoder.decode(bytes.subarray(4, 8)) !== 'ftyp' || await fingerprint(bytes) !== clipHash) return problem(409, 'The video does not match the reviewed version.');
-    await upload(stub, auth.session, auth.grant, {bytes});
+    await upload(stub, auth.session, auth.grant, {bytes}, isKai);
   } else await status(stub, auth.grant);
   return redirect(isKai ? HOME : HOME + '?clip=sample');
 }
@@ -485,23 +545,27 @@ export class SandboxAttempt {
     if (path === '/reserve') {
       const created = await this.storage.transaction(async tx => {
         const old = await tx.get('attempt');
-        if (old && !(old.state === 'rejected' && old.sid !== data.sid)) return false;
-        await tx.put('attempt', {sid:data.sid, attempt:data.attempt, state:'reserved'});
+        if (!canReserve(old, data.sid, data.kai === true)) return false;
+        await tx.put('attempt', {sid:data.sid, attempt:data.attempt, state:'reserved', stage:'init_only', retryCount:old ? 1 : 0});
         return true;
       });
       return json({created});
     }
     if (path === '/update') {
-      await this.storage.transaction(async tx => {
+      const applied = await this.storage.transaction(async tx => {
         const row = await tx.get('attempt');
-        if (!row || row.attempt !== data.attempt || ['delivered','failed','published','rejected'].includes(row.state)) return;
-        row.state = data.state;
+        if (!row || row.attempt !== data.attempt || ['delivered','failed','published','rejected'].includes(row.state)) return false;
+        if (data.state) row.state = data.state;
+        if (data.stage && !(data.stage === 'init_only' && row.stage === 'transfer_started')) row.stage = data.stage;
         if (data.publishId) row.publishId = data.publishId;
         if (data.reason) row.reason = data.reason;
+        if (data.detail) row.detail = data.detail;
+        if (data.checkDetail !== undefined) row.checkDetail = data.checkDetail;
         if (['delivered','failed','published'].includes(row.state)) delete row.publishId;
         await tx.put('attempt', row);
+        return true;
       });
-      return json({ok:true});
+      return json({applied});
     }
     return new Response(null, {status:404});
   }
