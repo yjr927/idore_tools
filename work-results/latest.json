@@ -1,68 +1,107 @@
 {
   "schema_version": 2,
-  "run_id": "work-tiktok-20261118T140231Z-v2",
-  "observed_at": "2026-11-18T14:02:31Z",
+  "run_id": "work-tiktok-20261119T141021Z-v2",
+  "observed_at": "2026-11-19T09:10:21-05:00",
   "status": "partial",
-  "message": "本轮新增2条单人动作参考：K-pop 1条、虚拟偶像1条；当日此前无已用名额。优先检查7天，K-pop扩展至30天窗口。未凑满4条。原片均已播放观察关键帧，但造型变化、重复周期及至少3名不同作者同玩法证据不足；美国受众参与程度未核验，不代表美国热榜。指标为页面可见值，未使用K/M换算，播放量及精确日期未知。仅采集交接，尚未生成测试。",
+  "message": "本轮新收录3条已播放候选：K-pop 2条、虚拟偶像1条；纽约当日此前未用名额。两条页面分别为19h ago、7h ago；虚拟偶像扩展至30天窗口，页面原样11-2，精确发布时间未核验。尚未取得任何玩法至少3名不同作者的充分原片证据，美国受众参与程度未核验。指标来自本轮原片播放器，无播放量；本轮未使用K/M换算。素材分组只表示角色用途，不判断真实性别。造型变化无法全面确认的保留unknown；AI适配尚未生成测试。仅采集交接，未启动付费制作或发布TikTok。",
   "videos": [
     {
-      "url": "https://www.tiktok.com/@dydvt0gqj0kb/video/7702801829414964500",
-      "title": "TWICE Turtle — front-facing hand gestures",
+      "url": "https://www.tiktok.com/@onworldserim/video/7709586718143286580",
+      "title": "ONDA：ILLIT You're Under Arrest 半身手势舞",
+      "trend_category": "kpop",
+      "material_group": "female",
+      "kind": "hands",
+      "transformation": "unknown",
+      "original_watched": true,
+      "motion_summary": "原片关键画面只见1名表演者，白墙背景和机位保持稳定；双肘向外抬起、双手在肩旁指向和摆动，随后单手张掌放胸前、另一手叉腰，再侧身将手放在下巴附近。黑色露肩长袖上衣和黑裤在所见画面一致；未完整核验所有造型细节，变妆换装仍待确认。K-pop依据为页面ILLIT歌曲及挑战文案。female仅用于露肩舞台造型的女生角色素材路由。",
+      "checks": {
+        "solo": true,
+        "repetitive": null,
+        "fixed_camera": true
+      },
+      "recreation_notes": "白墙、单人半身和小幅位移适合先做手臂动作参考；可考虑目录Lila或Lena Reyes同组单人角色，需确认服装及手指遮挡。重复动作和完整变装情况未核验，尚未生成测试；交接制作仍需无脸白模步骤。",
+      "published_at": null,
+      "published_text": "19h ago",
+      "metrics": {
+        "views": null,
+        "likes": 1881,
+        "comments": 86,
+        "shares": 44
+      },
+      "related_videos": [
+        {
+          "url": "https://www.tiktok.com/@oukikk/video/7709466989864996148",
+          "original_watched": true,
+          "same_pattern": null,
+          "note": "已播放7秒原片，见单人白色针织上衣及短裙，在树木背景前将双臂在胸前交叉并下放；与主片同有ILLIT文案，但所见片段不足以确认完整同一编排，不能仅凭音频或标签判定。"
+        },
+        {
+          "url": "https://www.tiktok.com/@lislax_/video/7709739050701294879",
+          "original_watched": true,
+          "same_pattern": false,
+          "note": "已播放，画面文字为illit pop combo pt.1 (0.7x mirrored)，含newjeans - omg段落；见举臂、抬腿和移动步伐，是组合教学，不是主片所见的简短肩旁手势玩法。此链接不计同玩法支持作者。"
+        }
+      ],
+      "music_name": "You’re Under Arrest - ILLIT"
+    },
+    {
+      "url": "https://www.tiktok.com/@mybaybie/video/7709762212679683342",
+      "title": "bay：A2O LITE NEON 半身手臂舞",
       "trend_category": "kpop",
       "material_group": "unknown",
       "kind": "hands",
       "transformation": "unknown",
       "original_watched": true,
-      "motion_summary": "已播放14秒原片并观察关键画面：仅1名人物在门前正面出镜，穿浅色衬衫、黑白条纹领部配饰，双辫、头顶眼镜；双手交叠放胸前，随后一掌竖起、另一手向下摆动。门框与机位稳定。页面文案标注TWICE/乌龟，作为K-pop动作参考；角色素材分组缺少充分依据，保留unknown，不判断人物真实性别。已见画面造型相同，但未确认全片无妆容/服装变化；动作重复周期未核验。",
+      "motion_summary": "已播放17秒原片并查看开头、中段和后段关键画面，只见1名表演者在固定柜门背景前；身体侧转时双手平放在脸侧，随后回正将双臂在胸前交叉转动，最后放下手臂并配合表情。白色宽松上衣与长卷发在所见画面一致；完整妆容和换装情况未全面确认。页面dc: A2O LITE NEON及K-pop文案提供主题依据。服装及动作不限定男女角色用途，素材组待确认。",
       "checks": {
         "solo": true,
         "repetitive": null,
         "fixed_camera": true
       },
-      "recreation_notes": "上半身居中、背景简单，适合拆解短手势；手指、衣袖和发丝遮挡需注意。公开目录有男女单人素材，但本条分组待确认，不自动指定角色。尚未生成测试；后续须先提取动作并渲染无脸白模。",
+      "recreation_notes": "近景、固定背景与单人构图便于动作提取，但双臂交叉遮挡胸部，手指需额外检查；先确认角色素材分组再配对，不能仅凭脸或声音指定。尚未生成测试，交接制作必须保留无脸白模。",
       "published_at": null,
-      "published_text": "10-31",
+      "published_text": "7h ago",
       "metrics": {
         "views": null,
-        "likes": 178,
-        "comments": 6,
-        "shares": 10
+        "likes": 4752,
+        "comments": 45,
+        "shares": 49
       },
       "related_videos": [
         {
-          "url": "https://www.tiktok.com/@hanamileniaa/video/7070332133591485722",
+          "url": "https://www.tiktok.com/@ads7hr/video/7709776524232101152",
           "original_watched": true,
           "same_pattern": null,
-          "note": "实际播放，页面2022-3-2；单人戴卡通帽披粉色布料，从手托下巴到双拇指指向自身。与主片胸前交手和上下摆掌的可见段落不同，不能确认同一完整动作序列；仅作为较早同歌曲参考，不是近期跟拍证据。仅1名其他作者，不足3人核验。"
+          "note": "已播放22秒原片，见单人在卧室中胸前交叉双臂、向外展开及屈膝侧转；与主片有手臂交叉片段，但此版包含更多腿部动作，现有关键画面不足以确认同一完整编排。只有这1名其他作者的部分证据，未达3人阈值。"
         }
       ],
-      "music_name": "suara asli - *傻孩子别关注我"
+      "music_name": "原聲 - yuri_1011"
     },
     {
-      "url": "https://www.tiktok.com/@yuki.fox.idol/video/7707884994542292244",
-      "title": "Yuki Fox Idol — solo stage arm sweep",
+      "url": "https://www.tiktok.com/@itsmomoko.jp/video/7703265627972128021",
+      "title": "MOMOKO：练习室单人虚拟偶像手臂舞",
       "trend_category": "virtual_idol",
       "material_group": "female",
       "kind": "hands",
       "transformation": "unknown",
       "original_watched": true,
-      "motion_summary": "已播放12秒原片并观察关键画面：仅1名白发狐耳、带尾巴的动漫虚拟角色，红白裙装与长袖，在樱花舞台正面全身出镜；从双臂低位展开到前臂横过胸前向侧方展开，双腿由交叉站姿转为侧开步，尾巴随动作摆动。舞台构图基本固定。虚拟角色画面及页面Fox Idol、AI生成标识支持virtual_idol主题；按裙装偶像造型规划女生角色素材，不判断真人性别。已见造型相同，未完整确认妆容/服装变化及重复周期。",
+      "motion_summary": "已播放13秒原片，查看约1秒、4秒及11秒关键画面；仅1名角色在黑色练习室墙面与木地板前表演，画面边缘位置稳定。开始屈臂将拳放脸侧，随后双掌在侧边呈交叉角度并抬起一膝，后段再次出现一臂横放胸前、另一拳靠脸侧的动作。黑色短外套、灰色百褶裙和长靴在所见画面一致，完整造型变化仍待核验。页面显示Contains AI-generated media并自称VirtualIdol；female为百褶裙舞台角色的素材用途。",
       "checks": {
         "solo": true,
-        "repetitive": null,
+        "repetitive": true,
         "fixed_camera": true
       },
-      "recreation_notes": "单角色全身与清晰背景有利于动作提取；长袖、发丝、尾巴和飘落花瓣增加遮挡。可由后续流程检查公开目录Lila整体等女生单人素材，角色风格与狐耳尾巴适配尚未确认，不承诺匹配效果。尚未生成测试；须保留无脸白模步骤。",
+      "recreation_notes": "全身单角色、背景简单，适合提取短段屈臂和抬膝动作；可考虑目录女生单人角色Lila或伊芙琳，但需相应全身造型和脚部素材。重复判断来自同一播放周期前后相似拳位，不以播放器循环为依据。尚未生成测试，原片本身的AI标记不代表本流程成功，仍需无脸白模。",
       "published_at": null,
-      "published_text": "4d ago",
+      "published_text": "11-2",
       "metrics": {
         "views": null,
-        "likes": 29,
+        "likes": 37,
         "comments": 0,
-        "shares": 1
+        "shares": 0
       },
       "related_videos": [],
-      "music_name": "Treat You Better - Shawn Mendes"
+      "music_name": "オリジナル楽曲 - MOMOKO桃子🍑"
     }
   ]
 }
