@@ -20,7 +20,7 @@
       "kind": "hands",
       "original_watched": true,
       "observed_at": "2026-11-19T14:10:21+00:00",
-      "updated_at": "2026-11-19T20:33:10.926691Z",
+      "updated_at": "2026-11-20T02:19:33.099515Z",
       "revision": "5224ca695e51359ab56785af390eb14e48ea03740abc17331fac89f718d5ce20"
     },
     {
@@ -42,7 +42,7 @@
       "kind": "hands",
       "original_watched": true,
       "observed_at": "2026-11-19T14:10:21+00:00",
-      "updated_at": "2026-11-19T20:33:10.926656Z",
+      "updated_at": "2026-11-20T02:19:33.099485Z",
       "revision": "9b0bc04b8fdd31e64cdf25e1232a6489e7e31e10386a3194641dd2672f320489"
     },
     {
@@ -64,7 +64,7 @@
       "kind": "hands",
       "original_watched": true,
       "observed_at": "2026-11-19T14:10:21+00:00",
-      "updated_at": "2026-11-19T20:33:10.926567Z",
+      "updated_at": "2026-11-20T02:19:33.099425Z",
       "revision": "3b39604abab35271d71040b5a11b6a9d041af29a4c58efda900cd753f24a4cbe"
     },
     {
@@ -86,7 +86,7 @@
       "kind": "hands",
       "original_watched": true,
       "observed_at": "2026-11-18T14:02:31+00:00",
-      "updated_at": "2026-11-19T20:33:10.926735Z",
+      "updated_at": "2026-11-20T02:19:33.099544Z",
       "revision": "e50c845fec8b05290822c677a79833bef6643a27571076f3470223bc46fb918b"
     },
     {
@@ -108,7 +108,7 @@
       "kind": "hands",
       "original_watched": true,
       "observed_at": "2026-11-18T14:02:31+00:00",
-      "updated_at": "2026-11-19T20:33:10.926760Z",
+      "updated_at": "2026-11-20T02:19:33.099565Z",
       "revision": "849933d30cf7099eb96db15e1bc1aca601fbb3f61882824b1320f33154046875"
     },
     {
@@ -130,7 +130,7 @@
       "kind": "hands",
       "original_watched": true,
       "observed_at": "2026-11-17T14:09:51+00:00",
-      "updated_at": "2026-11-19T20:33:10.926786Z",
+      "updated_at": "2026-11-20T02:19:33.099599Z",
       "revision": "9ac06f0c59ffd983cf8a8b98d09f00f14159d86746cc6d5962c8853d023796fe"
     },
     {
@@ -152,7 +152,7 @@
       "kind": "hands",
       "original_watched": true,
       "observed_at": "2026-11-17T14:09:51+00:00",
-      "updated_at": "2026-11-19T20:33:10.926810Z",
+      "updated_at": "2026-11-20T02:19:33.099621Z",
       "revision": "b0f6beb40c549236f41f3cd0b9b75877c08a4ba74bdc31ddecbb94ec013c3b64"
     },
     {
@@ -173,7 +173,7 @@
       "motion_summary": "已播放约8秒原片并观察关键画面：夜间游乐设施与路灯前仅一位风格化角色，红色发型、绿色贴身图案上衣和宽松牛仔裤，双脚分开，一臂屈肘将手放在颈肩附近，配合躯干与髋部侧摆。背景位置稳定。页面标注Saja Boys/Abby，按虚拟男团角色用途归男生素材，不推断真人性别或生成工具。已观察片段造型一致，但全片变化及完整重复周期未完全核验。",
       "kind": "hands",
       "observed_at": "2026-11-16T14:31:12.979000+00:00",
-      "updated_at": "2026-11-19T20:33:10.926841Z",
+      "updated_at": "2026-11-20T02:19:33.099647Z",
       "revision": "e879b4cc6816eb300ebdc37586c4b2618ce0d5e53f485a02013cbeb7ab21548e",
       "original_watched": true
     },
@@ -195,7 +195,7 @@
       "motion_summary": "已播放约24秒原片并观察多个关键画面：一位表演者穿黑色短裤、修身上衣和徽章帽，向镜头伸拳、转动上身，随后双手在胸前比心。背景墙与架子位置稳定。页面明确标注JISOO与jisooaddicted，属于K-pop舞蹈候选。按这套女装造型的角色素材用途分组，不判断原片人物真实性别。已观察片段未见换装，但未完整核验全片造型变化和动作重复周期。",
       "kind": "hands",
       "observed_at": "2026-11-16T14:31:12.979000+00:00",
-      "updated_at": "2026-11-19T20:33:10.926871Z",
+      "updated_at": "2026-11-20T02:19:33.099676Z",
       "revision": "e0978aa887c77ad2af7bfecf495207ad5c7331b2ac99d267b17df6b6516dfb13",
       "original_watched": true
     },
@@ -349,7 +349,8 @@
     "run-44445060274",
     "run-44515913773",
     "run-44541010502",
-    "run-44609543557"
+    "run-44609543557",
+    "run-44659731512"
   ],
   "settings": {
     "daily_limit": 4,
@@ -363,5 +364,5 @@
     "copy_provider": "openrouter",
     "copy_model": "openai/gpt-5.4-mini"
   },
-  "updated_at": "2026-11-19T20:33:12.775413Z"
+  "updated_at": "2026-11-20T02:19:33.099757Z"
 }
