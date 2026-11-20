@@ -1830,6 +1830,24 @@
   ],
   "runs": [
     {
+      "id": "work-tiktok-20261120T140259Z-v2",
+      "run_id": "work-tiktok-20261120T140259Z-v2",
+      "payload_sha256": "b222d7b6ce8a49aeb3b5f0487f83384a99caa7fe31515ffd73accc269ccad5a8",
+      "collector": "chatgpt_work",
+      "status": "blocked",
+      "kind": "all",
+      "query": "",
+      "started_at": "2026-11-20T14:02:59+00:00",
+      "finished_at": "2026-11-20T14:02:59+00:00",
+      "observed_at": "2026-11-20T14:02:59+00:00",
+      "found": 0,
+      "added": 0,
+      "message": "本轮未新增候选。K-pop搜索曾显示服务器错误，一次重试后恢复；已查看的拍摄对比和教学原片含分屏或多人，未作为清晰单人候选收录。随后TikTok搜索页出现滑块人工验证，已停止原片访问，未尝试绕过。尚未完成新视频动作、同玩法作者及指标核验；不使用搜索摘要或旧候选冒充本轮观察。保留此前候选与历史，需完成云端页面人工验证后继续。",
+      "ingestion_status": "imported",
+      "video_snapshots": [],
+      "sources": []
+    },
+    {
       "id": "work-tiktok-20261119T141021Z-v2",
       "run_id": "work-tiktok-20261119T141021Z-v2",
       "payload_sha256": "e7d79c810d91002ed89a7fc42e1bee99a3dc632e549556a86ada84619ac32cdd",
@@ -3174,7 +3192,7 @@
       ]
     }
   ],
-  "last_attempt_at": "2026-11-19T14:10:21+00:00",
+  "last_attempt_at": "2026-11-20T14:02:59+00:00",
   "last_success_at": "2026-11-19T14:10:21+00:00",
   "work_imports": {
     "work-tiktok-20261112T013104Z-7704859708200389902": "3f8b1c1e965c6bdb4e2aa62d5664177f4b4188cb0e4652526db2730fb82349c7",
@@ -3185,7 +3203,8 @@
     "work-tiktok-20261116T143112979Z-v2": "3e2ca714238977a7aa19d01100e6ee39277e4d28e0c930e41c2e69e639d44d6e",
     "work-tiktok-20261117T140951Z-v2": "e4d9ebfd85b7d4c9fd0ede215aa058fe634ad7bbea63c8df49dbc1d7b1775050",
     "work-tiktok-20261118T140231Z-v2": "a14b68426bdccd5a4a9b3aeaaaa076349d83eb65898ff98f891fce04eb5aadd7",
-    "work-tiktok-20261119T141021Z-v2": "e7d79c810d91002ed89a7fc42e1bee99a3dc632e549556a86ada84619ac32cdd"
+    "work-tiktok-20261119T141021Z-v2": "e7d79c810d91002ed89a7fc42e1bee99a3dc632e549556a86ada84619ac32cdd",
+    "work-tiktok-20261120T140259Z-v2": "b222d7b6ce8a49aeb3b5f0487f83384a99caa7fe31515ffd73accc269ccad5a8"
   },
   "material_classification_imports": {
     "2026-11-15T22:22:39.724000+00:00": "8cd3e17433a336f4ee0bcc3b43c3920f593ebf1d3c38b5039ecfc571ac1215ed"
