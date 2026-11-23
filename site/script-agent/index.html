@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'none'; img-src 'self'; style-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <title>剧本角色 · idore</title>
+  <link rel="icon" href="../mark.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./character.css">
+  <link rel="stylesheet" href="../studio-shell.css">
+  <script defer src="./character.js"></script>
+</head>
+<body>
+  <header class="idore-header">
+    <a class="idore-brand" href="../gallery.html" aria-label="idore 首页"><span><img src="../idore-wordmark.png" alt="idore"></span></a>
+    <nav class="idore-nav" aria-label="工作台"><a href="../gallery.html">成片</a><a aria-current="page" href="./">剧本角色</a></nav>
+  </header>
+  <main>
+    <section class="hero shell intake" aria-labelledby="studio-title">
+      <div class="hero-copy"><h1 id="studio-title">剧本<em>角色</em></h1><p class="hero-lede">预览剧本，或打开已有的角色档案。</p></div>
+      <section class="upload-pass">
+        <div class="file-picker">
+          <input id="sourceFile" type="file" accept=".txt,.md,.fountain,.screenplay,.json" aria-label="选择剧本或角色档案">
+          <label class="dropzone" id="dropzone" for="sourceFile">
+            <span class="drop-cross" aria-hidden="true">＋</span><strong>选择或拖入文件</strong><small>TXT · MD · Fountain · 报告 JSON</small>
+          </label>
+        </div>
+        <p class="file-hint" id="fileStatus" role="status">文件仅在此浏览器打开。</p>
+        <details class="local-tools"><summary>完整 AI 分析</summary>
+          <p>在本机 Script Character Agent 中分析剧本、PDF 或 DOCX，再将导出的报告 JSON 拖到这里。</p>
+          <p>在项目目录运行 <code>python3 -m script_agent serve</code></p>
+          <a class="text-button" href="http://127.0.0.1:8000/" target="_blank" rel="noopener noreferrer">打开本机 Agent ↗</a>
+        </details>
+      </section>
+    </section>
+    <section class="shell script-workspace" id="workspace" hidden aria-labelledby="projectName">
+      <div class="section-heading"><h2 id="projectName">档案</h2><div><span id="documentMeta"></span></div></div>
+      <section id="scenePanel" class="panel" hidden aria-label="场景预览"><div id="sceneList" class="scene-list"></div></section>
+      <section class="results" id="results" hidden>
+        <div class="partial-banner" id="partialBanner" hidden>仅部分场景已分析。</div>
+        <nav class="result-tabs" id="resultTabs" aria-label="角色档案">
+          <button class="active" data-tab="characters" type="button">角色卡 <span id="characterBadge">0</span></button>
+          <button data-tab="relationships" type="button">关系图 <span id="relationshipBadge">0</span></button>
+          <button data-tab="knowledge" type="button">信息差</button>
+          <button data-tab="review" type="button">编剧审核 <span id="reviewBadge">0</span></button>
+        </nav>
+        <div class="result-view" id="charactersView"></div>
+        <div class="result-view" id="relationshipsView" hidden></div>
+        <div class="result-view" id="knowledgeView" hidden></div>
+        <div class="result-view" id="reviewView" hidden></div>
+      </section>
+    </section>
+  </main>
+  <footer class="footer shell"><a href="../privacy.html">隐私政策</a><a href="../terms.html">服务条款</a></footer>
+</body>
+</html>

@@ -18,7 +18,8 @@ const receiptLabels = {
 const queueLabels = {
   waiting_classification: '等待素材分类', waiting_material: '等待可用角色图', queued: '已排队',
   preparing_motion: '提取动作中', rendering_clay: '渲染动作中', generating_styles: '准备造型中',
-  rendering_sequence: '正在串剪角色照片', generating_video: '生成影片中', generating_copy: '生成文案中', needs_attention: '制作需要检查',
+  rendering_sequence: '正在剪辑成片', generating_video: '生成影片中', generating_copy: '生成文案中', needs_attention: '制作需要检查',
+  plan_ready: '分镜已完成', waiting_trend: '等待达标趋势', waiting_openai: '等待 OpenAI 策划', agent_planning: 'OpenAI 正在选角和写分镜',
   rejected: '已退回制作'
 };
 const problemLabels = {
@@ -58,7 +59,10 @@ function when(raw) {
 }
 
 async function readJson(path, options = {}) {
-  const response = await fetch(path, { cache: 'no-store', credentials: 'same-origin', redirect: 'error', ...options });
+  const response = await fetch(path, {
+    cache: 'no-store', credentials: 'same-origin', redirect: 'error',
+    signal: AbortSignal.timeout(20000), ...options
+  });
   if (!response.ok) throw Error('http ' + response.status);
   if (Number(response.headers.get('Content-Length')) > 3000000) throw Error('too large');
   const text = await response.text();
@@ -72,17 +76,167 @@ async function readManifest(name) {
   return data.items;
 }
 
+function trimmed(value, max = 2000) {
+  return typeof value === 'string' ? value.trim().slice(0, max) : '';
+}
+
+function tiktokSource(raw) {
+  const match = /^https:\/\/(?:www\.)?tiktok\.com\/@([A-Za-z0-9._-]{1,100})\/video\/(\d{10,25})\/?$/.exec(trimmed(raw, 400));
+  return match ? { url: 'https://www.tiktok.com/@' + match[1] + '/video/' + match[2], creator: match[1].toLowerCase() } : null;
+}
+
+function sourceLink(label, url) {
+  const anchor = node('a', 'source-link', label);
+  anchor.href = url;
+  anchor.target = '_blank';
+  anchor.rel = 'noopener noreferrer';
+  return anchor;
+}
+
+function filmNotes(record, task) {
+  const approvedTrend = record.generation_method === 'agent_motion' && record.sequence_type === 'trend_remake' && record.planner === 'openai';
+  const source = tiktokSource(record.source_url) || tiktokSource(task?.source_url);
+  const caption = trimmed(record.caption || task?.caption, 2200);
+  const tags = (Array.isArray(record.hashtags) ? record.hashtags : []).filter(t => typeof t === 'string' && /^#[\p{L}\p{N}_]{1,80}$/u.test(t));
+  const publication = trimmed(record.publication_text || task?.publication_text, 3200) || [caption, tags.join(' ')].filter(Boolean).join('\n\n');
+  const peers = new Map();
+  for (const row of approvedTrend && Array.isArray(record.source_peers) ? record.source_peers : []) {
+    const peer = tiktokSource(typeof row === 'string' ? row : row?.url);
+    if (peer && peer.creator !== source?.creator && !peers.has(peer.creator)) peers.set(peer.creator, peer);
+  }
+  return {
+    hook: trimmed(record.hook, 400), caption, publication, tags, source,
+    sourceTitle: trimmed(record.source_title, 180), group: trimmed(record.material_group || task?.material_group, 12),
+    trend: approvedTrend, views: record.source_metrics?.views, likes: record.source_metrics?.likes,
+    viewsDisplay: trimmed(record.source_metric_display?.views, 40), likesDisplay: trimmed(record.source_metric_display?.likes, 40),
+    peerCount: record.peer_count, peers: [...peers.values()], observed: record.source_observed_at
+  };
+}
+
+function updateNotes(saved, notes) {
+  const signature = JSON.stringify(notes);
+  if (saved.notesSignature === signature) return;
+  saved.notesSignature = signature;
+  const area = saved.notes;
+  const wasOpen = area.querySelector('details')?.open === true;
+  area.replaceChildren();
+  if (notes.hook) {
+    const hook = node('p', 'film-hook', notes.hook);
+    hook.setAttribute('aria-label', '开场钩子');
+    area.append(hook);
+  }
+  const group = { male: '男生', female: '女生', mixed: '混合' }[notes.group];
+  if (!notes.publication && !notes.source && !group) return;
+  const details = node('details', 'film-notes');
+  details.open = wasOpen;
+  details.append(node('summary', '', notes.source ? '发布文案与原片' : '发布信息'));
+  if (notes.publication) {
+    const header = node('div', 'copy-heading');
+    header.append(node('strong', '', 'TikTok 文案'));
+    const copy = node('button', 'copy-button', '复制文案');
+    copy.type = 'button';
+    copy.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(notes.publication);
+        copy.textContent = '已复制';
+      } catch { copy.textContent = '请选中文案复制'; }
+    });
+    header.append(copy);
+    details.append(header, node('p', 'publication', notes.publication));
+  }
+  if (group) details.append(node('p', 'film-credit', '所选素材 · ' + group));
+  if (notes.source) {
+    const line = node('p', 'film-credit');
+    line.append(sourceLink('趋势原片 ↗ ' + (notes.sourceTitle || '@' + notes.source.creator), notes.source.url));
+    details.append(line);
+  }
+  if (notes.trend && notes.source) {
+    const numbers = [];
+    const count = n => Number.isSafeInteger(n) && n >= 0;
+    if (count(notes.views)) numbers.push((notes.viewsDisplay || notes.views.toLocaleString('en-US')) + ' 播放');
+    if (count(notes.likes)) numbers.push((notes.likesDisplay || notes.likes.toLocaleString('en-US')) + ' 赞');
+    if (count(notes.peerCount)) numbers.push(notes.peerCount + ' 位其他创作者跟拍');
+    if (numbers.length) details.append(node('p', 'film-credit', numbers.join(' · ')));
+    if (dateValue(notes.observed) !== null) {
+      const observed = node('p', 'film-credit', '原片核验于 ');
+      observed.append(when(notes.observed));
+      details.append(observed);
+    }
+    if (notes.peers.length) {
+      const links = node('p', 'peer-links', '同玩法实例 ');
+      for (const peer of notes.peers) links.append(sourceLink('@' + peer.creator + ' ↗', peer.url));
+      details.append(links);
+    }
+  }
+  area.append(details);
+}
+
+const acknowledgementKey = 'idore.work.verification.acknowledged';
+let activeChallenge = null;
+let offeredChallenge = '';
+let acknowledgedChallenge = '';
+try { acknowledgedChallenge = localStorage.getItem(acknowledgementKey) || ''; } catch { /* Private browsing can disable storage. */ }
+
+function currentChallenge(discovery) {
+  if (!Array.isArray(discovery?.runs) || !discovery.work_imports) return null;
+  let latest = null;
+  let latestTime = -Infinity;
+  for (const run of discovery.runs) {
+    if (run?.collector !== 'chatgpt_work' || run.ingestion_status !== 'imported' ||
+        typeof run.run_id !== 'string' || !/^[A-Za-z0-9][A-Za-z0-9_.:-]{0,99}$/.test(run.run_id) ||
+        !shaPattern.test(run.payload_sha256) || discovery.work_imports[run.run_id] !== run.payload_sha256) continue;
+    const time = dateValue(run.observed_at) ?? dateValue(run.finished_at);
+    if (time !== null && time > latestTime) { latest = run; latestTime = time; }
+  }
+  if (!latest || latest.status !== 'blocked') return null;
+  const legacySlider = latest.run_id === 'work-tiktok-20261120T140259Z-v2' &&
+    latest.payload_sha256 === 'b222d7b6ce8a49aeb3b5f0487f83384a99caa7fe31515ffd73accc269ccad5a8';
+  if (latest.action_required !== 'human_verification' && !legacySlider) return null;
+  return { id: latest.run_id, observed: latest.observed_at || latest.finished_at };
+}
+
+function openChallenge() {
+  const modal = $('#verification-dialog');
+  if (!activeChallenge || modal.open || typeof modal.showModal !== 'function') return;
+  offeredChallenge = activeChallenge.id;
+  modal.showModal();
+  $('#verification-confirm').focus();
+}
+
+function renderChallenge(challenge) {
+  const banner = $('#verification-status'), modal = $('#verification-dialog');
+  const oldId = activeChallenge?.id;
+  activeChallenge = challenge;
+  banner.hidden = !challenge;
+  if (!challenge) {
+    if (modal.open) modal.close();
+    return;
+  }
+  const time = $('#verification-observed');
+  time.replaceChildren(when(challenge.observed));
+  if (oldId !== challenge.id && modal.open) modal.close();
+  if (challenge.id !== acknowledgedChallenge && offeredChallenge !== challenge.id) openChallenge();
+}
+
+function acknowledgeChallenge() {
+  if (!activeChallenge) return;
+  acknowledgedChallenge = activeChallenge.id;
+  try { localStorage.setItem(acknowledgementKey, activeChallenge.id); } catch { /* Keep in memory for this visit. */ }
+  $('#verification-dialog').close();
+}
+
 function normalizeFilm(raw) {
   if (!raw || !shaPattern.test(raw.sha256) || !['character', 'api_test'].includes(raw.kind)) return null;
   const id = 'video-' + raw.sha256.slice(0, 24);
   if (raw.id !== id || raw.video_path !== 'generated/' + id + '.mp4') return null;
   return {
-    id, sha: raw.sha256, kind: raw.kind, video: new URL(raw.video_path, assetBase).href,
+    record: raw, id, sha: raw.sha256, kind: raw.kind, video: new URL(raw.video_path, assetBase).href,
     poster: raw.poster_path === 'generated/' + id + '.jpg' ? new URL(raw.poster_path, assetBase).href : '',
     title: typeof raw.title === 'string' && raw.title.trim() ? raw.title.trim().slice(0, 180) : '未命名成片',
     created: dateValue(raw.generated_at) !== null ? raw.generated_at : raw.created_at,
     archivedOnly: raw.timestamp_basis === 'workflow_artifact', sequence: raw.generation_method === 'photo_sequence',
     ensemble: raw.sequence_type === 'ip_cast',
+    trendRemake: raw.generation_method === 'agent_motion' && raw.planner === 'openai' && raw.sequence_type === 'trend_remake',
     photoCount: Array.isArray(raw.source_photo_ids) ? new Set(raw.source_photo_ids.filter(id => typeof id === 'string')).size : 0
   };
 }
@@ -122,32 +276,33 @@ function connection() {
   link.hidden = false;
   if (!onWorker) {
     link.href = workerOrigin + '/gallery.html';
-    link.textContent = '打开沙盒工作台 ↗';
-    msg.textContent = '进入 JJ TEST 工作台即可查看账号回执和自动投递设置。';
+    link.textContent = '进入沙盒 ↗';
+    msg.textContent = '进入 JJ TEST，查看账号回执与自动投递。';
     return;
   }
   link.href = '/auth/tiktok/start?return=gallery';
   if (!feed) {
     link.hidden = true;
-    msg.textContent = '暂时无法读取账号状态，可以刷新重试。';
+    msg.textContent = '暂时无法读取账号状态。';
     return;
   }
   if (!connected) {
     link.textContent = '连接 TikTok 沙盒';
-    msg.textContent = '连接测试账号后即可查看 TikTok 回执，并选择是否自动投递新成片。';
+    msg.textContent = '连接测试账号，查看回执或开启自动投递。';
     return;
   }
   const enabled = feed.automation?.enabled === true;
-  const problem = problemLabels[feed.automation?.problem] || '';
+  const previousGrantFailed = feed.automation?.problem === 'reconnect_required' && feed.canEnable === true;
+  const problem = previousGrantFailed ? '' : problemLabels[feed.automation?.problem] || '';
   msg.textContent = (enabled
-    ? '自动投递已开启。之后生成的照片串剪会送到此账号的 TikTok 收件箱，可在 TikTok 内完成发布。'
-    : '自动投递已关闭。开启后，之后生成的照片串剪会自动送到此账号的 TikTok 收件箱。') + (problem ? ' ' + problem : '');
-  const reauthorize = (!enabled && feed.canEnable === false) || feed.automation?.problem === 'reconnect_required';
+    ? '自动投递已开启 · 新的 Agent 动作成片将送至此账号收件箱。'
+    : '开启后，新的 Agent 动作成片将送至此账号的 TikTok 收件箱。') + (problem ? ' ' + problem : '');
+  const reauthorize = !enabled && feed.canEnable === false;
   link.textContent = '重新授权 TikTok';
   link.hidden = !reauthorize;
   button.hidden = (!enabled && reauthorize) || !feed.csrf;
   button.disabled = changing || loading;
-  button.textContent = enabled ? '暂停自动投递' : '开启新成片自动投递';
+  button.textContent = enabled ? '暂停自动投递' : '开启自动投递';
 }
 
 function receiptFor(film) { return feed?.connected ? feed.receipts[film.sha] : null; }
@@ -157,7 +312,7 @@ function filmStatus(film) {
   if (receipt) return receiptLabels[receipt.state];
   if (film.kind === 'api_test') return ['测试片 · 仅预览', ''];
   if (!feed?.connected) return ['已生成 · 回执需连接沙盒', ''];
-  if (film.sequence && feed.automation?.enabled && dateValue(film.created) > (dateValue(feed.automation.startedAt) ?? Infinity)) {
+  if (film.trendRemake && feed.automation?.enabled && dateValue(film.created) > (dateValue(feed.automation.startedAt) ?? Infinity)) {
     return ['等待沙盒投递', 'busy'];
   }
   return ['已生成 · 暂无投递回执', ''];
@@ -181,8 +336,8 @@ function cardFor(film) {
     video.playsInline = true;
     video.preload = 'none';
     let kindLabel = film.kind === 'api_test' ? '接口测试' : '角色成片';
-    if (film.sequence) {
-      kindLabel = film.ensemble ? '系列角色混剪' : '单角色串剪';
+    if (film.sequence || film.trendRemake) {
+      kindLabel = film.trendRemake ? '趋势改编' : film.ensemble ? '系列角色混剪' : '单角色串剪';
       if (film.photoCount) kindLabel += ' · ' + film.photoCount + ' 张照片';
     }
     const kind = node('span', 'kind', kindLabel);
@@ -200,9 +355,10 @@ function cardFor(film) {
     video.addEventListener('play', () => {
       for (const other of $('#gallery-grid').querySelectorAll('video')) if (other !== video) other.pause();
     });
-    body.append(heading, state, times, error);
+    const notes = node('div', 'notes');
+    body.append(heading, state, times, notes, error);
     card.append(player, body);
-    saved = { card, video, title, download, state, times };
+    saved = { card, video, title, download, state, times, notes };
     cardCache.set(film.sha, saved);
   }
   saved.video.setAttribute('aria-label', film.title);
@@ -219,6 +375,8 @@ function cardFor(film) {
   if (receipt?.state === 'published') times.push(timelineRow('TikTok 发布确认', receipt.publishedAt));
   if (['failed', 'uncertain', 'rejected'].includes(receipt?.state)) times.push(timelineRow('投递状态更新', receipt.failedAt || receipt.updatedAt));
   saved.times.replaceChildren(...times);
+  const task = (queue || []).find(row => row?.sha256 === film.sha);
+  updateNotes(saved, filmNotes(film.record, task));
   return saved.card;
 }
 
@@ -262,14 +420,21 @@ function renderActivity() {
       events.push({ label, title: film.title, date, tone });
     }
   }
+  for (const task of queue || []) {
+    if (!['agent_motion', 'photo_sequence'].includes(task?.generation_method) || task.video_path || !Object.hasOwn(queueLabels, task.status)) continue;
+    const quota = task.error_code === 'insufficient_quota' || task.error_code === 'insufficient_credits';
+    const label = quota ? 'OpenAI 额度不足' : queueLabels[task.status];
+    events.push({ label, title: task.title || '趋势改编', detail: trimmed(task.message, 180),
+      date: task.updated_at || task.created_at, tone: task.status === 'needs_attention' || quota ? 'issue' : 'busy' });
+  }
   events.sort((a, b) => (dateValue(b.date) ?? -Infinity) - (dateValue(a.date) ?? -Infinity));
   const list = node('ol', 'events');
-  for (const event of events.slice(0, 8)) list.append(eventItem(event.label, event.title, event.date, event.tone));
+  for (const event of events.slice(0, 8)) list.append(eventItem(event.label, event.title, event.date, event.tone, event.detail));
   const container = $('#activity-list');
   const expanded = container.querySelector('details')?.open === true;
   container.replaceChildren(list);
   if (!events.length) container.prepend(node('p', 'empty', '暂无成片活动记录。'));
-  const tasks = (queue || []).filter(task => task && Object.hasOwn(queueLabels, task.status) && !task.video_path);
+  const tasks = (queue || []).filter(task => task && !['agent_motion', 'photo_sequence'].includes(task.generation_method) && Object.hasOwn(queueLabels, task.status) && !task.video_path);
   if (tasks.length) {
     const details = node('details'), tasksList = node('ol', 'events');
     details.open = expanded;
@@ -289,7 +454,13 @@ async function refresh() {
   $('#gallery-grid').setAttribute('aria-busy', 'true');
   warnings.clear();
   try {
-    const [films, pipeline] = await Promise.allSettled([readManifest('creations'), readManifest('pipeline')]);
+    const [films, pipeline, discovery] = await Promise.allSettled([
+      readManifest('creations'), readManifest('pipeline'),
+      readJson(new URL('data/discovery.json', assetBase), { credentials: 'omit' })
+    ]);
+    if (discovery.status === 'fulfilled' && Array.isArray(discovery.value?.runs)) {
+      renderChallenge(currentChallenge(discovery.value));
+    }
     if (films.status === 'fulfilled') {
       library = validFilms(films.value);
       if (films.value.length !== library.length) warnings.add('部分成片信息不完整。');
@@ -328,6 +499,11 @@ async function toggleAutomation() {
   if (message) $('#feedback').textContent = [message, ...warnings].join(' ');
 }
 
+$('#verification-open').addEventListener('click', openChallenge);
+$('#verification-confirm').addEventListener('click', acknowledgeChallenge);
+$('#verification-dialog').addEventListener('close', () => {
+  if (activeChallenge) $('#verification-open').focus();
+});
 $('#refresh').addEventListener('click', refresh);
 $('#automation-button').addEventListener('click', toggleAutomation);
 document.addEventListener('visibilitychange', () => { if (!document.hidden) refresh(); });
