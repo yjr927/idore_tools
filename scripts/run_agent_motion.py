@@ -20,13 +20,52 @@ from scripts.run_pipeline import REPOSITORY, SITE, STATE, checkpoint, read
 METHOD = 'agent_motion'
 MAX_MEDIA = 16 * 1024 * 1024
 NEW_YORK = ZoneInfo('America/New_York')
+DAILY_SLOTS = ((9, 'morning'), (14, 'afternoon'), (18, 'evening'))
+DAILY_METHODS = {METHOD, 'original_character_edit'}
+ACTIVE_STAGES = {'agent_planning', 'plan_ready', 'preparing_motion', 'rendering_clay', 'generating_styles',
+                 'generating_video', 'rendering_sequence'}
+
+
+def due_slots(at):
+    local = at.astimezone(NEW_YORK)
+    return [f'{local.date()}-{name}' for hour, name in DAILY_SLOTS if local.hour >= hour]
 
 
 def current_slot(at):
-    local = at.astimezone(NEW_YORK)
-    if local.hour < 9:
+    slots = due_slots(at)
+    return slots[-1] if slots else None
+
+
+def next_slot(at, films, rows):
+    """Allocate a due slot using completed media, including work resumed from an earlier day."""
+    local_day = at.astimezone(NEW_YORK).date()
+    due = due_slots(at)
+    occupied = set()
+    completed = set()
+    for film in films:
+        digest = film.get('sha256')
+        if (film.get('kind') != 'character' or film.get('generation_method') not in DAILY_METHODS
+                or not isinstance(digest, str) or not re.fullmatch(r'[a-f0-9]{64}', digest)
+                or film.get('video_path') != 'generated/video-' + digest[:24] + '.mp4'):
+            continue
+        occupied.add(film.get('sequence_slot'))
+        stamp = film.get('generated_at') or film.get('created_at')
+        try:
+            generated = datetime.fromisoformat(stamp.replace('Z', '+00:00'))
+        except (TypeError, AttributeError, ValueError):
+            continue
+        if generated.tzinfo and generated.astimezone(NEW_YORK).date() == local_day:
+            completed.add(digest)
+    if len(completed) >= len(due):
         return None
-    return local.strftime('%Y-%m-%d') + ('-evening' if local.hour >= 18 else '-morning')
+    for row in rows:
+        if row.get('generation_method') != METHOD:
+            continue
+        if row.get('status') == 'needs_attention':
+            occupied.add(row.get('sequence_slot'))
+        if row.get('status') in ACTIVE_STAGES and row.get('sequence_slot') not in occupied:
+            return row['sequence_slot']
+    return next((slot for slot in due if slot not in occupied), None)
 
 
 def source_file(site, photo):
@@ -168,17 +207,17 @@ def produce(document, catalog, discovery, site, run_id, slot, save, planner=None
     from scripts.agent_film_planner import FilmPlanError, plan_film
     from scripts.run_pipeline import render_agent_motion
     rows = document.setdefault('items', [])
-    active = {'agent_planning', 'plan_ready', 'preparing_motion', 'rendering_clay', 'generating_styles',
-              'generating_video', 'rendering_sequence'}
-    row = next((r for r in rows if r.get('generation_method') == METHOD and r.get('status') in active), None)
+    manifest = site / 'data' / 'creations.json'
+    gallery = read(manifest, {'items': []})
+    archived_slots = {f.get('sequence_slot') for f in gallery['items'] if f.get('generation_method') in DAILY_METHODS}
+    row = next((r for r in rows if r.get('generation_method') == METHOD and r.get('status') in ACTIVE_STAGES
+                and r.get('sequence_slot') not in archived_slots), None)
     if not row and not slot:
         return False
     if row is None:
         row = next((r for r in rows if r.get('id') == 'agent-' + slot), None)
-    manifest = site / 'data' / 'creations.json'
-    gallery = read(manifest, {'items': []})
     slot = row['sequence_slot'] if row else slot
-    if any(f.get('sequence_slot') == slot and f.get('generation_method') == METHOD for f in gallery['items']):
+    if slot in archived_slots:
         return False
     if row is None:
         row = {'id': 'agent-' + slot, 'generation_method': METHOD, 'created_at': now(), 'sequence_slot': slot,
@@ -265,6 +304,17 @@ def produce(document, catalog, discovery, site, run_id, slot, save, planner=None
     return True
 
 
+def produce_due(document, catalog, discovery, site, run_id, save, clock, producer=produce):
+    count = 0
+    while count < len(DAILY_SLOTS):
+        gallery = read(site / 'data' / 'creations.json', {'items': []})
+        slot = next_slot(clock(), gallery['items'], document.get('items', []))
+        if not slot or not producer(document, catalog, discovery, site, run_id, slot, save):
+            break
+        count += 1
+    return count
+
+
 def main():
     run_id = os.environ.get('GITHUB_RUN_ID', '')
     if (os.environ.get('GITHUB_ACTIONS') != 'true' or os.environ.get('GITHUB_REPOSITORY') != REPOSITORY
@@ -275,20 +325,22 @@ def main():
     discovery = read(SITE / 'data' / 'discovery.json')
     if sys.argv[1:] == ['--preflight']:
         from scripts.trend_quality import eligible_trend
-        needs_motion = any(eligible_trend(s) for s in discovery.get('videos', []))
+        gallery = read(SITE / 'data' / 'creations.json', {'items': []})
+        slot = next_slot(datetime.now(NEW_YORK), gallery['items'], document.get('items', []))
+        needs_motion = bool(slot and any(eligible_trend(s) for s in discovery.get('videos', [])))
         if os.environ.get('GITHUB_OUTPUT'):
             with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
                 print('motion=' + str(needs_motion).lower(), file=output)
         return
     before = STATE.read_bytes() if STATE.exists() else b''
     try:
-        changed = produce(document, catalog, discovery, SITE, run_id, current_slot(datetime.now(NEW_YORK)), checkpoint)
+        count = produce_due(document, catalog, discovery, SITE, run_id, checkpoint, lambda: datetime.now(NEW_YORK))
     finally:
         if os.environ.get('GITHUB_OUTPUT'):
             with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
                 state_changed = STATE.exists() and STATE.read_bytes() != before
                 print('changed=' + str(state_changed).lower(), file=output)
-    print('Archived a new motion remake.' if changed else 'No new film completed. See the production status.')
+    print(f'Archived {count} new motion remakes. See the production queue for remaining work.')
 
 
 if __name__ == '__main__':
