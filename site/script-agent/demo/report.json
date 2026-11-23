@@ -1,0 +1,2842 @@
+{
+  "meta": {
+    "source_name": "source.txt",
+    "source_digest": "6921df6bf87485ce94ac1c675ade1d9f8109f203ece418fc523e636c07b81dc7",
+    "prompt_version": "2026-11-openrouter.1",
+    "extract_model": "openai/gpt-5.4-mini",
+    "synthesis_model": "openai/gpt-5.4-mini",
+    "generated_at": "2026-11-23T02:13:00.304174+00:00",
+    "scene_count_analyzed": 1,
+    "scene_count_total": 1,
+    "partial_analysis": false,
+    "fast_mode": false,
+    "analysis_depth": "full",
+    "parallel_workers": 2,
+    "review_warning": "模型生成内容不是正式设定；须由编剧或内容负责人确认。",
+    "openrouter_requests": {
+      "scene_analysis": 1,
+      "character_window": 2,
+      "character_card": 2,
+      "relationship_window": 1,
+      "relationship_file": 1
+    }
+  },
+  "characters": {
+    "林舟": {
+      "character_name": "林舟",
+      "aliases": [],
+      "one_line_positioning": [
+        {
+          "claim": "谨慎克制、怕出错但很负责的广播员",
+          "review_status": "人物理解",
+          "confidence": 0.98,
+          "evidence_ids": [
+            "S0001-E001",
+            "S0001-E002",
+            "S0001-E004",
+            "S0001-E005"
+          ],
+          "counterevidence_ids": [],
+          "notes": "他先因报错而停播，随后在压力下公开更正并继续履职，整体气质是紧张但不逃责。"
+        }
+      ],
+      "first_impression": [
+        {
+          "claim": "他第一反应是害怕暴露身份",
+          "review_status": "人物理解",
+          "confidence": 0.97,
+          "evidence_ids": [
+            "S0001-E001"
+          ],
+          "counterevidence_ids": [],
+          "notes": "台词直接说出‘再开口，大家就知道是我’，说明他对被识破很警惕。"
+        },
+        {
+          "claim": "他外表给人的感觉是紧张克制",
+          "review_status": "待确认",
+          "confidence": 0.78,
+          "evidence_ids": [
+            "S0001-E001",
+            "S0001-E002"
+          ],
+          "counterevidence_ids": [],
+          "notes": "证据主要来自当场说话方式与行为反应，属于场景印象，后续还需更多场景确认。"
+        }
+      ],
+      "deeper_personality_and_needs": [
+        {
+          "claim": "他把工作准确性看得很重",
+          "review_status": "人物理解",
+          "confidence": 0.98,
+          "evidence_ids": [
+            "S0001-E002",
+            "S0001-E005"
+          ],
+          "counterevidence_ids": [],
+          "notes": "报错后没有甩锅，而是立刻更正站台信息，说明他对准确性有明确要求。"
+        },
+        {
+          "claim": "他需要的是先保住体面，再完成责任",
+          "review_status": "待确认",
+          "confidence": 0.8,
+          "evidence_ids": [
+            "S0001-E001",
+            "S0001-E002"
+          ],
+          "counterevidence_ids": [],
+          "notes": "他先顾虑身份暴露，再选择公开纠错；这显示体面与责任同时重要，但仍需后续验证优先级。"
+        },
+        {
+          "claim": "他遇到压力时会先收住自己",
+          "review_status": "待确认",
+          "confidence": 0.74,
+          "evidence_ids": [
+            "S0001-E001",
+            "S0001-E004"
+          ],
+          "counterevidence_ids": [],
+          "notes": "本场表现为先停播、后恢复；是否是长期应对习惯，材料还不够。"
+        }
+      ],
+      "most_wanted": [
+        {
+          "claim": "他最想把这次报错立刻补救回来",
+          "review_status": "人物理解",
+          "confidence": 0.96,
+          "evidence_ids": [
+            "S0001-E002",
+            "S0001-E005"
+          ],
+          "counterevidence_ids": [],
+          "notes": "他主动公开更正，并把纸上信息从二改成三，说明核心目标是纠正错误。"
+        },
+        {
+          "claim": "他也想避免自己当场丢脸",
+          "review_status": "人物理解",
+          "confidence": 0.95,
+          "evidence_ids": [
+            "S0001-E001"
+          ],
+          "counterevidence_ids": [],
+          "notes": "他明确担心再开口会让人知道是自己报错，说明他在意被看穿后的尴尬。"
+        }
+      ],
+      "greatest_fears": [
+        {
+          "claim": "他最怕错误被当众识破",
+          "review_status": "人物理解",
+          "confidence": 0.97,
+          "evidence_ids": [
+            "S0001-E001"
+          ],
+          "counterevidence_ids": [],
+          "notes": "这不是泛泛的紧张，而是对‘被识破’的直接恐惧。"
+        },
+        {
+          "claim": "他也怕自己因为失误影响广播结果",
+          "review_status": "待确认",
+          "confidence": 0.81,
+          "evidence_ids": [
+            "S0001-E002",
+            "S0001-E004",
+            "S0001-E005"
+          ],
+          "counterevidence_ids": [],
+          "notes": "他迅速修正信息并恢复播报，像是在主动消除后果；但‘害怕’这一层仍需更多内心证据。"
+        }
+      ],
+      "conflict_pattern": [
+        {
+          "claim": "他出错后会先回避，再找机会修正",
+          "review_status": "人物理解",
+          "confidence": 0.93,
+          "evidence_ids": [
+            "S0001-E001",
+            "S0001-E004",
+            "S0001-E002"
+          ],
+          "counterevidence_ids": [],
+          "notes": "同一场景里先停播、后恢复并更正，形成清晰的回避—修正链条。"
+        },
+        {
+          "claim": "他在压力下不太会硬顶，而是接受外部协助",
+          "review_status": "待确认",
+          "confidence": 0.82,
+          "evidence_ids": [
+            "S0001-E004"
+          ],
+          "counterevidence_ids": [],
+          "notes": "阿禾介入后他恢复广播，但目前不能确认他是否稳定依赖他人，只能说这一回合接受了协助。"
+        },
+        {
+          "claim": "他一旦决定纠错，就会把事情做完",
+          "review_status": "人物理解",
+          "confidence": 0.94,
+          "evidence_ids": [
+            "S0001-E002",
+            "S0001-E005"
+          ],
+          "counterevidence_ids": [],
+          "notes": "从口头更正到纸面修改，动作闭环完整，说明他不是只说不做。"
+        }
+      ],
+      "intimacy_pattern": [
+        {
+          "claim": "他对他人的介入先防备，后接受合作",
+          "review_status": "待确认",
+          "confidence": 0.83,
+          "evidence_ids": [
+            "S0001-E001",
+            "S0001-E004"
+          ],
+          "counterevidence_ids": [],
+          "notes": "这一场里他起初顾虑暴露，之后在协助下恢复播报；这更像合作模式的初步轮廓。"
+        },
+        {
+          "claim": "他在关系里更重视把事情先办对",
+          "review_status": "待确认",
+          "confidence": 0.78,
+          "evidence_ids": [
+            "S0001-E002",
+            "S0001-E005"
+          ],
+          "counterevidence_ids": [],
+          "notes": "可见他优先处理错误本身，而不是先安抚情绪；是否延伸到所有关系场景，尚不足。"
+        }
+      ],
+      "central_contradictions": [
+        {
+          "claim": "他既怕暴露自己，又主动站出来纠正错误",
+          "review_status": "人物理解",
+          "confidence": 0.97,
+          "evidence_ids": [
+            "S0001-E001",
+            "S0001-E002"
+          ],
+          "counterevidence_ids": [],
+          "notes": "这不是设定冲突，而是他当下最核心的两种驱力：自我保护和责任感同时拉扯。"
+        },
+        {
+          "claim": "他表面退缩，实际并不愿放弃职责",
+          "review_status": "人物理解",
+          "confidence": 0.95,
+          "evidence_ids": [
+            "S0001-E001",
+            "S0001-E004",
+            "S0001-E002"
+          ],
+          "counterevidence_ids": [],
+          "notes": "停播体现退缩，恢复广播体现继续承担职责，二者并存。"
+        }
+      ],
+      "speech_rhythm_wording_emotion": [
+        {
+          "claim": "他说话短，先交代错误再给正确信息",
+          "review_status": "人物理解",
+          "confidence": 0.96,
+          "evidence_ids": [
+            "S0001-E001",
+            "S0001-E002"
+          ],
+          "counterevidence_ids": [],
+          "notes": "台词直接、简短，没有绕圈，先承认再修正，语序很清楚。"
+        },
+        {
+          "claim": "他的语气带着明显紧张感",
+          "review_status": "待确认",
+          "confidence": 0.79,
+          "evidence_ids": [
+            "S0001-E001"
+          ],
+          "counterevidence_ids": [],
+          "notes": "从内容能看出焦虑，但缺少更完整的声线描写，暂作待确认。"
+        },
+        {
+          "claim": "他倾向用准确表述代替情绪表达",
+          "review_status": "人物理解",
+          "confidence": 0.9,
+          "evidence_ids": [
+            "S0001-E002",
+            "S0001-E005"
+          ],
+          "counterevidence_ids": [],
+          "notes": "他没有长篇解释，只用事实纠错；情绪被压在事情后面。"
+        }
+      ],
+      "will_not_say_or_do": [
+        {
+          "claim": "他不会明知出错还装作没发生",
+          "review_status": "人物理解",
+          "confidence": 0.97,
+          "evidence_ids": [
+            "S0001-E002",
+            "S0001-E005"
+          ],
+          "counterevidence_ids": [],
+          "notes": "他不仅承认错误，还把纸面站台信息改正，说明不会硬掩饰。"
+        },
+        {
+          "claim": "他不会把纠错责任推给别人",
+          "review_status": "人物理解",
+          "confidence": 0.95,
+          "evidence_ids": [
+            "S0001-E001",
+            "S0001-E002"
+          ],
+          "counterevidence_ids": [],
+          "notes": "他明确说‘是我报错了’，承担责任非常直接。"
+        },
+        {
+          "claim": "待确认：他是否会在独自压力下完全沉默到底",
+          "review_status": "待确认",
+          "confidence": 0.72,
+          "evidence_ids": [],
+          "counterevidence_ids": [],
+          "notes": "本场他确实先停播，但随后又恢复广播；暂不能判断他在更大压力下的极限反应。"
+        }
+      ],
+      "arc": {
+        "starting_state": "刚报错站名后停播，紧张、歉疚，担心身份被识破，先想回避开口。",
+        "stages": [
+          {
+            "stage": "故事开端",
+            "state": "因失误而中断播报，先把自己收起来。",
+            "key_behavior": "承认报错，但第一反应是担心被认出来。",
+            "change_status": "无变化",
+            "evidence_ids": [
+              "S0001-E001"
+            ]
+          },
+          {
+            "stage": "中段推进",
+            "state": "在外部协助下重新进入工作流程。",
+            "key_behavior": "装上电池并打开广播，恢复播报。",
+            "change_status": "潜在变化",
+            "evidence_ids": [
+              "S0001-E004"
+            ]
+          },
+          {
+            "stage": "当场纠错",
+            "state": "公开承认失误并更正信息。",
+            "key_behavior": "把站台从二改成三，完成修正。",
+            "change_status": "确认变化",
+            "evidence_ids": [
+              "S0001-E002",
+              "S0001-E005"
+            ]
+          }
+        ],
+        "turning_points": [
+          {
+            "scene_id": "S0001",
+            "trigger": "阿禾提议一起更正并帮他恢复广播",
+            "before": "想回避开口，怕被认出",
+            "after": "公开承认错误并继续播报",
+            "confidence": 0.88,
+            "evidence_ids": [
+              "S0001-E001",
+              "S0001-E004",
+              "S0001-E002"
+            ]
+          }
+        ],
+        "ending_state": "情绪仍紧张克制，但已完成纠错并继续履职。",
+        "overall_change": "从先回避错误，转为接受协助后主动纠错。",
+        "change_confirmed": true
+      },
+      "poster_brief": {
+        "first_glance_message": "紧张但负责，出错后会立刻补救。",
+        "expression": [
+          {
+            "claim": "表情应偏克制、带点紧张",
+            "review_status": "待确认",
+            "confidence": 0.76,
+            "evidence_ids": [
+              "S0001-E001",
+              "S0001-E002"
+            ],
+            "counterevidence_ids": [],
+            "notes": "可作为视觉建议，但原文没有直接描写面部细节。"
+          }
+        ],
+        "posture_and_action": [
+          {
+            "claim": "姿态可表现为先收住、后重新投入工作",
+            "review_status": "待确认",
+            "confidence": 0.8,
+            "evidence_ids": [
+              "S0001-E001",
+              "S0001-E004"
+            ],
+            "counterevidence_ids": [],
+            "notes": "适合表现他先停顿再恢复播报的行动节奏。"
+          }
+        ],
+        "clothing_and_props": [],
+        "color_and_light": [],
+        "copy_tone": [
+          {
+            "claim": "文案适合强调‘出错后立刻纠正’",
+            "review_status": "待确认",
+            "confidence": 0.89,
+            "evidence_ids": [
+              "S0001-E002",
+              "S0001-E005"
+            ],
+            "counterevidence_ids": [],
+            "notes": "这能直接对应他的核心行为，但仍属于待审建议，不是正式设定。"
+          }
+        ],
+        "avoid_mismatches": [
+          {
+            "claim": "不要把他写成冷漠或摆烂型人物",
+            "review_status": "待确认",
+            "confidence": 0.9,
+            "evidence_ids": [
+              "S0001-E002",
+              "S0001-E005"
+            ],
+            "counterevidence_ids": [],
+            "notes": "他实际是会承担并修正错误的人，和消极敷衍不符。"
+          },
+          {
+            "claim": "不要把他的紧张误写成逃避责任",
+            "review_status": "待确认",
+            "confidence": 0.91,
+            "evidence_ids": [
+              "S0001-E001",
+              "S0001-E002"
+            ],
+            "counterevidence_ids": [],
+            "notes": "他确实先退了一步，但最后还是完成了公开纠错。"
+          }
+        ],
+        "note": "海报层面只建议呈现‘紧张、克制、负责、立即纠错’的感觉；无服装与场景细节依据，不应擅自补写。"
+      },
+      "unconfirmed_questions": [
+        "这种先回避、后在协助下纠错的方式是否会在后续重复出现",
+        "林舟是否长期依赖他人协助处理失误",
+        "他的紧张是性格常态还是仅限于本场压力反应"
+      ],
+      "_meta": {
+        "input_digest": "384324476d1d548fc30b49e3e243916146ff63838628d66010be9d742ff40b9d",
+        "model": "openai/gpt-5.4-mini",
+        "prompt_version": "2026-11-openrouter.1",
+        "generated_at": "2026-11-23T02:12:36.933041+00:00",
+        "profile_mode": "full"
+      }
+    },
+    "阿禾": {
+      "character_name": "阿禾",
+      "aliases": [],
+      "one_line_positioning": [
+        {
+          "claim": "冷静果断，遇事先保信息不断线",
+          "review_status": "人物理解",
+          "confidence": 0.96,
+          "evidence_ids": [
+            "S0001-E006",
+            "S0001-E007",
+            "S0001-E008"
+          ],
+          "counterevidence_ids": [],
+          "notes": "她先追问停播原因，再立刻接手恢复播报，性格重心很明确。"
+        }
+      ],
+      "first_impression": [
+        {
+          "claim": "第一反应很快，先抓现场问题",
+          "review_status": "人物理解",
+          "confidence": 0.96,
+          "evidence_ids": [
+            "S0001-E006"
+          ],
+          "counterevidence_ids": [],
+          "notes": "听到广播停了，马上质问原因，说明她对异常非常警觉。"
+        },
+        {
+          "claim": "说话短促直接，不爱绕弯子",
+          "review_status": "人物理解",
+          "confidence": 0.94,
+          "evidence_ids": [
+            "S0001-E006",
+            "S0001-E007"
+          ],
+          "counterevidence_ids": [],
+          "notes": "台词都很简短，信息密度高，带明显任务导向。"
+        }
+      ],
+      "deeper_personality_and_needs": [
+        {
+          "claim": "她最在意的是秩序别乱、信息别断",
+          "review_status": "人物理解",
+          "confidence": 0.96,
+          "evidence_ids": [
+            "S0001-E006",
+            "S0001-E008"
+          ],
+          "counterevidence_ids": [],
+          "notes": "从追问停播到继续播报指引，优先级始终是旅客信息连续性。"
+        },
+        {
+          "claim": "她习惯用行动解决问题，不等别人安排",
+          "review_status": "人物理解",
+          "confidence": 0.95,
+          "evidence_ids": [
+            "S0001-E007",
+            "S0001-E009"
+          ],
+          "counterevidence_ids": [],
+          "notes": "直接提出‘一起说’，并把话筒放到两人之间，主动搭建解决方案。"
+        },
+        {
+          "claim": "她并不排斥合作，只要目标足够明确",
+          "review_status": "人物理解",
+          "confidence": 0.94,
+          "evidence_ids": [
+            "S0001-E007",
+            "S0001-E008"
+          ],
+          "counterevidence_ids": [],
+          "notes": "她不是单打独斗型，愿意立刻进入分工协作状态。"
+        }
+      ],
+      "most_wanted": [
+        {
+          "claim": "她想尽快把广播恢复到可用状态",
+          "review_status": "人物理解",
+          "confidence": 0.99,
+          "evidence_ids": [
+            "S0001-E007",
+            "S0001-E008",
+            "S0001-E009"
+          ],
+          "counterevidence_ids": [],
+          "notes": "所有动作都围绕尽快补回错误信息展开。"
+        },
+        {
+          "claim": "她想让旅客立刻拿到正确指引",
+          "review_status": "人物理解",
+          "confidence": 0.98,
+          "evidence_ids": [
+            "S0001-E008"
+          ],
+          "counterevidence_ids": [],
+          "notes": "播报内容直接指向换乘旅客的行动路线。"
+        }
+      ],
+      "greatest_fears": [
+        {
+          "claim": "她最怕现场信息一乱就耽误人",
+          "review_status": "人物理解",
+          "confidence": 0.9,
+          "evidence_ids": [
+            "S0001-E006",
+            "S0001-E008"
+          ],
+          "counterevidence_ids": [],
+          "notes": "停播会影响旅客判断，她的反应明显是防止误导和延误。"
+        },
+        {
+          "claim": "她不能接受该说的话没及时说出来",
+          "review_status": "待确认",
+          "confidence": 0.72,
+          "evidence_ids": [],
+          "counterevidence_ids": [],
+          "notes": "目前只看到她重视及时播报，但更深层是否源于个人焦虑，还需更多场景。"
+        }
+      ],
+      "conflict_pattern": [
+        {
+          "claim": "遇到失误先追责原因，再马上转入修正",
+          "review_status": "人物理解",
+          "confidence": 0.95,
+          "evidence_ids": [
+            "S0001-E006",
+            "S0001-E007"
+          ],
+          "counterevidence_ids": [],
+          "notes": "她先质问停播，再立即推动修正，而不是停留在抱怨上。"
+        },
+        {
+          "claim": "她的冲突处理很硬，但目的不是对抗",
+          "review_status": "人物理解",
+          "confidence": 0.93,
+          "evidence_ids": [
+            "S0001-E006",
+            "S0001-E007",
+            "S0001-E009"
+          ],
+          "counterevidence_ids": [],
+          "notes": "语气直接，行为强势，但最终导向协作而非撕裂。"
+        }
+      ],
+      "intimacy_pattern": [
+        {
+          "claim": "她在关系里更看重配合效率，不太讲情绪铺垫",
+          "review_status": "人物理解",
+          "confidence": 0.89,
+          "evidence_ids": [
+            "S0001-E007",
+            "S0001-E009"
+          ],
+          "counterevidence_ids": [],
+          "notes": "与林舟的互动迅速进入分工，说明她亲近方式偏任务协同。"
+        },
+        {
+          "claim": "她对搭档会直接发号施令式沟通",
+          "review_status": "人物理解",
+          "confidence": 0.9,
+          "evidence_ids": [
+            "S0001-E007"
+          ],
+          "counterevidence_ids": [],
+          "notes": "‘站名你念，换乘我念’很像临场指挥，也体现信任建立得很快。"
+        }
+      ],
+      "central_contradictions": [
+        {
+          "claim": "她说话很强硬，行动却非常依赖协作",
+          "review_status": "人物理解",
+          "confidence": 0.94,
+          "evidence_ids": [
+            "S0001-E006",
+            "S0001-E007",
+            "S0001-E009"
+          ],
+          "counterevidence_ids": [],
+          "notes": "表面像是强势的指挥者，实际解决问题时会主动拆分任务。"
+        },
+        {
+          "claim": "她表面是在催促别人，核心其实是在保护秩序",
+          "review_status": "人物理解",
+          "confidence": 0.93,
+          "evidence_ids": [
+            "S0001-E006",
+            "S0001-E008"
+          ],
+          "counterevidence_ids": [],
+          "notes": "质问语气容易让人觉得冲，但目标始终是把信息重新送回轨道。"
+        }
+      ],
+      "speech_rhythm_wording_emotion": [
+        {
+          "claim": "她讲话节奏快，句子短，信息只留关键点",
+          "review_status": "人物理解",
+          "confidence": 0.95,
+          "evidence_ids": [
+            "S0001-E006",
+            "S0001-E007",
+            "S0001-E008"
+          ],
+          "counterevidence_ids": [],
+          "notes": "台词基本是短句直给，适合临场应急。"
+        },
+        {
+          "claim": "她的语气偏冷静压迫感，不是软糯型",
+          "review_status": "人物理解",
+          "confidence": 0.9,
+          "evidence_ids": [
+            "S0001-E006",
+            "S0001-E007"
+          ],
+          "counterevidence_ids": [],
+          "notes": "先质问后下指令，情绪表达克制但力度很强。"
+        }
+      ],
+      "will_not_say_or_do": [
+        {
+          "claim": "她不会对失误含糊带过",
+          "review_status": "人物理解",
+          "confidence": 0.95,
+          "evidence_ids": [
+            "S0001-E006"
+          ],
+          "counterevidence_ids": [],
+          "notes": "一出问题就立刻追问，不会默认放过。"
+        },
+        {
+          "claim": "她不会在需要更正时继续单独硬撑",
+          "review_status": "人物理解",
+          "confidence": 0.96,
+          "evidence_ids": [
+            "S0001-E007",
+            "S0001-E009"
+          ],
+          "counterevidence_ids": [],
+          "notes": "她会主动拉人协作，而不是坚持自己一个人扛。"
+        }
+      ],
+      "arc": {
+        "starting_state": "广播中断后，她先盯着停播问题，情绪和注意力都集中在现场失序上。",
+        "stages": [
+          {
+            "stage": "应急介入",
+            "state": "从追问原因切入，快速接管局面",
+            "key_behavior": "先确认问题，再推动恢复播报",
+            "change_status": "无变化",
+            "evidence_ids": [
+              "S0001-E006"
+            ]
+          },
+          {
+            "stage": "协作修正",
+            "state": "接受与林舟分工，转入联合播报",
+            "key_behavior": "提出一起说，并拆分播报内容",
+            "change_status": "确认变化",
+            "evidence_ids": [
+              "S0001-E007",
+              "S0001-E009"
+            ]
+          },
+          {
+            "stage": "恢复播报",
+            "state": "重新把正确指引送出去",
+            "key_behavior": "持续播报换乘路线，完成修正",
+            "change_status": "无变化",
+            "evidence_ids": [
+              "S0001-E008"
+            ]
+          }
+        ],
+        "turning_points": [
+          {
+            "scene_id": "S0001",
+            "trigger": "林舟报错站名导致广播停播",
+            "before": "先追问停播原因",
+            "after": "转为共同播报并分工协作",
+            "confidence": 0.9,
+            "evidence_ids": [
+              "S0001-E006",
+              "S0001-E007",
+              "S0001-E009"
+            ]
+          }
+        ],
+        "ending_state": "广播恢复，阿禾已经进入稳定协作和持续播报状态。",
+        "overall_change": "从单点追问切换到高效协作，但核心性格没有变。",
+        "change_confirmed": true
+      },
+      "poster_brief": {
+        "first_glance_message": "冷静利落，能在混乱里迅速把局面拉回正轨。",
+        "expression": [
+          {
+            "claim": "神情适合偏专注、偏警觉的状态",
+            "review_status": "待确认",
+            "confidence": 0.68,
+            "evidence_ids": [
+              "S0001-E006"
+            ],
+            "counterevidence_ids": [],
+            "notes": "只能确定她对异常很敏感，具体表情细节文本未写明。"
+          }
+        ],
+        "posture_and_action": [
+          {
+            "claim": "姿态适合半身前倾、在处理事情的动作感",
+            "review_status": "待确认",
+            "confidence": 0.7,
+            "evidence_ids": [
+              "S0001-E007",
+              "S0001-E009"
+            ],
+            "counterevidence_ids": [],
+            "notes": "有主动介入和共享话筒的动作依据，但具体镜头姿势需美术再定。"
+          }
+        ],
+        "clothing_and_props": [],
+        "color_and_light": [],
+        "copy_tone": [
+          {
+            "claim": "文案适合走短句、强行动感路线",
+            "review_status": "人物理解",
+            "confidence": 0.92,
+            "evidence_ids": [
+              "S0001-E006",
+              "S0001-E007",
+              "S0001-E008"
+            ],
+            "counterevidence_ids": [],
+            "notes": "她的台词本身就是短、准、快的风格。"
+          }
+        ],
+        "avoid_mismatches": [
+          {
+            "claim": "不要画成只会发火、不懂配合的人",
+            "review_status": "人物理解",
+            "confidence": 0.95,
+            "evidence_ids": [
+              "S0001-E007",
+              "S0001-E009"
+            ],
+            "counterevidence_ids": [],
+            "notes": "她最终是协作完成修正，不是纯粹对抗型。"
+          },
+          {
+            "claim": "不要把她画成慢热犹豫型",
+            "review_status": "人物理解",
+            "confidence": 0.93,
+            "evidence_ids": [
+              "S0001-E006",
+              "S0001-E007"
+            ],
+            "counterevidence_ids": [],
+            "notes": "她的反应和决策都很快，几乎没有拖延。"
+          }
+        ],
+        "note": "本卡只依据已给出的候车厅广播室夜间应急场景；未补写童年、创伤、服装与长期关系设定。"
+      },
+      "unconfirmed_questions": [
+        "阿禾在其他场景里是否也同样强势高效。",
+        "她的强硬语气是职业习惯还是个人性格。"
+      ],
+      "_meta": {
+        "input_digest": "85ad37c0cb49dcfa318c554479f0ef082aa32ce7909d924cd6141d02ca116a05",
+        "model": "openai/gpt-5.4-mini",
+        "prompt_version": "2026-11-openrouter.1",
+        "generated_at": "2026-11-23T02:12:35.263133+00:00",
+        "profile_mode": "full"
+      }
+    }
+  },
+  "relationships": {
+    "林舟 × 阿禾": {
+      "person_a": "林舟",
+      "person_b": "阿禾",
+      "how_they_met": [
+        {
+          "claim": "两人是在候车厅广播室这次广播失误事件中第一次进入彼此的工作视野。",
+          "review_status": "人物理解",
+          "confidence": 0.94,
+          "evidence_ids": [
+            "S0001-E001",
+            "S0001-E006"
+          ],
+          "counterevidence_ids": [],
+          "notes": "现有材料只显示他们在同一场景中因停播与纠错发生直接互动，足以判断为首次明确接触，但未能证明更早是否认识。"
+        }
+      ],
+      "surface_relation": [
+        {
+          "claim": "表面上是同一广播岗位上的临时搭档，围绕纠错共同完成播报。",
+          "review_status": "人物理解",
+          "confidence": 0.98,
+          "evidence_ids": [
+            "S0001-E007",
+            "S0001-E008",
+            "S0001-E009"
+          ],
+          "counterevidence_ids": [],
+          "notes": "两人当场快速分工，进入共同播报状态，外显关系是工作协作。"
+        }
+      ],
+      "underlying_state": [
+        {
+          "claim": "这段关系的核心是危机中的功能性互赖，而不是情感亲密。",
+          "review_status": "人物理解",
+          "confidence": 0.93,
+          "evidence_ids": [
+            "S0001-E001",
+            "S0001-E004",
+            "S0001-E007",
+            "S0001-E009"
+          ],
+          "counterevidence_ids": [],
+          "notes": "林舟先因报错停播并顾虑暴露，随后在阿禾推动下恢复；阿禾则以解决问题为优先。现阶段更像临时补位形成的互赖。"
+        },
+        {
+          "claim": "林舟依赖阿禾把他从停播和暴露压力里拉回工作流程。",
+          "review_status": "人物理解",
+          "confidence": 0.96,
+          "evidence_ids": [
+            "S0001-E001",
+            "S0001-E004",
+            "S0001-E007"
+          ],
+          "counterevidence_ids": [],
+          "notes": "他先退缩，后在她提出的协作方案下恢复播报。"
+        },
+        {
+          "claim": "阿禾把林舟视为需要被推进、补位的执行者，而不是需要安抚的对象。",
+          "review_status": "人物理解",
+          "confidence": 0.89,
+          "evidence_ids": [
+            "S0001-E006",
+            "S0001-E007",
+            "S0001-E009"
+          ],
+          "counterevidence_ids": [],
+          "notes": "她先追问停播原因，随后直接拆分任务并继续播报，处理方式偏执行导向。"
+        }
+      ],
+      "a_view_of_b": [
+        {
+          "claim": "林舟认为阿禾是能实际帮他收拾局面的搭档。",
+          "review_status": "人物理解",
+          "confidence": 0.87,
+          "evidence_ids": [
+            "S0001-E006",
+            "S0001-E007",
+            "S0001-E004"
+          ],
+          "counterevidence_ids": [],
+          "notes": "他接受她的介入，并在她的方案下继续播报，说明他对她的能力形成了即时认可。"
+        },
+        {
+          "claim": "林舟认为阿禾并不打算追究他个人责任，因此他没有继续升级防御。",
+          "review_status": "人物理解",
+          "confidence": 0.84,
+          "evidence_ids": [
+            "S0001-E006",
+            "S0001-E007",
+            "S0001-E008"
+          ],
+          "counterevidence_ids": [],
+          "notes": "阿禾的动作和台词都指向解决问题，林舟因此得以从‘怕被认出’转向公开纠错。"
+        },
+        {
+          "claim": "林舟对阿禾的信任仍偏即时和功能性，还谈不上稳定深交。",
+          "review_status": "待确认",
+          "confidence": 0.72,
+          "evidence_ids": [
+            "S0001-E001",
+            "S0001-E007",
+            "S0001-E009"
+          ],
+          "counterevidence_ids": [],
+          "notes": "现有场景只支持他接受协作，并不能证明他已对她形成长期稳定信任。"
+        }
+      ],
+      "b_view_of_a": [
+        {
+          "claim": "阿禾认为林舟会出错，但不是不能合作，而是需要被及时推动。",
+          "review_status": "人物理解",
+          "confidence": 0.9,
+          "evidence_ids": [
+            "S0001-E006",
+            "S0001-E007",
+            "S0001-E009"
+          ],
+          "counterevidence_ids": [],
+          "notes": "她先追问，再直接给出执行方案，显示她对林舟的判断偏向‘可用但需要带着走’。"
+        },
+        {
+          "claim": "阿禾把林舟看作需要补位的同伴，而不是需要单独保护的人。",
+          "review_status": "人物理解",
+          "confidence": 0.86,
+          "evidence_ids": [
+            "S0001-E007",
+            "S0001-E008"
+          ],
+          "counterevidence_ids": [],
+          "notes": "她直接安排分工，让他念站名，自己念换乘信息，体现对其能力的即时接纳。"
+        },
+        {
+          "claim": "阿禾对林舟的私人情绪了解有限，重点仍放在广播是否恢复。",
+          "review_status": "待确认",
+          "confidence": 0.74,
+          "evidence_ids": [
+            "S0001-E006",
+            "S0001-E007",
+            "S0001-E008"
+          ],
+          "counterevidence_ids": [],
+          "notes": "证据显示她关注的是现场秩序，不足以证明她已经知道林舟担心被识破的全部内心压力。"
+        }
+      ],
+      "a_wants": [
+        {
+          "claim": "林舟想保住体面，同时把责任完成。",
+          "review_status": "人物理解",
+          "confidence": 0.95,
+          "evidence_ids": [
+            "S0001-E001",
+            "S0001-E002"
+          ],
+          "counterevidence_ids": [],
+          "notes": "他先担心暴露，再公开纠错，说明体面和责任并重。"
+        },
+        {
+          "claim": "林舟希望失误不要继续扩大，也不想被听众或同事识破。",
+          "review_status": "人物理解",
+          "confidence": 0.97,
+          "evidence_ids": [
+            "S0001-E001"
+          ],
+          "counterevidence_ids": [],
+          "notes": "他明确说出‘再开口，大家就知道是我’。"
+        },
+        {
+          "claim": "林舟希望在外部协助下尽快恢复工作流程。",
+          "review_status": "人物理解",
+          "confidence": 0.88,
+          "evidence_ids": [
+            "S0001-E004",
+            "S0001-E007"
+          ],
+          "counterevidence_ids": [],
+          "notes": "他最终装上电池恢复广播，并接受阿禾的分工协作。"
+        }
+      ],
+      "b_wants": [
+        {
+          "claim": "阿禾希望广播不断线、秩序尽快恢复。",
+          "review_status": "人物理解",
+          "confidence": 0.96,
+          "evidence_ids": [
+            "S0001-E006",
+            "S0001-E008"
+          ],
+          "counterevidence_ids": [],
+          "notes": "她的第一反应是追问为何停播，随后立即继续播报。"
+        },
+        {
+          "claim": "阿禾希望问题被立刻修正，而不是停留在情绪和责备里。",
+          "review_status": "人物理解",
+          "confidence": 0.93,
+          "evidence_ids": [
+            "S0001-E006",
+            "S0001-E007"
+          ],
+          "counterevidence_ids": [],
+          "notes": "她很快把对话导向‘一起说’的解决方案。"
+        },
+        {
+          "claim": "阿禾希望通过明确分工提高处理效率。",
+          "review_status": "人物理解",
+          "confidence": 0.95,
+          "evidence_ids": [
+            "S0001-E007",
+            "S0001-E009"
+          ],
+          "counterevidence_ids": [],
+          "notes": "她主动拆分播报内容并把话筒放在两人之间。"
+        }
+      ],
+      "initiative_and_control": [
+        {
+          "claim": "阿禾在行动和节奏上掌握更强主动权。",
+          "review_status": "人物理解",
+          "confidence": 0.97,
+          "evidence_ids": [
+            "S0001-E006",
+            "S0001-E007",
+            "S0001-E009"
+          ],
+          "counterevidence_ids": [],
+          "notes": "她先发起介入，再决定恢复播报的方式与分工。"
+        },
+        {
+          "claim": "林舟掌握错误源头与修正内容，但对外表达时处于防御位置。",
+          "review_status": "人物理解",
+          "confidence": 0.95,
+          "evidence_ids": [
+            "S0001-E001",
+            "S0001-E002",
+            "S0001-E005"
+          ],
+          "counterevidence_ids": [],
+          "notes": "他知道错在哪里，也完成了更正，但在重新开口前先停了下来。"
+        },
+        {
+          "claim": "两人的现场控制权最终从阿禾的推动中完成重启，而非由林舟单独主导。",
+          "review_status": "人物理解",
+          "confidence": 0.94,
+          "evidence_ids": [
+            "S0001-E007",
+            "S0001-E008",
+            "S0001-E009"
+          ],
+          "counterevidence_ids": [],
+          "notes": "阿禾提供结构，林舟提供纠错内容，合力恢复现场。"
+        }
+      ],
+      "important_shared_events": [
+        {
+          "claim": "林舟报错站名并停播，现场进入短暂停顿。",
+          "review_status": "人物理解",
+          "confidence": 0.99,
+          "evidence_ids": [
+            "S0001-E001"
+          ],
+          "counterevidence_ids": [],
+          "notes": "这是两人关系的起点事件。"
+        },
+        {
+          "claim": "阿禾追问停播原因，直接把两人拉入同一处置回合。",
+          "review_status": "人物理解",
+          "confidence": 0.96,
+          "evidence_ids": [
+            "S0001-E006"
+          ],
+          "counterevidence_ids": [],
+          "notes": "她的介入让事件从个人失误转成双人共同处理。"
+        },
+        {
+          "claim": "阿禾提出分工协作，林舟恢复广播。",
+          "review_status": "人物理解",
+          "confidence": 0.99,
+          "evidence_ids": [
+            "S0001-E007",
+            "S0001-E004"
+          ],
+          "counterevidence_ids": [],
+          "notes": "这是协作关系成形的关键步骤。"
+        },
+        {
+          "claim": "林舟公开更正站台信息，并把纸面信息同步改正。",
+          "review_status": "人物理解",
+          "confidence": 0.99,
+          "evidence_ids": [
+            "S0001-E002",
+            "S0001-E005"
+          ],
+          "counterevidence_ids": [],
+          "notes": "这一步完成了实质纠错闭环。"
+        },
+        {
+          "claim": "阿禾继续播报换乘指引，双方完成共同履职。",
+          "review_status": "人物理解",
+          "confidence": 0.98,
+          "evidence_ids": [
+            "S0001-E008",
+            "S0001-E009"
+          ],
+          "counterevidence_ids": [],
+          "notes": "关系从应急介入转入稳定输出。"
+        }
+      ],
+      "current_conflict": [
+        {
+          "claim": "林舟害怕身份暴露，但阿禾的处理方式迫使他走向公开纠错。",
+          "review_status": "人物理解",
+          "confidence": 0.95,
+          "evidence_ids": [
+            "S0001-E001",
+            "S0001-E007",
+            "S0001-E002"
+          ],
+          "counterevidence_ids": [],
+          "notes": "冲突不是对抗阿禾，而是他自己的防御与她的效率要求发生碰撞。"
+        },
+        {
+          "claim": "两人对问题优先级一致，但对进入问题的方式不同：林舟先退后说，阿禾先问后做。",
+          "review_status": "人物理解",
+          "confidence": 0.91,
+          "evidence_ids": [
+            "S0001-E001",
+            "S0001-E006",
+            "S0001-E007"
+          ],
+          "counterevidence_ids": [],
+          "notes": "他们目标一致，处理路径不同。"
+        },
+        {
+          "claim": "当前仍缺少能证明两人有长期固定搭档关系的证据。",
+          "review_status": "待确认",
+          "confidence": 0.82,
+          "evidence_ids": [
+            "S0001-E006",
+            "S0001-E007",
+            "S0001-E009"
+          ],
+          "counterevidence_ids": [],
+          "notes": "现有材料只支持一次现场协作，不能外推为长期关系。"
+        }
+      ],
+      "unspoken_information": [
+        {
+          "claim": "林舟没有把‘怕被认出’这层压力完整说给阿禾听，至少在她介入时未被明确共享。",
+          "review_status": "人物理解",
+          "confidence": 0.9,
+          "evidence_ids": [
+            "S0001-E001",
+            "S0001-E006"
+          ],
+          "counterevidence_ids": [],
+          "notes": "林舟的自述是私下压力，阿禾当下只知道停播，不一定知道全部心理原因。"
+        },
+        {
+          "claim": "阿禾没有追问林舟为何会报错的具体私因，她只关心如何恢复广播。",
+          "review_status": "人物理解",
+          "confidence": 0.88,
+          "evidence_ids": [
+            "S0001-E006",
+            "S0001-E007",
+            "S0001-E008"
+          ],
+          "counterevidence_ids": [],
+          "notes": "她将焦点锁定在解决方案上。"
+        },
+        {
+          "claim": "暂无证据表明两人此时存在超出工作协作的私人情感或长期关系基础。",
+          "review_status": "待确认",
+          "confidence": 0.75,
+          "evidence_ids": [
+            "S0001-E006",
+            "S0001-E007",
+            "S0001-E009"
+          ],
+          "counterevidence_ids": [],
+          "notes": "当前仅能确认功能性互赖。"
+        }
+      ],
+      "timeline": [
+        {
+          "stage": "起点事件",
+          "state": "林舟报错站名后停播，关系尚未建立为稳定合作。",
+          "change_event": "林舟承认错误并因担心暴露而暂时收住自己。",
+          "scene_ids": [
+            "S0001"
+          ],
+          "evidence_ids": [
+            "S0001-E001"
+          ]
+        },
+        {
+          "stage": "现场介入",
+          "state": "阿禾进入同一问题回合，开始接管处置节奏。",
+          "change_event": "她质问停播原因，并把焦点转向恢复广播。",
+          "scene_ids": [
+            "S0001"
+          ],
+          "evidence_ids": [
+            "S0001-E006"
+          ]
+        },
+        {
+          "stage": "协作成形",
+          "state": "两人开始以分工方式共同处理失误。",
+          "change_event": "阿禾提出一起说，林舟恢复播报。",
+          "scene_ids": [
+            "S0001"
+          ],
+          "evidence_ids": [
+            "S0001-E007",
+            "S0001-E004"
+          ]
+        },
+        {
+          "stage": "纠错闭环",
+          "state": "广播信息被公开更正，现场秩序恢复。",
+          "change_event": "林舟把站台从二改成三，阿禾继续播报换乘指引。",
+          "scene_ids": [
+            "S0001"
+          ],
+          "evidence_ids": [
+            "S0001-E002",
+            "S0001-E005",
+            "S0001-E008"
+          ]
+        }
+      ],
+      "current_stage": "从短暂停播转入可并肩发声的功能性协作状态，但仍未证实为长期稳定关系。",
+      "story_truth_vs_audience_view": [
+        {
+          "claim": "观众最先看到的是一次广播失误后的临时搭档协作，但没有证据支持他们是固定关系。",
+          "review_status": "人物理解",
+          "confidence": 0.93,
+          "evidence_ids": [
+            "S0001-E001",
+            "S0001-E006",
+            "S0001-E007"
+          ],
+          "counterevidence_ids": [],
+          "notes": "表面上像默契配合，实则只确认了这一场中的协作。"
+        },
+        {
+          "claim": "林舟内心先是防御和回避，之后才接受公开纠错；这一转变对阿禾并不完全可见。",
+          "review_status": "人物理解",
+          "confidence": 0.92,
+          "evidence_ids": [
+            "S0001-E001",
+            "S0001-E002",
+            "S0001-E007"
+          ],
+          "counterevidence_ids": [],
+          "notes": "阿禾知道他报错，但未必知道他最初有多担心暴露。"
+        },
+        {
+          "claim": "阿禾看起来像强势主导者，实际上她的目标是把流程救回来，而不是压制林舟。",
+          "review_status": "人物理解",
+          "confidence": 0.95,
+          "evidence_ids": [
+            "S0001-E006",
+            "S0001-E007",
+            "S0001-E008"
+          ],
+          "counterevidence_ids": [],
+          "notes": "她的强势主要服务于效率与秩序。"
+        },
+        {
+          "claim": "尚未向用户公开的变化是：两人关系已经从‘事故中的对接’推进到‘可以并肩发声’。",
+          "review_status": "人物理解",
+          "confidence": 0.9,
+          "evidence_ids": [
+            "S0001-E004",
+            "S0001-E007",
+            "S0001-E008"
+          ],
+          "counterevidence_ids": [],
+          "notes": "这是场景内部已经发生、但对外未必会被立刻归纳出来的关系变化。"
+        }
+      ],
+      "unresolved_questions": [
+        "林舟与阿禾是否是长期固定搭档，还是仅在这一场临时协作？",
+        "阿禾是否平时就习惯主导现场流程，还是只在危机中显得更强势？",
+        "林舟对阿禾的信任是临时性的，还是已有稳定基础？",
+        "后续场景里两人是否会把这种并肩纠错延伸为更稳定的互相依赖？"
+      ],
+      "_meta": {
+        "input_digest": "81b8770c2dadcb8fcd9d5a3358f7f7721718418acfba9b0d4f6c2472caf5381d",
+        "model": "openai/gpt-5.4-mini",
+        "prompt_version": "2026-11-openrouter.1",
+        "generated_at": "2026-11-23T02:13:00.303211+00:00",
+        "profile_mode": "full"
+      }
+    }
+  },
+  "knowledge_ledger": [
+    {
+      "fact_id": "F001",
+      "fact": "林舟报错了站名",
+      "truth_status": "剧本事实",
+      "audience_status": "已向用户公开",
+      "known_by": [
+        "林舟",
+        "阿禾",
+        "观众"
+      ],
+      "not_known_by": [],
+      "evidence_ids": [
+        "S0001-E001",
+        "S0001-E002"
+      ],
+      "scene_id": "S0001",
+      "heading": "第一场 候车厅广播室 夜"
+    },
+    {
+      "fact_id": "F002",
+      "fact": "末班车停在三号站台",
+      "truth_status": "剧本事实",
+      "audience_status": "已向用户公开",
+      "known_by": [
+        "林舟",
+        "阿禾",
+        "观众"
+      ],
+      "not_known_by": [],
+      "evidence_ids": [
+        "S0001-E002",
+        "S0001-E005"
+      ],
+      "scene_id": "S0001",
+      "heading": "第一场 候车厅广播室 夜"
+    },
+    {
+      "fact_id": "F003",
+      "fact": "广播一度中断，随后恢复",
+      "truth_status": "剧本事实",
+      "audience_status": "已向用户公开",
+      "known_by": [
+        "林舟",
+        "阿禾",
+        "观众"
+      ],
+      "not_known_by": [],
+      "evidence_ids": [
+        "S0001-E002",
+        "S0001-E004",
+        "S0001-E008"
+      ],
+      "scene_id": "S0001",
+      "heading": "第一场 候车厅广播室 夜"
+    }
+  ],
+  "review_queue": [
+    {
+      "owner_type": "角色",
+      "owner": "林舟",
+      "path": "one_line_positioning[0]",
+      "claim": "谨慎克制、怕出错但很负责的广播员",
+      "suggested_status": "人物理解",
+      "confidence": 0.98,
+      "evidence_ids": [
+        "S0001-E001",
+        "S0001-E002",
+        "S0001-E004",
+        "S0001-E005"
+      ],
+      "editor_decision": "",
+      "editor_notes": ""
+    },
+    {
+      "owner_type": "角色",
+      "owner": "林舟",
+      "path": "first_impression[0]",
+      "claim": "他第一反应是害怕暴露身份",
+      "suggested_status": "人物理解",
+      "confidence": 0.97,
+      "evidence_ids": [
+        "S0001-E001"
+      ],
+      "editor_decision": "",
+      "editor_notes": ""
+    },
+    {
+      "owner_type": "角色",
+      "owner": "林舟",
+      "path": "first_impression[1]",
+      "claim": "他外表给人的感觉是紧张克制",
+      "suggested_status": "待确认",
+      "confidence": 0.78,
+      "evidence_ids": [
+        "S0001-E001",
+        "S0001-E002"
+      ],
+      "editor_decision": "",
+      "editor_notes": ""
+    },
+    {
+      "owner_type": "角色",
+      "owner": "林舟",
+      "path": "deeper_personality_and_needs[0]",
+      "claim": "他把工作准确性看得很重",
+      "suggested_status": "人物理解",
+      "confidence": 0.98,
+      "evidence_ids": [
+        "S0001-E002",
+        "S0001-E005"
+      ],
+      "editor_decision": "",
+      "editor_notes": ""
+    },
+    {
+      "owner_type": "角色",
+      "owner": "林舟",
+      "path": "deeper_personality_and_needs[1]",
+      "claim": "他需要的是先保住体面，再完成责任",
+      "suggested_status": "待确认",
+      "confidence": 0.8,
+      "evidence_ids": [
+        "S0001-E001",
+        "S0001-E002"
+      ],
+      "editor_decision": "",
+      "editor_notes": ""
+    },
+    {
+      "owner_type": "角色",
+      "owner": "林舟",
+      "path": "deeper_personality_and_needs[2]",
+      "claim": "他遇到压力时会先收住自己",
+      "suggested_status": "待确认",
+      "confidence": 0.74,
+      "evidence_ids": [
+        "S0001-E001",
+        "S0001-E004"
+      ],
+      "editor_decision": "",
+      "editor_notes": ""
+    },
+    {
+      "owner_type": "角色",
+      "owner": "林舟",
+      "path": "most_wanted[0]",
+      "claim": "他最想把这次报错立刻补救回来",
+      "suggested_status": "人物理解",
+      "confidence": 0.96,
+      "evidence_ids": [
+        "S0001-E002",
+        "S0001-E005"
+      ],
+      "editor_decision": "",
+      "editor_notes": ""
+    },
+    {
+      "owner_type": "角色",
+      "owner": "林舟",
+      "path": "most_wanted[1]",
+      "claim": "他也想避免自己当场丢脸",
+      "suggested_status": "人物理解",
+      "confidence": 0.95,
+      "evidence_ids": [
+        "S0001-E001"
+      ],
+      "editor_decision": "",
+      "editor_notes": ""
+    },
+    {
+      "owner_type": "角色",
+      "owner": "林舟",
+      "path": "greatest_fears[0]",
+      "claim": "他最怕错误被当众识破",
+      "suggested_status": "人物理解",
+      "confidence": 0.97,
+      "evidence_ids": [
+        "S0001-E001"
+      ],
+      "editor_decision": "",
+      "editor_notes": ""
+    },
+    {
+      "owner_type": "角色",
+      "owner": "林舟",
+      "path": "greatest_fears[1]",
+      "claim": "他也怕自己因为失误影响广播结果",
+      "suggested_status": "待确认",
+      "confidence": 0.81,
+      "evidence_ids": [
+        "S0001-E002",
+        "S0001-E004",
+        "S0001-E005"
+      ],
+      "editor_decision": "",
+      "editor_notes": ""
+    },
+    {
+      "owner_type": "角色",
+      "owner": "林舟",
+      "path": "conflict_pattern[0]",
+      "claim": "他出错后会先回避，再找机会修正",
+      "suggested_status": "人物理解",
+      "confidence": 0.93,
+      "evidence_ids": [
+        "S0001-E001",
+        "S0001-E004",
+        "S0001-E002"
+      ],
+      "editor_decision": "",
+      "editor_notes": ""
+    },
+    {
+      "owner_type": "角色",
+      "owner": "林舟",
+      "path": "conflict_pattern[1]",
+      "claim": "他在压力下不太会硬顶，而是接受外部协助",
+      "suggested_status": "待确认",
+      "confidence": 0.82,
+      "evidence_ids": [
+        "S0001-E004"
+      ],
+      "editor_decision": "",
+      "editor_notes": ""
+    },
+    {
+      "owner_type": "角色",
+      "owner": "林舟",
+      "path": "conflict_pattern[2]",
+      "claim": "他一旦决定纠错，就会把事情做完",
+      "suggested_status": "人物理解",
+      "confidence": 0.94,
+      "evidence_ids": [
+        "S0001-E002",
+        "S0001-E005"
+      ],
+      "editor_decision": "",
+      "editor_notes": ""
+    },
+    {
+      "owner_type": "角色",
+      "owner": "林舟",
+      "path": "intimacy_pattern[0]",
+      "claim": "他对他人的介入先防备，后接受合作",
+      "suggested_status": "待确认",
+      "confidence": 0.83,
+      "evidence_ids": [
+        "S0001-E001",
+        "S0001-E004"
+      ],
+      "editor_decision": "",
+      "editor_notes": ""
+    },
+    {
+      "owner_type": "角色",
+      "owner": "林舟",
+      "path": "intimacy_pattern[1]",
+      "claim": "他在关系里更重视把事情先办对",
+      "suggested_status": "待确认",
+      "confidence": 0.78,
+      "evidence_ids": [
+        "S0001-E002",
+        "S0001-E005"
+      ],
+      "editor_decision": "",
+      "editor_notes": ""
+    },
+    {
+      "owner_type": "角色",
+      "owner": "林舟",
+      "path": "central_contradictions[0]",
+      "claim": "他既怕暴露自己，又主动站出来纠正错误",
+      "suggested_status": "人物理解",
+      "confidence": 0.97,
+      "evidence_ids": [
+        "S0001-E001",
+        "S0001-E002"
+      ],
+      "editor_decision": "",
+      "editor_notes": ""
+    },
+    {
+      "owner_type": "角色",
+      "owner": "林舟",
+      "path": "central_contradictions[1]",
+      "claim": "他表面退缩，实际并不愿放弃职责",
+      "suggested_status": "人物理解",
+      "confidence": 0.95,
+      "evidence_ids": [
+        "S0001-E001",
+        "S0001-E004",
+        "S0001-E002"
+      ],
+      "editor_decision": "",
+      "editor_notes": ""
+    },
+    {
+      "owner_type": "角色",
+      "owner": "林舟",
+      "path": "speech_rhythm_wording_emotion[0]",
+      "claim": "他说话短，先交代错误再给正确信息",
+      "suggested_status": "人物理解",
+      "confidence": 0.96,
+      "evidence_ids": [
+        "S0001-E001",
+        "S0001-E002"
+      ],
+      "editor_decision": "",
+      "editor_notes": ""
+    },
+    {
+      "owner_type": "角色",
+      "owner": "林舟",
+      "path": "speech_rhythm_wording_emotion[1]",
+      "claim": "他的语气带着明显紧张感",
+      "suggested_status": "待确认",
+      "confidence": 0.79,
+      "evidence_ids": [
+        "S0001-E001"
+      ],
+      "editor_decision": "",
+      "editor_notes": ""
+    },
+    {
+      "owner_type": "角色",
+      "owner": "林舟",
+      "path": "speech_rhythm_wording_emotion[2]",
+      "claim": "他倾向用准确表述代替情绪表达",
+      "suggested_status": "人物理解",
+      "confidence": 0.9,
+      "evidence_ids": [
+        "S0001-E002",
+        "S0001-E005"
+      ],
+      "editor_decision": "",
+      "editor_notes": ""
+    },
+    {
+      "owner_type": "角色",
+      "owner": "林舟",
+      "path": "will_not_say_or_do[0]",
+      "claim": "他不会明知出错还装作没发生",
+      "suggested_status": "人物理解",
+      "confidence": 0.97,
+      "evidence_ids": [
+        "S0001-E002",
+        "S0001-E005"
+      ],
+      "editor_decision": "",
+      "editor_notes": ""
+    },
+    {
+      "owner_type": "角色",
+      "owner": "林舟",
+      "path": "will_not_say_or_do[1]",
+      "claim": "他不会把纠错责任推给别人",
+      "suggested_status": "人物理解",
+      "confidence": 0.95,
+      "evidence_ids": [
+        "S0001-E001",
+        "S0001-E002"
+      ],
+      "editor_decision": "",
+      "editor_notes": ""
+    },
+    {
+      "owner_type": "角色",
+      "owner": "林舟",
+      "path": "will_not_say_or_do[2]",
+      "claim": "待确认：他是否会在独自压力下完全沉默到底",
+      "suggested_status": "待确认",
+      "confidence": 0.72,
+      "evidence_ids": [],
+      "editor_decision": "",
+      "editor_notes": ""
+    },
+    {
+      "owner_type": "角色",
+      "owner": "林舟",
+      "path": "poster_brief.expression[0]",
+      "claim": "表情应偏克制、带点紧张",
+      "suggested_status": "待确认",
+      "confidence": 0.76,
+      "evidence_ids": [
+        "S0001-E001",
+        "S0001-E002"
+      ],
+      "editor_decision": "",
+      "editor_notes": ""
+    },
+    {
+      "owner_type": "角色",
+      "owner": "林舟",
+      "path": "poster_brief.posture_and_action[0]",
+      "claim": "姿态可表现为先收住、后重新投入工作",
+      "suggested_status": "待确认",
+      "confidence": 0.8,
+      "evidence_ids": [
+        "S0001-E001",
+        "S0001-E004"
+      ],
+      "editor_decision": "",
+      "editor_notes": ""
+    },
+    {
+      "owner_type": "角色",
+      "owner": "林舟",
+      "path": "poster_brief.copy_tone[0]",
+      "claim": "文案适合强调‘出错后立刻纠正’",
+      "suggested_status": "待确认",
+      "confidence": 0.89,
+      "evidence_ids": [
+        "S0001-E002",
+        "S0001-E005"
+      ],
+      "editor_decision": "",
+      "editor_notes": ""
+    },
+    {
+      "owner_type": "角色",
+      "owner": "林舟",
+      "path": "poster_brief.avoid_mismatches[0]",
+      "claim": "不要把他写成冷漠或摆烂型人物",
+      "suggested_status": "待确认",
+      "confidence": 0.9,
+      "evidence_ids": [
+        "S0001-E002",
+        "S0001-E005"
+      ],
+      "editor_decision": "",
+      "editor_notes": ""
+    },
+    {
+      "owner_type": "角色",
+      "owner": "林舟",
+      "path": "poster_brief.avoid_mismatches[1]",
+      "claim": "不要把他的紧张误写成逃避责任",
+      "suggested_status": "待确认",
+      "confidence": 0.91,
+      "evidence_ids": [
+        "S0001-E001",
+        "S0001-E002"
+      ],
+      "editor_decision": "",
+      "editor_notes": ""
+    },
+    {
+      "owner_type": "角色",
+      "owner": "林舟",
+      "path": "unconfirmed_questions",
+      "claim": "这种先回避、后在协助下纠错的方式是否会在后续重复出现",
+      "suggested_status": "待确认",
+      "confidence": 0,
+      "evidence_ids": [],
+      "editor_decision": "",
+      "editor_notes": ""
+    },
+    {
+      "owner_type": "角色",
+      "owner": "林舟",
+      "path": "unconfirmed_questions",
+      "claim": "林舟是否长期依赖他人协助处理失误",
+      "suggested_status": "待确认",
+      "confidence": 0,
+      "evidence_ids": [],
+      "editor_decision": "",
+      "editor_notes": ""
+    },
+    {
+      "owner_type": "角色",
+      "owner": "林舟",
+      "path": "unconfirmed_questions",
+      "claim": "他的紧张是性格常态还是仅限于本场压力反应",
+      "suggested_status": "待确认",
+      "confidence": 0,
+      "evidence_ids": [],
+      "editor_decision": "",
+      "editor_notes": ""
+    },
+    {
+      "owner_type": "角色",
+      "owner": "阿禾",
+      "path": "one_line_positioning[0]",
+      "claim": "冷静果断，遇事先保信息不断线",
+      "suggested_status": "人物理解",
+      "confidence": 0.96,
+      "evidence_ids": [
+        "S0001-E006",
+        "S0001-E007",
+        "S0001-E008"
+      ],
+      "editor_decision": "",
+      "editor_notes": ""
+    },
+    {
+      "owner_type": "角色",
+      "owner": "阿禾",
+      "path": "first_impression[0]",
+      "claim": "第一反应很快，先抓现场问题",
+      "suggested_status": "人物理解",
+      "confidence": 0.96,
+      "evidence_ids": [
+        "S0001-E006"
+      ],
+      "editor_decision": "",
+      "editor_notes": ""
+    },
+    {
+      "owner_type": "角色",
+      "owner": "阿禾",
+      "path": "first_impression[1]",
+      "claim": "说话短促直接，不爱绕弯子",
+      "suggested_status": "人物理解",
+      "confidence": 0.94,
+      "evidence_ids": [
+        "S0001-E006",
+        "S0001-E007"
+      ],
+      "editor_decision": "",
+      "editor_notes": ""
+    },
+    {
+      "owner_type": "角色",
+      "owner": "阿禾",
+      "path": "deeper_personality_and_needs[0]",
+      "claim": "她最在意的是秩序别乱、信息别断",
+      "suggested_status": "人物理解",
+      "confidence": 0.96,
+      "evidence_ids": [
+        "S0001-E006",
+        "S0001-E008"
+      ],
+      "editor_decision": "",
+      "editor_notes": ""
+    },
+    {
+      "owner_type": "角色",
+      "owner": "阿禾",
+      "path": "deeper_personality_and_needs[1]",
+      "claim": "她习惯用行动解决问题，不等别人安排",
+      "suggested_status": "人物理解",
+      "confidence": 0.95,
+      "evidence_ids": [
+        "S0001-E007",
+        "S0001-E009"
+      ],
+      "editor_decision": "",
+      "editor_notes": ""
+    },
+    {
+      "owner_type": "角色",
+      "owner": "阿禾",
+      "path": "deeper_personality_and_needs[2]",
+      "claim": "她并不排斥合作，只要目标足够明确",
+      "suggested_status": "人物理解",
+      "confidence": 0.94,
+      "evidence_ids": [
+        "S0001-E007",
+        "S0001-E008"
+      ],
+      "editor_decision": "",
+      "editor_notes": ""
+    },
+    {
+      "owner_type": "角色",
+      "owner": "阿禾",
+      "path": "most_wanted[0]",
+      "claim": "她想尽快把广播恢复到可用状态",
+      "suggested_status": "人物理解",
+      "confidence": 0.99,
+      "evidence_ids": [
+        "S0001-E007",
+        "S0001-E008",
+        "S0001-E009"
+      ],
+      "editor_decision": "",
+      "editor_notes": ""
+    },
+    {
+      "owner_type": "角色",
+      "owner": "阿禾",
+      "path": "most_wanted[1]",
+      "claim": "她想让旅客立刻拿到正确指引",
+      "suggested_status": "人物理解",
+      "confidence": 0.98,
+      "evidence_ids": [
+        "S0001-E008"
+      ],
+      "editor_decision": "",
+      "editor_notes": ""
+    },
+    {
+      "owner_type": "角色",
+      "owner": "阿禾",
+      "path": "greatest_fears[0]",
+      "claim": "她最怕现场信息一乱就耽误人",
+      "suggested_status": "人物理解",
+      "confidence": 0.9,
+      "evidence_ids": [
+        "S0001-E006",
+        "S0001-E008"
+      ],
+      "editor_decision": "",
+      "editor_notes": ""
+    },
+    {
+      "owner_type": "角色",
+      "owner": "阿禾",
+      "path": "greatest_fears[1]",
+      "claim": "她不能接受该说的话没及时说出来",
+      "suggested_status": "待确认",
+      "confidence": 0.72,
+      "evidence_ids": [],
+      "editor_decision": "",
+      "editor_notes": ""
+    },
+    {
+      "owner_type": "角色",
+      "owner": "阿禾",
+      "path": "conflict_pattern[0]",
+      "claim": "遇到失误先追责原因，再马上转入修正",
+      "suggested_status": "人物理解",
+      "confidence": 0.95,
+      "evidence_ids": [
+        "S0001-E006",
+        "S0001-E007"
+      ],
+      "editor_decision": "",
+      "editor_notes": ""
+    },
+    {
+      "owner_type": "角色",
+      "owner": "阿禾",
+      "path": "conflict_pattern[1]",
+      "claim": "她的冲突处理很硬，但目的不是对抗",
+      "suggested_status": "人物理解",
+      "confidence": 0.93,
+      "evidence_ids": [
+        "S0001-E006",
+        "S0001-E007",
+        "S0001-E009"
+      ],
+      "editor_decision": "",
+      "editor_notes": ""
+    },
+    {
+      "owner_type": "角色",
+      "owner": "阿禾",
+      "path": "intimacy_pattern[0]",
+      "claim": "她在关系里更看重配合效率，不太讲情绪铺垫",
+      "suggested_status": "人物理解",
+      "confidence": 0.89,
+      "evidence_ids": [
+        "S0001-E007",
+        "S0001-E009"
+      ],
+      "editor_decision": "",
+      "editor_notes": ""
+    },
+    {
+      "owner_type": "角色",
+      "owner": "阿禾",
+      "path": "intimacy_pattern[1]",
+      "claim": "她对搭档会直接发号施令式沟通",
+      "suggested_status": "人物理解",
+      "confidence": 0.9,
+      "evidence_ids": [
+        "S0001-E007"
+      ],
+      "editor_decision": "",
+      "editor_notes": ""
+    },
+    {
+      "owner_type": "角色",
+      "owner": "阿禾",
+      "path": "central_contradictions[0]",
+      "claim": "她说话很强硬，行动却非常依赖协作",
+      "suggested_status": "人物理解",
+      "confidence": 0.94,
+      "evidence_ids": [
+        "S0001-E006",
+        "S0001-E007",
+        "S0001-E009"
+      ],
+      "editor_decision": "",
+      "editor_notes": ""
+    },
+    {
+      "owner_type": "角色",
+      "owner": "阿禾",
+      "path": "central_contradictions[1]",
+      "claim": "她表面是在催促别人，核心其实是在保护秩序",
+      "suggested_status": "人物理解",
+      "confidence": 0.93,
+      "evidence_ids": [
+        "S0001-E006",
+        "S0001-E008"
+      ],
+      "editor_decision": "",
+      "editor_notes": ""
+    },
+    {
+      "owner_type": "角色",
+      "owner": "阿禾",
+      "path": "speech_rhythm_wording_emotion[0]",
+      "claim": "她讲话节奏快，句子短，信息只留关键点",
+      "suggested_status": "人物理解",
+      "confidence": 0.95,
+      "evidence_ids": [
+        "S0001-E006",
+        "S0001-E007",
+        "S0001-E008"
+      ],
+      "editor_decision": "",
+      "editor_notes": ""
+    },
+    {
+      "owner_type": "角色",
+      "owner": "阿禾",
+      "path": "speech_rhythm_wording_emotion[1]",
+      "claim": "她的语气偏冷静压迫感，不是软糯型",
+      "suggested_status": "人物理解",
+      "confidence": 0.9,
+      "evidence_ids": [
+        "S0001-E006",
+        "S0001-E007"
+      ],
+      "editor_decision": "",
+      "editor_notes": ""
+    },
+    {
+      "owner_type": "角色",
+      "owner": "阿禾",
+      "path": "will_not_say_or_do[0]",
+      "claim": "她不会对失误含糊带过",
+      "suggested_status": "人物理解",
+      "confidence": 0.95,
+      "evidence_ids": [
+        "S0001-E006"
+      ],
+      "editor_decision": "",
+      "editor_notes": ""
+    },
+    {
+      "owner_type": "角色",
+      "owner": "阿禾",
+      "path": "will_not_say_or_do[1]",
+      "claim": "她不会在需要更正时继续单独硬撑",
+      "suggested_status": "人物理解",
+      "confidence": 0.96,
+      "evidence_ids": [
+        "S0001-E007",
+        "S0001-E009"
+      ],
+      "editor_decision": "",
+      "editor_notes": ""
+    },
+    {
+      "owner_type": "角色",
+      "owner": "阿禾",
+      "path": "poster_brief.expression[0]",
+      "claim": "神情适合偏专注、偏警觉的状态",
+      "suggested_status": "待确认",
+      "confidence": 0.68,
+      "evidence_ids": [
+        "S0001-E006"
+      ],
+      "editor_decision": "",
+      "editor_notes": ""
+    },
+    {
+      "owner_type": "角色",
+      "owner": "阿禾",
+      "path": "poster_brief.posture_and_action[0]",
+      "claim": "姿态适合半身前倾、在处理事情的动作感",
+      "suggested_status": "待确认",
+      "confidence": 0.7,
+      "evidence_ids": [
+        "S0001-E007",
+        "S0001-E009"
+      ],
+      "editor_decision": "",
+      "editor_notes": ""
+    },
+    {
+      "owner_type": "角色",
+      "owner": "阿禾",
+      "path": "poster_brief.copy_tone[0]",
+      "claim": "文案适合走短句、强行动感路线",
+      "suggested_status": "人物理解",
+      "confidence": 0.92,
+      "evidence_ids": [
+        "S0001-E006",
+        "S0001-E007",
+        "S0001-E008"
+      ],
+      "editor_decision": "",
+      "editor_notes": ""
+    },
+    {
+      "owner_type": "角色",
+      "owner": "阿禾",
+      "path": "poster_brief.avoid_mismatches[0]",
+      "claim": "不要画成只会发火、不懂配合的人",
+      "suggested_status": "人物理解",
+      "confidence": 0.95,
+      "evidence_ids": [
+        "S0001-E007",
+        "S0001-E009"
+      ],
+      "editor_decision": "",
+      "editor_notes": ""
+    },
+    {
+      "owner_type": "角色",
+      "owner": "阿禾",
+      "path": "poster_brief.avoid_mismatches[1]",
+      "claim": "不要把她画成慢热犹豫型",
+      "suggested_status": "人物理解",
+      "confidence": 0.93,
+      "evidence_ids": [
+        "S0001-E006",
+        "S0001-E007"
+      ],
+      "editor_decision": "",
+      "editor_notes": ""
+    },
+    {
+      "owner_type": "角色",
+      "owner": "阿禾",
+      "path": "unconfirmed_questions",
+      "claim": "阿禾在其他场景里是否也同样强势高效。",
+      "suggested_status": "待确认",
+      "confidence": 0,
+      "evidence_ids": [],
+      "editor_decision": "",
+      "editor_notes": ""
+    },
+    {
+      "owner_type": "角色",
+      "owner": "阿禾",
+      "path": "unconfirmed_questions",
+      "claim": "她的强硬语气是职业习惯还是个人性格。",
+      "suggested_status": "待确认",
+      "confidence": 0,
+      "evidence_ids": [],
+      "editor_decision": "",
+      "editor_notes": ""
+    },
+    {
+      "owner_type": "关系",
+      "owner": "林舟 × 阿禾",
+      "path": "how_they_met[0]",
+      "claim": "两人是在候车厅广播室这次广播失误事件中第一次进入彼此的工作视野。",
+      "suggested_status": "人物理解",
+      "confidence": 0.94,
+      "evidence_ids": [
+        "S0001-E001",
+        "S0001-E006"
+      ],
+      "editor_decision": "",
+      "editor_notes": ""
+    },
+    {
+      "owner_type": "关系",
+      "owner": "林舟 × 阿禾",
+      "path": "surface_relation[0]",
+      "claim": "表面上是同一广播岗位上的临时搭档，围绕纠错共同完成播报。",
+      "suggested_status": "人物理解",
+      "confidence": 0.98,
+      "evidence_ids": [
+        "S0001-E007",
+        "S0001-E008",
+        "S0001-E009"
+      ],
+      "editor_decision": "",
+      "editor_notes": ""
+    },
+    {
+      "owner_type": "关系",
+      "owner": "林舟 × 阿禾",
+      "path": "underlying_state[0]",
+      "claim": "这段关系的核心是危机中的功能性互赖，而不是情感亲密。",
+      "suggested_status": "人物理解",
+      "confidence": 0.93,
+      "evidence_ids": [
+        "S0001-E001",
+        "S0001-E004",
+        "S0001-E007",
+        "S0001-E009"
+      ],
+      "editor_decision": "",
+      "editor_notes": ""
+    },
+    {
+      "owner_type": "关系",
+      "owner": "林舟 × 阿禾",
+      "path": "underlying_state[1]",
+      "claim": "林舟依赖阿禾把他从停播和暴露压力里拉回工作流程。",
+      "suggested_status": "人物理解",
+      "confidence": 0.96,
+      "evidence_ids": [
+        "S0001-E001",
+        "S0001-E004",
+        "S0001-E007"
+      ],
+      "editor_decision": "",
+      "editor_notes": ""
+    },
+    {
+      "owner_type": "关系",
+      "owner": "林舟 × 阿禾",
+      "path": "underlying_state[2]",
+      "claim": "阿禾把林舟视为需要被推进、补位的执行者，而不是需要安抚的对象。",
+      "suggested_status": "人物理解",
+      "confidence": 0.89,
+      "evidence_ids": [
+        "S0001-E006",
+        "S0001-E007",
+        "S0001-E009"
+      ],
+      "editor_decision": "",
+      "editor_notes": ""
+    },
+    {
+      "owner_type": "关系",
+      "owner": "林舟 × 阿禾",
+      "path": "a_view_of_b[0]",
+      "claim": "林舟认为阿禾是能实际帮他收拾局面的搭档。",
+      "suggested_status": "人物理解",
+      "confidence": 0.87,
+      "evidence_ids": [
+        "S0001-E006",
+        "S0001-E007",
+        "S0001-E004"
+      ],
+      "editor_decision": "",
+      "editor_notes": ""
+    },
+    {
+      "owner_type": "关系",
+      "owner": "林舟 × 阿禾",
+      "path": "a_view_of_b[1]",
+      "claim": "林舟认为阿禾并不打算追究他个人责任，因此他没有继续升级防御。",
+      "suggested_status": "人物理解",
+      "confidence": 0.84,
+      "evidence_ids": [
+        "S0001-E006",
+        "S0001-E007",
+        "S0001-E008"
+      ],
+      "editor_decision": "",
+      "editor_notes": ""
+    },
+    {
+      "owner_type": "关系",
+      "owner": "林舟 × 阿禾",
+      "path": "a_view_of_b[2]",
+      "claim": "林舟对阿禾的信任仍偏即时和功能性，还谈不上稳定深交。",
+      "suggested_status": "待确认",
+      "confidence": 0.72,
+      "evidence_ids": [
+        "S0001-E001",
+        "S0001-E007",
+        "S0001-E009"
+      ],
+      "editor_decision": "",
+      "editor_notes": ""
+    },
+    {
+      "owner_type": "关系",
+      "owner": "林舟 × 阿禾",
+      "path": "b_view_of_a[0]",
+      "claim": "阿禾认为林舟会出错，但不是不能合作，而是需要被及时推动。",
+      "suggested_status": "人物理解",
+      "confidence": 0.9,
+      "evidence_ids": [
+        "S0001-E006",
+        "S0001-E007",
+        "S0001-E009"
+      ],
+      "editor_decision": "",
+      "editor_notes": ""
+    },
+    {
+      "owner_type": "关系",
+      "owner": "林舟 × 阿禾",
+      "path": "b_view_of_a[1]",
+      "claim": "阿禾把林舟看作需要补位的同伴，而不是需要单独保护的人。",
+      "suggested_status": "人物理解",
+      "confidence": 0.86,
+      "evidence_ids": [
+        "S0001-E007",
+        "S0001-E008"
+      ],
+      "editor_decision": "",
+      "editor_notes": ""
+    },
+    {
+      "owner_type": "关系",
+      "owner": "林舟 × 阿禾",
+      "path": "b_view_of_a[2]",
+      "claim": "阿禾对林舟的私人情绪了解有限，重点仍放在广播是否恢复。",
+      "suggested_status": "待确认",
+      "confidence": 0.74,
+      "evidence_ids": [
+        "S0001-E006",
+        "S0001-E007",
+        "S0001-E008"
+      ],
+      "editor_decision": "",
+      "editor_notes": ""
+    },
+    {
+      "owner_type": "关系",
+      "owner": "林舟 × 阿禾",
+      "path": "a_wants[0]",
+      "claim": "林舟想保住体面，同时把责任完成。",
+      "suggested_status": "人物理解",
+      "confidence": 0.95,
+      "evidence_ids": [
+        "S0001-E001",
+        "S0001-E002"
+      ],
+      "editor_decision": "",
+      "editor_notes": ""
+    },
+    {
+      "owner_type": "关系",
+      "owner": "林舟 × 阿禾",
+      "path": "a_wants[1]",
+      "claim": "林舟希望失误不要继续扩大，也不想被听众或同事识破。",
+      "suggested_status": "人物理解",
+      "confidence": 0.97,
+      "evidence_ids": [
+        "S0001-E001"
+      ],
+      "editor_decision": "",
+      "editor_notes": ""
+    },
+    {
+      "owner_type": "关系",
+      "owner": "林舟 × 阿禾",
+      "path": "a_wants[2]",
+      "claim": "林舟希望在外部协助下尽快恢复工作流程。",
+      "suggested_status": "人物理解",
+      "confidence": 0.88,
+      "evidence_ids": [
+        "S0001-E004",
+        "S0001-E007"
+      ],
+      "editor_decision": "",
+      "editor_notes": ""
+    },
+    {
+      "owner_type": "关系",
+      "owner": "林舟 × 阿禾",
+      "path": "b_wants[0]",
+      "claim": "阿禾希望广播不断线、秩序尽快恢复。",
+      "suggested_status": "人物理解",
+      "confidence": 0.96,
+      "evidence_ids": [
+        "S0001-E006",
+        "S0001-E008"
+      ],
+      "editor_decision": "",
+      "editor_notes": ""
+    },
+    {
+      "owner_type": "关系",
+      "owner": "林舟 × 阿禾",
+      "path": "b_wants[1]",
+      "claim": "阿禾希望问题被立刻修正，而不是停留在情绪和责备里。",
+      "suggested_status": "人物理解",
+      "confidence": 0.93,
+      "evidence_ids": [
+        "S0001-E006",
+        "S0001-E007"
+      ],
+      "editor_decision": "",
+      "editor_notes": ""
+    },
+    {
+      "owner_type": "关系",
+      "owner": "林舟 × 阿禾",
+      "path": "b_wants[2]",
+      "claim": "阿禾希望通过明确分工提高处理效率。",
+      "suggested_status": "人物理解",
+      "confidence": 0.95,
+      "evidence_ids": [
+        "S0001-E007",
+        "S0001-E009"
+      ],
+      "editor_decision": "",
+      "editor_notes": ""
+    },
+    {
+      "owner_type": "关系",
+      "owner": "林舟 × 阿禾",
+      "path": "initiative_and_control[0]",
+      "claim": "阿禾在行动和节奏上掌握更强主动权。",
+      "suggested_status": "人物理解",
+      "confidence": 0.97,
+      "evidence_ids": [
+        "S0001-E006",
+        "S0001-E007",
+        "S0001-E009"
+      ],
+      "editor_decision": "",
+      "editor_notes": ""
+    },
+    {
+      "owner_type": "关系",
+      "owner": "林舟 × 阿禾",
+      "path": "initiative_and_control[1]",
+      "claim": "林舟掌握错误源头与修正内容，但对外表达时处于防御位置。",
+      "suggested_status": "人物理解",
+      "confidence": 0.95,
+      "evidence_ids": [
+        "S0001-E001",
+        "S0001-E002",
+        "S0001-E005"
+      ],
+      "editor_decision": "",
+      "editor_notes": ""
+    },
+    {
+      "owner_type": "关系",
+      "owner": "林舟 × 阿禾",
+      "path": "initiative_and_control[2]",
+      "claim": "两人的现场控制权最终从阿禾的推动中完成重启，而非由林舟单独主导。",
+      "suggested_status": "人物理解",
+      "confidence": 0.94,
+      "evidence_ids": [
+        "S0001-E007",
+        "S0001-E008",
+        "S0001-E009"
+      ],
+      "editor_decision": "",
+      "editor_notes": ""
+    },
+    {
+      "owner_type": "关系",
+      "owner": "林舟 × 阿禾",
+      "path": "important_shared_events[0]",
+      "claim": "林舟报错站名并停播，现场进入短暂停顿。",
+      "suggested_status": "人物理解",
+      "confidence": 0.99,
+      "evidence_ids": [
+        "S0001-E001"
+      ],
+      "editor_decision": "",
+      "editor_notes": ""
+    },
+    {
+      "owner_type": "关系",
+      "owner": "林舟 × 阿禾",
+      "path": "important_shared_events[1]",
+      "claim": "阿禾追问停播原因，直接把两人拉入同一处置回合。",
+      "suggested_status": "人物理解",
+      "confidence": 0.96,
+      "evidence_ids": [
+        "S0001-E006"
+      ],
+      "editor_decision": "",
+      "editor_notes": ""
+    },
+    {
+      "owner_type": "关系",
+      "owner": "林舟 × 阿禾",
+      "path": "important_shared_events[2]",
+      "claim": "阿禾提出分工协作，林舟恢复广播。",
+      "suggested_status": "人物理解",
+      "confidence": 0.99,
+      "evidence_ids": [
+        "S0001-E007",
+        "S0001-E004"
+      ],
+      "editor_decision": "",
+      "editor_notes": ""
+    },
+    {
+      "owner_type": "关系",
+      "owner": "林舟 × 阿禾",
+      "path": "important_shared_events[3]",
+      "claim": "林舟公开更正站台信息，并把纸面信息同步改正。",
+      "suggested_status": "人物理解",
+      "confidence": 0.99,
+      "evidence_ids": [
+        "S0001-E002",
+        "S0001-E005"
+      ],
+      "editor_decision": "",
+      "editor_notes": ""
+    },
+    {
+      "owner_type": "关系",
+      "owner": "林舟 × 阿禾",
+      "path": "important_shared_events[4]",
+      "claim": "阿禾继续播报换乘指引，双方完成共同履职。",
+      "suggested_status": "人物理解",
+      "confidence": 0.98,
+      "evidence_ids": [
+        "S0001-E008",
+        "S0001-E009"
+      ],
+      "editor_decision": "",
+      "editor_notes": ""
+    },
+    {
+      "owner_type": "关系",
+      "owner": "林舟 × 阿禾",
+      "path": "current_conflict[0]",
+      "claim": "林舟害怕身份暴露，但阿禾的处理方式迫使他走向公开纠错。",
+      "suggested_status": "人物理解",
+      "confidence": 0.95,
+      "evidence_ids": [
+        "S0001-E001",
+        "S0001-E007",
+        "S0001-E002"
+      ],
+      "editor_decision": "",
+      "editor_notes": ""
+    },
+    {
+      "owner_type": "关系",
+      "owner": "林舟 × 阿禾",
+      "path": "current_conflict[1]",
+      "claim": "两人对问题优先级一致，但对进入问题的方式不同：林舟先退后说，阿禾先问后做。",
+      "suggested_status": "人物理解",
+      "confidence": 0.91,
+      "evidence_ids": [
+        "S0001-E001",
+        "S0001-E006",
+        "S0001-E007"
+      ],
+      "editor_decision": "",
+      "editor_notes": ""
+    },
+    {
+      "owner_type": "关系",
+      "owner": "林舟 × 阿禾",
+      "path": "current_conflict[2]",
+      "claim": "当前仍缺少能证明两人有长期固定搭档关系的证据。",
+      "suggested_status": "待确认",
+      "confidence": 0.82,
+      "evidence_ids": [
+        "S0001-E006",
+        "S0001-E007",
+        "S0001-E009"
+      ],
+      "editor_decision": "",
+      "editor_notes": ""
+    },
+    {
+      "owner_type": "关系",
+      "owner": "林舟 × 阿禾",
+      "path": "unspoken_information[0]",
+      "claim": "林舟没有把‘怕被认出’这层压力完整说给阿禾听，至少在她介入时未被明确共享。",
+      "suggested_status": "人物理解",
+      "confidence": 0.9,
+      "evidence_ids": [
+        "S0001-E001",
+        "S0001-E006"
+      ],
+      "editor_decision": "",
+      "editor_notes": ""
+    },
+    {
+      "owner_type": "关系",
+      "owner": "林舟 × 阿禾",
+      "path": "unspoken_information[1]",
+      "claim": "阿禾没有追问林舟为何会报错的具体私因，她只关心如何恢复广播。",
+      "suggested_status": "人物理解",
+      "confidence": 0.88,
+      "evidence_ids": [
+        "S0001-E006",
+        "S0001-E007",
+        "S0001-E008"
+      ],
+      "editor_decision": "",
+      "editor_notes": ""
+    },
+    {
+      "owner_type": "关系",
+      "owner": "林舟 × 阿禾",
+      "path": "unspoken_information[2]",
+      "claim": "暂无证据表明两人此时存在超出工作协作的私人情感或长期关系基础。",
+      "suggested_status": "待确认",
+      "confidence": 0.75,
+      "evidence_ids": [
+        "S0001-E006",
+        "S0001-E007",
+        "S0001-E009"
+      ],
+      "editor_decision": "",
+      "editor_notes": ""
+    },
+    {
+      "owner_type": "关系",
+      "owner": "林舟 × 阿禾",
+      "path": "story_truth_vs_audience_view[0]",
+      "claim": "观众最先看到的是一次广播失误后的临时搭档协作，但没有证据支持他们是固定关系。",
+      "suggested_status": "人物理解",
+      "confidence": 0.93,
+      "evidence_ids": [
+        "S0001-E001",
+        "S0001-E006",
+        "S0001-E007"
+      ],
+      "editor_decision": "",
+      "editor_notes": ""
+    },
+    {
+      "owner_type": "关系",
+      "owner": "林舟 × 阿禾",
+      "path": "story_truth_vs_audience_view[1]",
+      "claim": "林舟内心先是防御和回避，之后才接受公开纠错；这一转变对阿禾并不完全可见。",
+      "suggested_status": "人物理解",
+      "confidence": 0.92,
+      "evidence_ids": [
+        "S0001-E001",
+        "S0001-E002",
+        "S0001-E007"
+      ],
+      "editor_decision": "",
+      "editor_notes": ""
+    },
+    {
+      "owner_type": "关系",
+      "owner": "林舟 × 阿禾",
+      "path": "story_truth_vs_audience_view[2]",
+      "claim": "阿禾看起来像强势主导者，实际上她的目标是把流程救回来，而不是压制林舟。",
+      "suggested_status": "人物理解",
+      "confidence": 0.95,
+      "evidence_ids": [
+        "S0001-E006",
+        "S0001-E007",
+        "S0001-E008"
+      ],
+      "editor_decision": "",
+      "editor_notes": ""
+    },
+    {
+      "owner_type": "关系",
+      "owner": "林舟 × 阿禾",
+      "path": "story_truth_vs_audience_view[3]",
+      "claim": "尚未向用户公开的变化是：两人关系已经从‘事故中的对接’推进到‘可以并肩发声’。",
+      "suggested_status": "人物理解",
+      "confidence": 0.9,
+      "evidence_ids": [
+        "S0001-E004",
+        "S0001-E007",
+        "S0001-E008"
+      ],
+      "editor_decision": "",
+      "editor_notes": ""
+    },
+    {
+      "owner_type": "关系",
+      "owner": "林舟 × 阿禾",
+      "path": "unresolved_questions",
+      "claim": "林舟与阿禾是否是长期固定搭档，还是仅在这一场临时协作？",
+      "suggested_status": "待确认",
+      "confidence": 0,
+      "evidence_ids": [],
+      "editor_decision": "",
+      "editor_notes": ""
+    },
+    {
+      "owner_type": "关系",
+      "owner": "林舟 × 阿禾",
+      "path": "unresolved_questions",
+      "claim": "阿禾是否平时就习惯主导现场流程，还是只在危机中显得更强势？",
+      "suggested_status": "待确认",
+      "confidence": 0,
+      "evidence_ids": [],
+      "editor_decision": "",
+      "editor_notes": ""
+    },
+    {
+      "owner_type": "关系",
+      "owner": "林舟 × 阿禾",
+      "path": "unresolved_questions",
+      "claim": "林舟对阿禾的信任是临时性的，还是已有稳定基础？",
+      "suggested_status": "待确认",
+      "confidence": 0,
+      "evidence_ids": [],
+      "editor_decision": "",
+      "editor_notes": ""
+    },
+    {
+      "owner_type": "关系",
+      "owner": "林舟 × 阿禾",
+      "path": "unresolved_questions",
+      "claim": "后续场景里两人是否会把这种并肩纠错延伸为更稳定的互相依赖？",
+      "suggested_status": "待确认",
+      "confidence": 0,
+      "evidence_ids": [],
+      "editor_decision": "",
+      "editor_notes": ""
+    }
+  ],
+  "evidence_catalog": {
+    "S0001-E001": {
+      "evidence_id": "S0001-E001",
+      "scene_id": "S0001",
+      "source_locator": "L000004-L000004",
+      "kind": "台词",
+      "speaker": "林舟",
+      "quote_or_action": "我报错了站名。再开口，大家就知道是我。",
+      "interpretation": "承认自己报错站名，并担心身份暴露。",
+      "directness": "明确",
+      "confidence": 0.98,
+      "character": "林舟",
+      "heading": "第一场 候车厅广播室 夜",
+      "scene_order": 1
+    },
+    "S0001-E002": {
+      "evidence_id": "S0001-E002",
+      "scene_id": "S0001",
+      "source_locator": "L000008-L000008",
+      "kind": "台词",
+      "speaker": "林舟",
+      "quote_or_action": "刚才是我报错了。末班车停在三号站台。",
+      "interpretation": "公开纠正错误信息。",
+      "directness": "明确",
+      "confidence": 0.99,
+      "character": "林舟",
+      "heading": "第一场 候车厅广播室 夜",
+      "scene_order": 1
+    },
+    "S0001-E003": {
+      "evidence_id": "S0001-E003",
+      "scene_id": "S0001",
+      "source_locator": "L000002-L000002",
+      "kind": "行为",
+      "speaker": "林舟",
+      "quote_or_action": "把备用电池压在手心",
+      "interpretation": "手上持有并准备使用备用电池。",
+      "directness": "明确",
+      "confidence": 0.97,
+      "character": "林舟",
+      "heading": "第一场 候车厅广播室 夜",
+      "scene_order": 1
+    },
+    "S0001-E004": {
+      "evidence_id": "S0001-E004",
+      "scene_id": "S0001",
+      "source_locator": "L000007-L000007",
+      "kind": "行为",
+      "speaker": "林舟",
+      "quote_or_action": "装上电池，打开广播",
+      "interpretation": "恢复广播播报。",
+      "directness": "明确",
+      "confidence": 0.99,
+      "character": "林舟",
+      "heading": "第一场 候车厅广播室 夜",
+      "scene_order": 1
+    },
+    "S0001-E005": {
+      "evidence_id": "S0001-E005",
+      "scene_id": "S0001",
+      "source_locator": "L000010-L000010",
+      "kind": "行为",
+      "speaker": "林舟",
+      "quote_or_action": "把纸上的二划掉，写上三",
+      "interpretation": "将站台信息从二改为三。",
+      "directness": "明确",
+      "confidence": 0.99,
+      "character": "林舟",
+      "heading": "第一场 候车厅广播室 夜",
+      "scene_order": 1
+    },
+    "S0001-E006": {
+      "evidence_id": "S0001-E006",
+      "scene_id": "S0001",
+      "source_locator": "L000003-L000003",
+      "kind": "台词",
+      "speaker": "阿禾",
+      "quote_or_action": "车还没走，为什么关广播？",
+      "interpretation": "质问停播原因。",
+      "directness": "明确",
+      "confidence": 0.96,
+      "character": "阿禾",
+      "heading": "第一场 候车厅广播室 夜",
+      "scene_order": 1
+    },
+    "S0001-E007": {
+      "evidence_id": "S0001-E007",
+      "scene_id": "S0001",
+      "source_locator": "L000006-L000006",
+      "kind": "台词",
+      "speaker": "阿禾",
+      "quote_or_action": "那就一起说。站名你念，换乘我念。",
+      "interpretation": "提出分工协作恢复广播。",
+      "directness": "明确",
+      "confidence": 0.99,
+      "character": "阿禾",
+      "heading": "第一场 候车厅广播室 夜",
+      "scene_order": 1
+    },
+    "S0001-E008": {
+      "evidence_id": "S0001-E008",
+      "scene_id": "S0001",
+      "source_locator": "L000009-L000009",
+      "kind": "台词",
+      "speaker": "阿禾",
+      "quote_or_action": "需要换乘的旅客，请跟着蓝灯走。",
+      "interpretation": "继续播报换乘指引。",
+      "directness": "明确",
+      "confidence": 0.99,
+      "character": "阿禾",
+      "heading": "第一场 候车厅广播室 夜",
+      "scene_order": 1
+    },
+    "S0001-E009": {
+      "evidence_id": "S0001-E009",
+      "scene_id": "S0001",
+      "source_locator": "L000005-L000005",
+      "kind": "行为",
+      "speaker": "阿禾",
+      "quote_or_action": "把话筒放在两人之间，按住通话键",
+      "interpretation": "把话筒共享并保持通话开启。",
+      "directness": "明确",
+      "confidence": 0.98,
+      "character": "阿禾",
+      "heading": "第一场 候车厅广播室 夜",
+      "scene_order": 1
+    }
+  },
+  "alias_index": {
+    "name_to_canonical": {
+      "林舟": "林舟",
+      "阿禾": "阿禾"
+    },
+    "canonical_aliases": {
+      "林舟": [],
+      "阿禾": []
+    }
+  }
+}
