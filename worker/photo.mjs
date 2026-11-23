@@ -41,7 +41,10 @@ let pendingKeys;
 async function githubKeys() {
   if (cachedKeys?.expires > Date.now()) return cachedKeys.keys;
   if (!pendingKeys) pendingKeys = (async () => {
-    const response = await fetch(ISSUER + '/.well-known/jwks', {redirect:'error'});
+    const response = await fetch(ISSUER + '/.well-known/jwks', {
+      redirect:'error', headers:{Accept:'application/json', 'User-Agent':'idore-photo-studio/1.0'},
+      signal:AbortSignal.timeout(10000),
+    });
     if (!response.ok) throw new Error('identity_unavailable');
     const {keys} = await response.json();
     if (!Array.isArray(keys) || !keys.length) throw new Error('identity_unavailable');
@@ -88,22 +91,26 @@ export async function photoRequest(request, env) {
   if (!auth.startsWith('Bearer ')) return problem(401, 'unauthorized');
   const token = auth.slice(7);
   const headers = new Headers();
+  if (CLIENT.has(action)) {
+    if (!/^[a-f0-9]{64}$/.test(token) || await sha256Hex(token) !== id) return problem(401, 'unauthorized');
+  } else {
+    let run;
+    try { run = await runnerIdentity(token, id); }
+    catch { return problem(503, 'identity_unavailable'); }
+    if (!run) return problem(401, 'unauthorized');
+    headers.set('X-Runner-Id', run);
+  }
+  // Control operations have no payload. Let the runtime compute its own
+  // transfer headers when forwarding a real file stream.
+  const hasBody = request.method === 'POST' && ['input','result','fail'].includes(op);
+  if (hasBody && request.headers.has('Content-Type')) headers.set('Content-Type', request.headers.get('Content-Type'));
   try {
-    if (CLIENT.has(action)) {
-      if (!/^[a-f0-9]{64}$/.test(token)) return problem(401, 'unauthorized');
-      if (await sha256Hex(token) !== id) return problem(401, 'unauthorized');
-    } else {
-      const run = await runnerIdentity(token, id);
-      if (!run) return problem(401, 'unauthorized');
-      headers.set('X-Runner-Id', run);
-    }
-    for (const name of ['Content-Type','Content-Length']) {
-      if (request.headers.has(name)) headers.set(name, request.headers.get(name));
-    }
-    // Never transmit bearer tokens or browser headers to storage.
     const stub = env.PHOTO_JOBS.get(env.PHOTO_JOBS.idFromName(id));
-    return await stub.fetch('https://photo.internal/' + op, {method:request.method, headers, body:request.body});
-  } catch { return problem(503, 'service_unavailable'); }
+    const response = await stub.fetch(new Request('https://photo.internal/' + op, {
+      method:request.method, headers, ...(hasBody && request.body ? {body:request.body, duplex:'half'} : {}),
+    }));
+    return response.status >= 500 ? problem(503, 'storage_unavailable') : response;
+  } catch { return problem(503, 'storage_unavailable'); }
 }
 
 async function boundedBody(request, limit) {

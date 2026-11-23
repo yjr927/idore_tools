@@ -38,7 +38,7 @@ function fixture(t) {
       const job = new PhotoJob({storage:store});
       objects.set(key,{job,store,data});
     }
-    return {fetch:(url, opts)=>objects.get(key).job.fetch(new Request(url,{...opts, duplex:'half'}))};
+    return {fetch:req=>objects.get(key).job.fetch(req)};
   }};
   return {objects, request(op, method, token, body, type='application/json', job=id) {
     const req = new Request('https://studio.example/api/photo/'+job+'/'+op, {

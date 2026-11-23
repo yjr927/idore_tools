@@ -6,7 +6,7 @@ import os
 import sys
 import time
 
-from run_photo_generation import PrivateJob, WORKER, TransportError, dump, request
+from run_photo_generation import PhotoError, PrivateJob, WORKER, TransportError, dump, request
 
 
 def check():
@@ -23,25 +23,34 @@ def check():
     url = WORKER + job_id + '/'
     # The Cloudflare deployment and Actions push build start independently.
     deadline = time.monotonic() + 360
+    last_issue = ''
+    print('Checking GitHub identity and deployed Worker init.', flush=True)
     while time.monotonic() < deadline:
         try:
             init = job.call('init')
             if not init.lstrip().startswith(b'<'):
                 break
+            issue = 'stage=POST_init type=UnexpectedHTML'
         except TransportError as error:
             if error.status not in (404, 405, 502, 503, 504, None):
                 raise
+            issue = error.detail
+        if issue != last_issue:
+            print('Waiting for deployment:', issue, flush=True)
+            last_issue = issue
         time.sleep(8)
     else:
         raise RuntimeError('Updated Worker was unavailable during the deployment window.')
     png = base64.b64decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVR4nGOwLZgJAAI0AUco0HPZAAAAAElFTkSuQmCC')
     payload = {'prompt': 'Private bridge connection test', 'images': [
         {'mime': 'image/png', 'data': base64.b64encode(png).decode()}]}
+    print('Checking client upload and retrieval.', flush=True)
     if json.loads(request(url + 'status', secret)).get('status') != 'waiting':
         raise RuntimeError('Unexpected initial state.')
     request(url + 'input', secret, 'POST', dump(payload), 'application/json')
     if json.loads(job.call('input', 'GET', None)) != payload:
         raise RuntimeError('The input round trip failed.')
+    print('Checking single-use claim and binary delivery.', flush=True)
     job.call('claim')
     try:
         job.call('claim')
@@ -62,6 +71,8 @@ if __name__ == '__main__':
     try:
         check()
     except TransportError as failure:
-        sys.exit('Photo bridge HTTP request failed: ' + str(failure.status or 'unavailable'))
+        sys.exit('Photo bridge HTTP request failed: ' + failure.detail)
+    except PhotoError as failure:
+        sys.exit('Photo bridge verification failed: ' + str(failure) + ' ' + failure.detail)
     except Exception as failure:
         sys.exit('Photo bridge verification failed: ' + type(failure).__name__)

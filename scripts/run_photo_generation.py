@@ -19,13 +19,30 @@ MAX_RESULT = 12 * 1024 * 1024
 MIME_TYPES = {'image/jpeg', 'image/png', 'image/webp'}
 
 
+WORKER_CODES = {'not_found', 'method_not_allowed', 'unauthorized', 'service_unavailable',
+                'storage_unavailable', 'identity_unavailable',
+                'forbidden', 'different_run', 'wrong_status', 'invalid_type', 'body_too_large',
+                'invalid_input', 'invalid_result', 'invalid_code'}
+OPERATIONS = {'init', 'status', 'input', 'claim', 'result', 'fail'}
+
+
 class PhotoError(Exception):
     """Only fixed public codes are suitable for the UI and public Actions log."""
 
+    def __init__(self, code, detail=''):
+        super().__init__(code)
+        self.detail = detail
+
 
 class TransportError(Exception):
-    def __init__(self, status=None):
+    def __init__(self, status=None, stage='transport', kind='HTTPError', worker_code=None):
         self.status = status
+        self.detail = f'stage={stage} type={kind}'
+        if isinstance(status, int):
+            self.detail += f' http={status}'
+        if isinstance(worker_code, str) and worker_code in WORKER_CODES:
+            self.detail += ' worker=' + worker_code
+        super().__init__(self.detail)
 
 
 class NoRedirect(HTTPRedirectHandler):
@@ -36,7 +53,10 @@ class NoRedirect(HTTPRedirectHandler):
 def request(url, token, method='GET', body=None, content_type=None, *, limit=16384, timeout=30):
     headers = {'Authorization': 'Bearer ' + token, 'User-Agent': 'idore-photo-studio/1.0',
                'Accept': 'application/json'}
+    stage = 'provider' if url == OPENROUTER else 'oidc'
     if url.startswith(WORKER):
+        op = url.rsplit('/', 1)[-1]
+        stage = method + '_' + (op if op in OPERATIONS else 'worker')
         headers['Origin'] = 'https://idore-tools.yjr927.workers.dev'
     if content_type:
         headers['Content-Type'] = content_type
@@ -45,14 +65,25 @@ def request(url, token, method='GET', body=None, content_type=None, *, limit=163
         with build_opener(NoRedirect).open(req, timeout=timeout) as response:
             data = response.read(limit + 1)
             if response.geturl() != url or len(data) > limit:
-                raise TransportError()
+                raise TransportError(stage=stage, kind='InvalidResponse')
             return data
     except HTTPError as error:
         status = error.code
-        error.close()
-        raise TransportError(status) from None
-    except (OSError, HTTPException):
-        raise TransportError() from None
+        worker_code = None
+        try:
+            if url.startswith(WORKER):
+                payload = json.loads(error.read(512))
+                if isinstance(payload, dict):
+                    worker_code = payload.get('error')
+        except (OSError, HTTPException, TypeError, ValueError):
+            pass
+        finally:
+            error.close()
+        raise TransportError(status, stage, 'HTTPError', worker_code) from None
+    except (OSError, HTTPException) as error:
+        reason = getattr(error, 'reason', None)
+        kind = type(reason if isinstance(reason, BaseException) else error).__name__
+        raise TransportError(stage=stage, kind=kind) from None
 
 
 def dump(value):
@@ -75,7 +106,7 @@ class PrivateJob:
         host = parsed.hostname or ''
         if (parsed.scheme != 'https' or parsed.username or parsed.password or parsed.fragment
                 or not host.endswith(('.actions.githubusercontent.com', '.actions.github.com'))):
-            raise PhotoError('runner_error')
+            raise PhotoError('runner_error', 'stage=oidc type=InvalidEndpoint')
         audience = quote('idore-photo:' + self.job_id, safe='')
         query = url + ('&' if parsed.query else '?') + 'audience=' + audience
         try:
@@ -83,8 +114,10 @@ class PrivateJob:
             token = data['value']
             if not isinstance(token, str) or not re.fullmatch(r'[\w-]+\.[\w-]+\.[\w-]+', token):
                 raise ValueError()
-        except (KeyError, TypeError, ValueError, TransportError):
-            raise PhotoError('runner_error') from None
+        except TransportError as error:
+            raise PhotoError('runner_error', error.detail) from None
+        except (KeyError, TypeError, ValueError) as error:
+            raise PhotoError('runner_error', 'stage=oidc type=' + type(error).__name__) from None
         self.token = token
         self.refresh_at = time.monotonic() + 90
         return token
@@ -151,7 +184,7 @@ def generate(payload, key):
         codes = {400: 'provider_rejected', 401: 'provider_auth', 402: 'quota_exceeded',
                  403: 'provider_rejected', 404: 'provider_rejected', 422: 'provider_rejected',
                  429: 'rate_limited'}
-        raise PhotoError(codes.get(error.status, 'submission_uncertain')) from None
+        raise PhotoError(codes.get(error.status, 'submission_uncertain'), error.detail) from None
     try:
         results = json.loads(reply)['data']
         if not isinstance(results, list) or len(results) != 1 or not isinstance(results[0], dict):
@@ -189,14 +222,14 @@ def run(job, key):
         # as a failure over another worker's successful reservation.
         try:
             job.call('claim')
-        except TransportError:
-            raise PhotoError('claim_unconfirmed') from None
+        except TransportError as error:
+            raise PhotoError('claim_unconfirmed', error.detail) from None
         data, mime = generate(payload, key)
         try:
             job.call('result', 'POST', data, mime)
         except TransportError as error:
             if error.status is not None and error.status < 500 and error.status != 429:
-                raise PhotoError('delivery_failed') from None
+                raise PhotoError('delivery_failed', error.detail) from None
             # Re-send only the completed bytes. The bridge makes result writes idempotent.
             job.call('result', 'POST', data, mime)
     except (TransportError, PhotoError) as error:
@@ -206,7 +239,7 @@ def run(job, key):
                 job.call('fail', 'POST', dump({'code': code}), 'application/json')
             except (TransportError, PhotoError):
                 pass
-        raise PhotoError(code) from None
+        raise PhotoError(code, error.detail) from None
 
 
 def main():
@@ -218,7 +251,10 @@ def main():
             raise PhotoError('runner_error')
         run(PrivateJob(os.environ.get('PHOTO_JOB_ID', '')), os.environ.get('OPENROUTER_API_KEY', ''))
     except PhotoError as error:
-        print('Photo generation stopped: ' + str(error), file=sys.stderr)
+        print('Photo generation stopped:', str(error), error.detail, file=sys.stderr)
+        return 1
+    except TransportError as error:
+        print('Photo generation stopped:', error.detail, file=sys.stderr)
         return 1
     except Exception:
         # The provider and upload responses can contain private image data.
