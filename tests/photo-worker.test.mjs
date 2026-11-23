@@ -25,8 +25,9 @@ function runner(job = id, changes = {}) {
 }
 
 function fixture(t) {
-  t.mock.method(globalThis, 'fetch', async url => {
+  t.mock.method(globalThis, 'fetch', async (url, options) => {
     assert.equal(url,'https://token.actions.githubusercontent.com/.well-known/jwks');
+    assert.equal(options.redirect, 'manual');
     return Response.json({keys:[jwk]});
   });
   const objects = new Map();

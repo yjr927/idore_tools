@@ -41,11 +41,13 @@ let pendingKeys;
 async function githubKeys() {
   if (cachedKeys?.expires > Date.now()) return cachedKeys.keys;
   if (!pendingKeys) pendingKeys = (async () => {
-    const response = await fetch(ISSUER + '/.well-known/jwks', {
-      redirect:'error', headers:{Accept:'application/json', 'User-Agent':'idore-photo-studio/1.0'},
+    const url = ISSUER + '/.well-known/jwks';
+    // workerd supports manual/follow. A redirect response must fail closed.
+    const response = await fetch(url, {
+      redirect:'manual', headers:{Accept:'application/json', 'User-Agent':'idore-photo-studio/1.0'},
       signal:AbortSignal.timeout(10000),
     });
-    if (!response.ok) throw new Error('identity_unavailable');
+    if (!response.ok || response.redirected || (response.url && response.url !== url)) throw new Error('identity_unavailable');
     const {keys} = await response.json();
     if (!Array.isArray(keys) || !keys.length) throw new Error('identity_unavailable');
     cachedKeys = {keys, expires:Date.now() + 300_000};
