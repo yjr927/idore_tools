@@ -45,3 +45,10 @@ body {
   .idore-nav { gap: 2px; }
   .idore-nav a { min-height: 42px; padding: 8px 13px; font-size: 13px; }
 }
+
+@media (max-width: 440px) {
+  .idore-header { padding: 7px; height: auto; min-height: 60px; }
+  .idore-brand span { width: 82px; height: 36px; }
+  .idore-brand img { width: 111px; transform: translate(-9px,-5px); }
+  .idore-nav a { padding-inline: 9px; }
+}

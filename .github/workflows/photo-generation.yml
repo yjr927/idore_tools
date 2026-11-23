@@ -1,0 +1,76 @@
+name: Generate a private studio photo
+on:
+  workflow_dispatch:
+    inputs:
+      job_id:
+        description: Private photo workspace job ID
+        required: true
+        type: string
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/photo-generation.yml'
+      - 'scripts/run_photo_generation.py'
+      - 'scripts/check_photo_bridge.py'
+      - 'worker/photo.mjs'
+      - 'site/photo/**'
+      - 'tests/test_photo_generation.py'
+      - 'tests/photo-worker.test.mjs'
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check private image workflow without inference
+        run: |
+          python -m unittest discover -s tests -p 'test_photo_generation.py' -v
+          node --test tests/photo-worker.test.mjs
+          node --check site/photo/photo.js
+
+  verify_transport:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && github.run_attempt == '1'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 9
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Check live upload, reservation and result with a one-pixel fixture
+        run: python3 scripts/check_photo_bridge.py
+
+  generate:
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' && github.run_attempt == '1'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    concurrency:
+      group: idore-photo-${{ inputs.job_id }}
+      cancel-in-progress: false
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Generate one image using the project OpenRouter connection
+        env:
+          PHOTO_JOB_ID: ${{ inputs.job_id }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+        run: python3 scripts/run_photo_generation.py

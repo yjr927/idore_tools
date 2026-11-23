@@ -11,7 +11,7 @@
   <header><div class="policy-wrap"><a href="./" class="home-link"><img src="./mark.svg" alt="" width="30" height="30">idore Creative Studio</a></div></header>
   <main class="policy-wrap">
     <h1>Privacy Policy</h1>
-    <p class="date">Effective <time datetime="2026-11-22">November 22, 2026</time></p>
+    <p class="date">Effective <time datetime="2026-11-23">November 23, 2026</time></p>
     <section>
       <h2>What this policy covers</h2>
       <p>This policy explains how the idore Creative Studio team handles information when you browse the gallery, use the Agent to make videos, or connect your TikTok account. It covers the <a href="https://yjr927.github.io/idore_tools/">Studio on GitHub Pages</a> and its <a href="https://idore-tools.yjr927.workers.dev/sandbox/tiktok">JJ TEST sandbox on Cloudflare</a>.</p>
@@ -20,6 +20,10 @@
       <h2>Browsing and saving references</h2>
       <p>The discovery feed shows public TikTok references, including source links, creator handles when available, video descriptions, engagement figures and the dates we observed them. We use these details to credit sources and help people assess a reference. Opening an embedded original loads TikTok’s player, which receives information from your browser. GitHub Pages hosts the Studio and may log technical information such as your IP address when it serves a page.</p>
       <p>Your browser stores saved references and records of workspace actions on this device. You can remove a saved reference or clear this site’s data in your browser settings. Clearing browser data does not remove a file from the public gallery.</p>
+    </section>
+    <section>
+      <h2>Generating a photo</h2>
+      <p>When you submit a photo job, the Studio sends your selected reference images and prompt through Cloudflare and a GitHub Actions runner to OpenRouter and the selected image provider. Cloudflare holds the job temporarily for up to 30 minutes. The workflow receives a job identifier and uses private requests to retrieve the inputs and return the result. Download the photo from your workspace before the job expires. The browser keeps access to that job in the current tab session.</p>
     </section>
     <section>
       <h2>Creating and reviewing videos</h2>

@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta name="referrer" content="no-referrer">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self' https://api.github.com; img-src 'self' blob:; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <title>idore · 图文工作台</title>
+  <link rel="icon" href="../mark.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../studio-shell.css?v=1">
+  <link rel="stylesheet" href="./photo.css">
+  <script defer src="./photo.js"></script>
+</head>
+<body>
+  <header class="idore-header">
+    <a class="idore-brand" href="../gallery.html" aria-label="idore 首页"><span><img src="../idore-wordmark.png" alt="idore"></span></a>
+    <nav class="idore-nav" aria-label="工作台"><a href="../gallery.html">成片</a><a href="../script-agent/">剧本角色</a><a aria-current="page" href="./">图文</a></nav>
+  </header>
+  <main class="frame">
+    <div class="intro">
+      <div><h1>图文工作台</h1><p>上传参考图，写下你想保留的细节和想改变的画面。</p></div>
+      <div class="model"><strong>Seedream 4.5</strong><span>通过 OpenRouter 生成单张照片</span></div>
+    </div>
+    <div id="mirror" class="notice" hidden>此处展示工作台预览。<a href="https://idore-tools.yjr927.workers.dev/photo/">进入云端工作台 ↗</a></div>
+    <div class="studio">
+      <section class="pane compose" aria-label="照片生成设置">
+        <form id="compose">
+          <fieldset id="editor">
+            <legend>创作设置</legend>
+            <div class="label-row"><label for="files">参考图</label><span id="file-count">0 / 4</span></div>
+            <div id="drop" class="drop">
+              <input id="files" type="file" multiple accept="image/jpeg,image/png,image/webp" aria-describedby="file-types" aria-label="添加参考图">
+              <div class="pick"><b aria-hidden="true">＋</b><strong>添加参考图</strong><span>点击选择或拖入文件</span></div>
+            </div>
+            <p class="hint" id="file-types">JPG、PNG、WebP，最多 4 张，共 6 MiB。</p>
+            <ul class="thumbs" id="previews" aria-label="已选参考图"></ul>
+            <div class="label-row"><label for="prompt">提示词</label><span id="prompt-count">0 / 4000</span></div>
+            <textarea id="prompt" required rows="5" placeholder="例如：保留参考图中角色的服装和发色，把背景换成清晨的练习室，使用柔和的窗边侧光。"></textarea>
+          </fieldset>
+          <details class="connection" id="connection">
+            <summary>连接工作台 <span id="connection-mode">GitHub 网页授权</span></summary>
+            <p class="hint">默认通过 GitHub 网页启动本次任务。仓库成员也可以连接本次会话，一键生成。</p>
+            <label for="token">GitHub 工作台凭证</label>
+            <input id="token" type="password" autocomplete="off" spellcheck="false" placeholder="github_pat_…" aria-describedby="token-hint">
+            <p id="token-hint" class="hint">仅需 idore_tools 仓库的 Actions 读写权限，凭证仅用于本页向 GitHub 启动任务。</p>
+          </details>
+          <div class="actions"><button id="generate" class="primary" type="submit">生成照片 <span aria-hidden="true">↗</span></button><span class="cost">每次 1 张 · 约 US$0.04</span></div>
+          <p class="privacy">提交后，参考图和提示词会经云端发送至 OpenRouter 和模型服务商。结果可在本页临时查看和下载。</p>
+          <p id="form-error" class="error" role="alert" hidden></p>
+        </form>
+      </section>
+      <section class="pane output" aria-labelledby="result-title">
+        <div class="pane-title"><h2 id="result-title">生成结果</h2><a id="download" class="subtle-button" download hidden>下载照片 ↓</a></div>
+        <div class="canvas" id="canvas">
+          <div id="empty" class="empty"><span class="focus-mark" aria-hidden="true"></span><p id="empty-text">生成的照片会显示在这里</p></div>
+          <img id="photo" alt="根据参考图和提示词生成的照片" hidden>
+        </div>
+        <p id="status" class="status" role="status" aria-live="polite"></p>
+        <div class="manual" id="manual" hidden>
+          <strong>在 GitHub 启动这次任务</strong>
+          <p>复制任务编号，在工作流页点 <b>Run workflow</b>，保留 <b>main</b> 分支，填入编号并运行一次。保持本页打开以便上传素材。</p>
+          <label for="job-id">任务编号</label>
+          <div class="job-id"><input readonly id="job-id" spellcheck="false"><button type="button" class="subtle-button" id="copy">复制</button></div>
+          <a class="github-link" href="https://github.com/yjr927/idore_tools/actions/workflows/photo-generation.yml" target="_blank" rel="noopener noreferrer">打开 GitHub 工作流 ↗</a>
+        </div>
+        <div class="result-actions"><button id="check" type="button" class="subtle-button" hidden>查询当前任务</button><button id="new" type="button" class="subtle-button" hidden>新建照片</button></div>
+      </section>
+    </div>
+    <noscript><p class="notice">请开启 JavaScript 以上传参考图并查看生成结果。</p></noscript>
+  </main>
+</body>
+</html>
