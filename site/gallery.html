@@ -9,9 +9,9 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' https://yjr927.github.io; media-src 'self' https://yjr927.github.io; connect-src 'self' https://yjr927.github.io; base-uri 'none'; form-action 'none'">
   <title>idore · Agent 成片库</title>
   <link rel="icon" href="./mark.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="./gallery.css?v=studio-1">
+  <link rel="stylesheet" href="./gallery.css?v=daily-3">
   <link rel="stylesheet" href="./studio-shell.css?v=1">
-  <script defer src="./gallery.js?v=studio-1"></script>
+  <script defer src="./gallery.js?v=daily-3"></script>
 </head>
 <body>
   <header class="idore-header">
@@ -45,6 +45,14 @@
       </section>
       <aside id="activity" aria-labelledby="activity-heading">
         <div class="section-heading"><h2 id="activity-heading">运行记录</h2><span class="timezone">纽约时间</span></div>
+        <section class="daily-output" aria-label="纽约今日成片进度">
+          <h3>今日成片 <span id="daily-target">—</span></h3>
+          <dl><div><dt>已生成</dt><dd id="daily-generated">—</dd></div><div><dt>其中已送达收件箱</dt><dd id="daily-delivered">—</dd></div></dl>
+        </section>
+        <section class="daily-output" id="named-plan" hidden>
+          <h3><b id="named-heading"></b><span id="named-start"></span></h3>
+          <ol class="events" id="named-references"></ol>
+        </section>
         <div id="activity-list"><p class="empty">正在读取记录…</p></div>
         <details class="criteria"><summary>选片条件</summary><p>至少 100 万播放、10 万赞，并核验 2 位其他创作者的同玩法原片。</p></details>
       </aside>

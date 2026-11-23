@@ -10,6 +10,9 @@ const dateFormatter = new Intl.DateTimeFormat('zh-CN', {
   timeZone: 'America/New_York', year: 'numeric', month: '2-digit', day: '2-digit',
   hour: '2-digit', minute: '2-digit', hourCycle: 'h23'
 });
+const nyDayFormatter = new Intl.DateTimeFormat('en-CA', {
+  timeZone: 'America/New_York', year: 'numeric', month: '2-digit', day: '2-digit'
+});
 const receiptLabels = {
   reserved: ['等待发送', 'busy'], processing: ['TikTok 处理中', 'busy'],
   delivered: ['已送达 TikTok 收件箱', 'done'], published: ['已在 TikTok 发布', 'done'],
@@ -22,6 +25,7 @@ const queueLabels = {
   plan_ready: '分镜已完成', waiting_trend: '等待达标趋势', waiting_openai: '等待 OpenAI 策划', agent_planning: 'OpenAI 正在选角和写分镜',
   rejected: '已退回制作'
 };
+const productionMethods = new Set(['agent_motion', 'photo_sequence', 'original_character_edit', 'named_reference_motion']);
 const problemLabels = {
   reconnect_required: '请重新授权 TikTok。', catalog_unavailable: '暂时无法读取成片库。',
   media_unavailable: '暂时无法读取视频文件。', delivery_uncertain: '有一条投递需要核实。',
@@ -32,6 +36,7 @@ const problemLabels = {
 let library = null;
 let queue = null;
 let feed = null;
+let namedSchedule = null;
 let loading = false;
 let changing = false;
 const cardCache = new Map();
@@ -95,6 +100,7 @@ function sourceLink(label, url) {
 
 function filmNotes(record, task) {
   const approvedTrend = record.generation_method === 'agent_motion' && record.sequence_type === 'trend_remake' && record.planner === 'openai';
+  const selected = record.generation_method === 'named_reference_motion' && record.selection_basis === 'user_selected_reference';
   const source = tiktokSource(record.source_url) || tiktokSource(task?.source_url);
   const caption = trimmed(record.caption || task?.caption, 2200);
   const tags = (Array.isArray(record.hashtags) ? record.hashtags : []).filter(t => typeof t === 'string' && /^#[\p{L}\p{N}_]{1,80}$/u.test(t));
@@ -107,7 +113,7 @@ function filmNotes(record, task) {
   return {
     hook: trimmed(record.hook, 400), caption, publication, tags, source,
     sourceTitle: trimmed(record.source_title, 180), group: trimmed(record.material_group || task?.material_group, 12),
-    trend: approvedTrend, views: record.source_metrics?.views, likes: record.source_metrics?.likes,
+    trend: approvedTrend, selected, views: record.source_metrics?.views, likes: record.source_metrics?.likes,
     viewsDisplay: trimmed(record.source_metric_display?.views, 40), likesDisplay: trimmed(record.source_metric_display?.likes, 40),
     peerCount: record.peer_count, peers: [...peers.values()], observed: record.source_observed_at
   };
@@ -147,7 +153,7 @@ function updateNotes(saved, notes) {
   if (group) details.append(node('p', 'film-credit', '所选素材 · ' + group));
   if (notes.source) {
     const line = node('p', 'film-credit');
-    line.append(sourceLink('趋势原片 ↗ ' + (notes.sourceTitle || '@' + notes.source.creator), notes.source.url));
+    line.append(sourceLink((notes.selected ? '指定原片 ↗ ' : '趋势原片 ↗ ') + (notes.sourceTitle || '@' + notes.source.creator), notes.source.url));
     details.append(line);
   }
   if (notes.trend && notes.source) {
@@ -235,6 +241,8 @@ function normalizeFilm(raw) {
     title: typeof raw.title === 'string' && raw.title.trim() ? raw.title.trim().slice(0, 180) : '未命名成片',
     created: dateValue(raw.generated_at) !== null ? raw.generated_at : raw.created_at,
     archivedOnly: raw.timestamp_basis === 'workflow_artifact', sequence: raw.generation_method === 'photo_sequence',
+    originalEdit: raw.generation_method === 'original_character_edit',
+    namedRemake: raw.generation_method === 'named_reference_motion' && raw.selection_basis === 'user_selected_reference',
     ensemble: raw.sequence_type === 'ip_cast',
     trendRemake: raw.generation_method === 'agent_motion' && raw.planner === 'openai' && raw.sequence_type === 'trend_remake',
     photoCount: Array.isArray(raw.source_photo_ids) ? new Set(raw.source_photo_ids.filter(id => typeof id === 'string')).size : 0
@@ -295,8 +303,8 @@ function connection() {
   const previousGrantFailed = feed.automation?.problem === 'reconnect_required' && feed.canEnable === true;
   const problem = previousGrantFailed ? '' : problemLabels[feed.automation?.problem] || '';
   msg.textContent = (enabled
-    ? '自动投递已开启 · 新的 Agent 动作成片将送至此账号收件箱。'
-    : '开启后，新的 Agent 动作成片将送至此账号的 TikTok 收件箱。') + (problem ? ' ' + problem : '');
+    ? '自动投递已开启 · 符合条件的新成片将送至此账号收件箱。'
+    : '开启后，符合条件的新成片将送至此账号的 TikTok 收件箱。') + (problem ? ' ' + problem : '');
   const reauthorize = !enabled && feed.canEnable === false;
   link.textContent = '重新授权 TikTok';
   link.hidden = !reauthorize;
@@ -312,9 +320,6 @@ function filmStatus(film) {
   if (receipt) return receiptLabels[receipt.state];
   if (film.kind === 'api_test') return ['测试片 · 仅预览', ''];
   if (!feed?.connected) return ['已生成 · 回执需连接沙盒', ''];
-  if (film.trendRemake && feed.automation?.enabled && dateValue(film.created) > (dateValue(feed.automation.startedAt) ?? Infinity)) {
-    return ['等待沙盒投递', 'busy'];
-  }
   return ['已生成 · 暂无投递回执', ''];
 }
 
@@ -336,8 +341,8 @@ function cardFor(film) {
     video.playsInline = true;
     video.preload = 'none';
     let kindLabel = film.kind === 'api_test' ? '接口测试' : '角色成片';
-    if (film.sequence || film.trendRemake) {
-      kindLabel = film.trendRemake ? '趋势改编' : film.ensemble ? '系列角色混剪' : '单角色串剪';
+    if (film.sequence || film.trendRemake || film.originalEdit || film.namedRemake) {
+      kindLabel = film.namedRemake ? '指定原片复刻' : film.originalEdit ? '原创角色短片' : film.trendRemake ? '趋势改编' : film.ensemble ? '系列角色混剪' : '单角色串剪';
       if (film.photoCount) kindLabel += ' · ' + film.photoCount + ' 张照片';
     }
     const kind = node('span', 'kind', kindLabel);
@@ -407,7 +412,93 @@ function eventItem(label, title, date, tone = '', detail = '') {
   return item;
 }
 
+function validNamedSchedule(raw) {
+  const day = raw?.date;
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(day) || !Number.isInteger(raw.start_hour) || raw.start_hour < 0 ||
+      raw.start_hour > 23 || !Array.isArray(raw.references) || !raw.references.length) throw Error('invalid named schedule');
+  const slots = new Set(), sources = new Set();
+  for (const ref of raw.references) {
+    const source = tiktokSource(ref?.url);
+    if (!source || ref.source_id !== 'tiktok-' + source.url.split('/').pop() || sources.has(ref.source_id) ||
+        typeof ref.slot !== 'string' || !ref.slot.startsWith(day + '-') || slots.has(ref.slot) || !trimmed(ref.title, 160)) {
+      throw Error('invalid scheduled reference');
+    }
+    slots.add(ref.slot);
+    sources.add(ref.source_id);
+  }
+  return raw;
+}
+
+function matchesNamed(record, ref) {
+  return record?.generation_method === 'named_reference_motion' && record.selection_basis === 'user_selected_reference' &&
+    record.sequence_slot === ref.slot && record.trend_id === ref.source_id;
+}
+
+function dailyOutput(films, accountFeed, now = Date.now(), schedule = namedSchedule) {
+  if (!films) return { generated: null, delivered: null };
+  const today = nyDayFormatter.format(now);
+  const completed = films.filter(film => {
+    const time = dateValue(film.created);
+    return film.kind === 'character' && !film.archivedOnly && time !== null && nyDayFormatter.format(time) === today;
+  });
+  const named = schedule?.references || [];
+  const groups = schedule?.date === today
+    ? named.map(ref => completed.filter(film => matchesNamed(film.record, ref))).filter(group => group.length)
+    : completed.filter(film => ['agent_motion', 'original_character_edit'].includes(film.record.generation_method) ||
+        named.some(ref => matchesNamed(film.record, ref))).map(film => [film]);
+  const delivered = accountFeed?.connected
+    ? groups.filter(group => group.some(film => ['delivered', 'published'].includes(accountFeed.receipts?.[film.sha]?.state))).length
+    : null;
+  return { generated: groups.length, delivered };
+}
+
+function namedStatus(ref, films, tasks, accountFeed) {
+  const finished = (films || []).filter(film => matchesNamed(film.record, ref));
+  if (finished.length) {
+    const states = finished.map(film => accountFeed?.receipts?.[film.sha]?.state);
+    const state = ['published', 'delivered', 'processing', 'reserved', 'uncertain', 'failed', 'rejected'].find(key => states.includes(key));
+    return state ? receiptLabels[state][0] : '已生成 · 暂无投递回执';
+  }
+  const task = tasks?.find(row => matchesNamed(row, ref));
+  if (!task) return tasks && films ? '已排期' : '已排期 · 状态待更新';
+  if (task.status === 'generated') return '成片清单待同步';
+  return trimmed(task.message, 120) || queueLabels[task.status] || '已排期';
+}
+
+function renderNamedSchedule(today) {
+  const schedule = namedSchedule;
+  $('#daily-target').textContent = schedule ? '目标 ' + (schedule.date === today ? schedule.references.length : 3) + ' 条' : '目标待同步';
+  const section = $('#named-plan');
+  section.hidden = !schedule || schedule.date < today;
+  if (section.hidden) return;
+  $('#named-heading').textContent = schedule.date.slice(5).replace('-', '/') + ' 指定原片复刻';
+  $('#named-start').textContent = String(schedule.start_hour).padStart(2, '0') + ':00 起 · 纽约';
+  const items = schedule.references.map(ref => {
+    const item = node('li');
+    item.append(sourceLink(ref.title + ' ↗', ref.url), node('p', 'event-detail', namedStatus(ref, library, queue, feed)));
+    return item;
+  });
+  $('#named-references').replaceChildren(...items);
+}
+
+function referenceBlocker(task) {
+  if (task.status === 'waiting_classification') {
+    const missing = [];
+    if (!['male', 'female', 'mixed'].includes(task.material_group)) missing.push('素材分组');
+    if (!['solo', 'group'].includes(task.cast_type)) missing.push('人数');
+    if (missing.length) return '待核实' + missing.join('和');
+    if (task.transformation === 'unknown') return '待核实换装或妆容变化';
+    if (task.original_watched === false) return '待播放核实原片';
+  }
+  return trimmed(task.message, 180) || queueLabels[task.status];
+}
+
 function renderActivity() {
+  const now = Date.now();
+  renderNamedSchedule(nyDayFormatter.format(now));
+  const progress = dailyOutput(library, feed, now);
+  $('#daily-generated').textContent = progress.generated ?? '—';
+  $('#daily-delivered').textContent = progress.delivered ?? '—';
   const events = [];
   for (const film of library || []) {
     events.push({ label: film.archivedOnly ? '成片已归档' : '成片已生成', title: film.title, date: film.created });
@@ -421,7 +512,7 @@ function renderActivity() {
     }
   }
   for (const task of queue || []) {
-    if (!['agent_motion', 'photo_sequence'].includes(task?.generation_method) || task.video_path || !Object.hasOwn(queueLabels, task.status)) continue;
+    if (!productionMethods.has(task?.generation_method) || task.video_path || !Object.hasOwn(queueLabels, task.status)) continue;
     const quota = task.error_code === 'insufficient_quota' || task.error_code === 'insufficient_credits';
     const label = quota ? 'OpenAI 额度不足' : queueLabels[task.status];
     events.push({ label, title: task.title || '趋势改编', detail: trimmed(task.message, 180),
@@ -434,13 +525,21 @@ function renderActivity() {
   const expanded = container.querySelector('details')?.open === true;
   container.replaceChildren(list);
   if (!events.length) container.prepend(node('p', 'empty', '暂无成片活动记录。'));
-  const tasks = (queue || []).filter(task => task && !['agent_motion', 'photo_sequence'].includes(task.generation_method) && Object.hasOwn(queueLabels, task.status) && !task.video_path);
+  const tasks = (queue || []).filter(task => task && !productionMethods.has(task.generation_method) && Object.hasOwn(queueLabels, task.status) && !task.video_path);
   if (tasks.length) {
     const details = node('details'), tasksList = node('ol', 'events');
     details.open = expanded;
-    details.append(node('summary', '', '制作队列 · ' + tasks.length));
+    details.append(node('summary', '', '参考素材 · ' + tasks.length), node('p', 'event-detail', '按素材入队时间排序'));
+    tasks.sort((a, b) => (dateValue(b.created_at) ?? -Infinity) - (dateValue(a.created_at) ?? -Infinity));
     for (const task of tasks) {
-      tasksList.append(eventItem(queueLabels[task.status], task.title || '未命名任务', task.created_at, '', '时间为任务加入队列的时间'));
+      const item = eventItem(referenceBlocker(task), task.title || '未命名素材', task.created_at);
+      const source = tiktokSource(task.source_url);
+      if (source) {
+        const detail = node('p', 'event-detail');
+        detail.append(sourceLink('查看原片 ↗', source.url));
+        item.append(detail);
+      }
+      tasksList.append(item);
     }
     details.append(tasksList);
     container.append(details);
@@ -454,10 +553,13 @@ async function refresh() {
   $('#gallery-grid').setAttribute('aria-busy', 'true');
   warnings.clear();
   try {
-    const [films, pipeline, discovery] = await Promise.allSettled([
+    const [films, pipeline, discovery, schedule] = await Promise.allSettled([
       readManifest('creations'), readManifest('pipeline'),
-      readJson(new URL('data/discovery.json', assetBase), { credentials: 'omit' })
+      readJson(new URL('data/discovery.json', assetBase), { credentials: 'omit' }),
+      readJson(new URL('data/named-motion.json', assetBase), { credentials: 'omit' }).then(validNamedSchedule)
     ]);
+    if (schedule.status === 'fulfilled') namedSchedule = schedule.value;
+    else warnings.add('指定复刻日程暂时无法更新。');
     if (discovery.status === 'fulfilled' && Array.isArray(discovery.value?.runs)) {
       renderChallenge(currentChallenge(discovery.value));
     }

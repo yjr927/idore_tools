@@ -49,7 +49,7 @@ class AgentMotionTests(unittest.TestCase):
              lambda d: self.events.append(d['items'][0]['status']), self.planner, self.renderer)
 
     def test_schedule_uses_new_york_day_and_hour(self):
-        for day, offset in [('2026-07-03','-04:00'), ('2026-11-22','-05:00')]:
+        for day, offset in [('2026-07-03','-04:00'), ('2026-11-25','-05:00')]:
             for clock, tag in [('08:59', None), ('09:00','morning'), ('13:59','morning'),
                                ('14:00','afternoon'), ('17:59','afternoon'), ('18:00','evening')]:
                 self.assertEqual(editor.current_slot(datetime.fromisoformat(day + 'T' + clock + offset)),
@@ -57,11 +57,15 @@ class AgentMotionTests(unittest.TestCase):
 
     def completed_film(self, slot, stamp, key, method=editor.METHOD):
         digest = hashlib.sha256(key.encode()).hexdigest()
-        return dict(kind='character', generation_method=method, sequence_slot=slot, generated_at=stamp,
+        film = dict(kind='character', generation_method=method, sequence_slot=slot, generated_at=stamp,
                     sha256=digest, video_path=f'generated/video-{digest[:24]}.mp4')
+        if method == editor.NAMED_METHOD and slot in editor.NAMED:
+            film.update(trend_id=editor.NAMED[slot]['source_id'], source_url=editor.NAMED[slot]['url'],
+                        selection_basis=editor.SELECTION)
+        return film
 
     def test_evening_catches_up_three_slots_and_repeat_produces_nothing(self):
-        at = datetime.fromisoformat('2026-11-23T02:01:00+00:00')
+        at = datetime.fromisoformat('2026-11-26T02:01:00+00:00')
         completed = []
 
         def archive(doc, catalog, discovery, site, run, slot, save):
@@ -72,32 +76,81 @@ class AgentMotionTests(unittest.TestCase):
         args = (self.doc, [], {}, self.site, '123', None, lambda: at, archive)
         self.assertEqual(editor.produce_due(*args), 3)
         self.assertEqual([f['sequence_slot'] for f in completed],
-                         ['2026-11-22-morning','2026-11-22-afternoon','2026-11-22-evening'])
+                         ['2026-11-25-morning','2026-11-25-afternoon','2026-11-25-evening'])
         self.assertEqual(editor.produce_due(*args), 0)
 
     def test_resumed_older_film_and_authentic_original_count_by_new_york_completion_day(self):
-        at = datetime.fromisoformat('2026-11-23T02:01:00+00:00')
+        at = datetime.fromisoformat('2026-11-26T02:01:00+00:00')
         stamp = at.isoformat()
-        yesterday = self.completed_film('2026-11-21-evening',stamp,'old reservation')
-        original = self.completed_film('2026-11-22-evening',stamp,'original','original_character_edit')
+        yesterday = self.completed_film('2026-11-24-evening',stamp,'old reservation')
+        original = self.completed_film('2026-11-25-evening',stamp,'original','original_character_edit')
         test_clip = self.completed_film('irrelevant',stamp,'test','api_test')
         clips = [yesterday,yesterday,original,test_clip]
-        self.assertEqual(editor.next_slot(at, clips, []), '2026-11-22-morning')
-        clips.append(self.completed_film('2026-11-22-morning',stamp,'last one'))
+        self.assertEqual(editor.next_slot(at, clips, []), '2026-11-25-morning')
+        clips.append(self.completed_film('2026-11-25-morning',stamp,'last one'))
         self.assertIsNone(editor.next_slot(at, clips, []))
-        next_day = datetime.fromisoformat('2026-11-23T14:01:00+00:00')
-        self.assertEqual(editor.next_slot(next_day, clips, []), '2026-11-23-morning')
+        next_day = datetime.fromisoformat('2026-11-26T14:01:00+00:00')
+        self.assertEqual(editor.next_slot(next_day, clips, []), '2026-11-26-morning')
 
     def test_one_waiting_run_stops_without_reserving_three_paid_plans(self):
         producer = Mock(return_value=False)
-        at = datetime.fromisoformat('2026-11-22T23:10:00-05:00')
+        at = datetime.fromisoformat('2026-11-25T23:10:00-05:00')
         self.assertEqual(editor.produce_due(self.doc, [], {}, self.site, '7', None, lambda: at, producer), 0)
         self.assertEqual(producer.call_count, 1)
 
     def test_old_terminal_attention_does_not_starve_other_due_slots(self):
-        at = datetime.fromisoformat('2026-11-22T21:00:00-05:00')
-        rows = [dict(generation_method=editor.METHOD, sequence_slot='2026-11-22-morning', status='needs_attention')]
-        self.assertEqual(editor.next_slot(at, [], rows), '2026-11-22-afternoon')
+        at = datetime.fromisoformat('2026-11-25T21:00:00-05:00')
+        rows = [dict(generation_method=editor.METHOD, sequence_slot='2026-11-25-morning', status='needs_attention')]
+        self.assertEqual(editor.next_slot(at, [], rows), '2026-11-25-afternoon')
+
+    def test_only_two_named_slots_on_november_23_in_new_york(self):
+        first, second = editor.NAMED
+        clocks = ['2026-11-23T02:00:00+00:00','2026-11-23T13:59:00+00:00',
+                  '2026-11-23T14:00:00+00:00','2026-11-24T04:59:00+00:00']
+        for stamp, expected in zip(clocks, [[], [], [first, second], [first, second]]):
+            self.assertEqual(editor.due_slots(datetime.fromisoformat(stamp)), expected)
+        at = datetime.fromisoformat(clocks[-1])
+        stale = dict(generation_method=editor.METHOD, sequence_slot='2026-11-21-morning',status='generating_video')
+        self.assertEqual(editor.next_slot(at, [], [stale]), first)
+        producer = Mock(return_value=False)
+        editor.produce_due({'items':[stale]}, [], {}, self.site, '7', None, lambda: at, producer)
+        self.assertEqual([call.args[5] for call in producer.call_args_list], [first, second])
+        films = [self.completed_film(s,at.isoformat(),s,editor.NAMED_METHOD) for s in [first,second]]
+        unrelated = [self.completed_film(f'other-{i}', at.isoformat(),f'different-{i}') for i in range(2)]
+        self.assertEqual(editor.next_slot(at, unrelated, []), first)
+        self.assertEqual(editor.next_slot(at, [dict(films[0],trend_id='wrong')], []), first)
+        self.assertIsNone(editor.next_slot(at, films, [stale]))
+        named_row = dict(generation_method=editor.NAMED_METHOD, sequence_slot=first,status='agent_planning')
+        tomorrow = datetime.fromisoformat('2026-11-24T15:00:00+00:00')
+        self.assertEqual(editor.next_slot(tomorrow, [], [named_row]), '2026-11-24-morning')
+        named_row.update(remote_id='existing-provider-id',status='generating_video')
+        self.assertEqual(editor.next_slot(tomorrow, [], [named_row]), first)
+
+    def test_selected_reference_keeps_missing_metrics_and_editorial_cast_separate(self):
+        first, second = editor.NAMED
+        raw = dict(self.source, id=editor.NAMED[second]['source_id'],url=editor.NAMED[second]['url'],
+                   title='bay',material_group='unknown',checks={'solo':True,'fixed_camera':True},
+                   transformation='unknown',motion_summary='服装及动作不限定男女角色用途。',
+                   related_videos=[],metrics={'views':None,'likes':4752},metric_display={})
+        selected = editor.named_source(second,raw)
+        self.assertEqual(selected, editor.named_source(second,selected))
+        self.assertIsNone(editor.named_source(first,raw))
+        self.assertIsNone(editor.named_source(second,dict(raw,original_watched=False)))
+        self.assertIsNone(editor.named_source(second,dict(raw,checks={'solo':False,'fixed_camera':True})))
+        self.assertIsNone(editor.named_source(second,dict(raw,url=editor.NAMED[first]['url'])))
+        self.assertEqual((selected['source_material_group'],selected['source_transformation']),('unknown','unknown'))
+        self.assertEqual((selected['material_group'],selected['transformation']),('male','none'))
+        self.assertEqual(editor.capture_inputs({'videos':[raw]}, [self.photo], set()),([],[]))
+        self.planner.return_value = dict(self.plan, source_id=raw['id'],source_url=raw['url'],selection_basis=editor.SELECTION)
+        editor.produce(self.doc, [self.photo], {'videos':[raw]}, self.site,'7',second,
+                       lambda doc: None, self.planner,self.renderer)
+        self.planner.assert_called_once()
+        self.renderer.assert_called_once()
+        row = self.doc['items'][0]
+        self.assertFalse(row['trend_verified'])
+        self.assertEqual(row['generation_method'],editor.NAMED_METHOD)
+        self.assertEqual(row['source_metrics'],{'views':None,'likes':4752})
+        self.assertEqual(row['source_peers'],[])
 
     def test_only_vetted_sources_with_approved_same_group_role_can_reach_openai(self):
         for changes, status in [({'metric_display':{}}, 'waiting_trend'), ({'checks':{'solo':False}}, 'waiting_material'),

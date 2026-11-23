@@ -14,6 +14,8 @@ from zoneinfo import ZoneInfo
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from scripts.archive_generated_videos import merge, probe
+from scripts.named_motion import (DEFERRED_DATE, NAMED, NAMED_METHOD, SCHEDULE, SCHEDULE_DATE, SELECTION,
+                                 matches_named_film, named_source)
 from scripts.pipeline_state import now, touch
 from scripts.run_pipeline import REPOSITORY, SITE, STATE, checkpoint, read
 
@@ -21,13 +23,17 @@ METHOD = 'agent_motion'
 MAX_MEDIA = 16 * 1024 * 1024
 NEW_YORK = ZoneInfo('America/New_York')
 DAILY_SLOTS = ((9, 'morning'), (14, 'afternoon'), (18, 'evening'))
-DAILY_METHODS = {METHOD, 'original_character_edit'}
+DAILY_METHODS = {METHOD, 'original_character_edit', NAMED_METHOD}
 ACTIVE_STAGES = {'agent_planning', 'plan_ready', 'preparing_motion', 'rendering_clay', 'generating_styles',
                  'generating_video', 'rendering_sequence'}
 
 
 def due_slots(at):
     local = at.astimezone(NEW_YORK)
+    if local.date() == DEFERRED_DATE:
+        return []
+    if local.date() == SCHEDULE_DATE:
+        return list(NAMED) if local.hour >= SCHEDULE['start_hour'] else []
     return [f'{local.date()}-{name}' for hour, name in DAILY_SLOTS if local.hour >= hour]
 
 
@@ -36,14 +42,16 @@ def current_slot(at):
     return slots[-1] if slots else None
 
 
-def next_slot(at, films, rows):
+def next_slot(at, films, rows, attempted=()):
     """Allocate a due slot using completed media, including work resumed from an earlier day."""
     local_day = at.astimezone(NEW_YORK).date()
     due = due_slots(at)
-    occupied = set()
+    occupied = set(attempted)
     completed = set()
     for film in films:
         digest = film.get('sha256')
+        if (local_day == SCHEDULE_DATE or film.get('generation_method') == NAMED_METHOD) and not matches_named_film(film):
+            continue
         if (film.get('kind') != 'character' or film.get('generation_method') not in DAILY_METHODS
                 or not isinstance(digest, str) or not re.fullmatch(r'[a-f0-9]{64}', digest)
                 or film.get('video_path') != 'generated/video-' + digest[:24] + '.mp4'):
@@ -59,12 +67,17 @@ def next_slot(at, films, rows):
     if len(completed) >= len(due):
         return None
     for row in rows:
-        if row.get('generation_method') != METHOD:
+        slot = row.get('sequence_slot')
+        if row.get('generation_method') not in (METHOD, NAMED_METHOD) or not slot:
+            continue
+        if local_day == SCHEDULE_DATE and slot not in NAMED:
+            continue
+        if slot in NAMED and local_day != SCHEDULE_DATE and not row.get('remote_id'):
             continue
         if row.get('status') == 'needs_attention':
-            occupied.add(row.get('sequence_slot'))
-        if row.get('status') in ACTIVE_STAGES and row.get('sequence_slot') not in occupied:
-            return row['sequence_slot']
+            occupied.add(slot)
+        if row.get('status') in ACTIVE_STAGES and slot not in occupied:
+            return slot
     return next((slot for slot in due if slot not in occupied), None)
 
 
@@ -176,7 +189,14 @@ def attach_plan(row, plan, motion, photos):
     from scripts.trend_quality import verified_peers
     source = next(s for s in motion if s['id'] == plan['source_id'])
     character = next(p for p in photos if p['id'] == plan['photo_ids'][0])
-    group, cast, _, _ = _effective_reference(source)
+    named = NAMED.get(row['sequence_slot'])
+    if named:
+        source = named_source(row['sequence_slot'], source)
+        if source is None or plan.get('selection_basis') != SELECTION:
+            raise ValueError('Reference does not match the scheduled selection')
+        group, cast = source['material_group'], source['cast_type']
+    else:
+        group, cast, _, _ = _effective_reference(source)
     shots = plan['shots']
     if (source['url'] != plan['source_url'] or plan['provider'] != 'openrouter' or not plan['model'].startswith('openai/')
             or plan.get('execution_host') != 'cloudflare'
@@ -190,16 +210,19 @@ def attach_plan(row, plan, motion, photos):
     if source['transformation'] != 'none':
         row['style_reference_urls'] = list(character['_agent_style_urls'])
     row.update(planner='openai', planner_model=plan['model'], planner_provider=plan['provider'],
-               execution_host=plan['execution_host'], generation_method=METHOD, sequence_type='trend_remake',
-               trend_id=source['id'], trend_verified=True, source_title=source['title'], source_url=source['url'],
-               source_metrics={k: source['metrics'][k] for k in ('views', 'likes')},
-               source_metric_display={k: source['metric_display'][k] for k in ('views', 'likes')},
+               execution_host=plan['execution_host'], generation_method=NAMED_METHOD if named else METHOD,
+               sequence_type='selected_reference' if named else 'trend_remake',
+               trend_id=source['id'], trend_verified=not bool(named), source_title=source['title'], source_url=source['url'],
+               source_metrics={k: (source.get('metrics') or {}).get(k) for k in ('views', 'likes')},
+               source_metric_display={k: (source.get('metric_display') or {}).get(k) for k in ('views', 'likes')},
                source_observed_at=source.get('last_seen_at') or source.get('first_seen_at'),
                source_peers=peers, peer_count=len(peers), source_photo_ids=[character['id']],
                source_photo_sha256=[character['sha256']], source_roles=[character['name']],
                title=character['name'] + ' · ' + source['title'][:120], character=character['name'],
                character_id=character['id'], material_group=group, cast_type=cast,
                shots=shots, caption=plan['caption'], hashtags=plan['hashtags'], hook=plan['hook'])
+    if named:
+        row.update({k: source[k] for k in ('selection_basis','source_material_group','source_transformation','casting_basis')})
     return source, character
 
 
@@ -209,9 +232,11 @@ def produce(document, catalog, discovery, site, run_id, slot, save, planner=None
     rows = document.setdefault('items', [])
     manifest = site / 'data' / 'creations.json'
     gallery = read(manifest, {'items': []})
-    archived_slots = {f.get('sequence_slot') for f in gallery['items'] if f.get('generation_method') in DAILY_METHODS}
-    row = next((r for r in rows if r.get('generation_method') == METHOD and r.get('status') in ACTIVE_STAGES
-                and r.get('sequence_slot') not in archived_slots), None)
+    archived_slots = {f.get('sequence_slot') for f in gallery['items'] if f.get('generation_method') in DAILY_METHODS
+                      and (f.get('sequence_slot') not in NAMED or matches_named_film(f))}
+    named = NAMED.get(slot)
+    row = None if named else next((r for r in rows if r.get('generation_method') == METHOD
+                and r.get('status') in ACTIVE_STAGES and r.get('sequence_slot') not in archived_slots), None)
     if not row and not slot:
         return False
     if row is None:
@@ -220,16 +245,27 @@ def produce(document, catalog, discovery, site, run_id, slot, save, planner=None
     if slot in archived_slots:
         return False
     if row is None:
-        row = {'id': 'agent-' + slot, 'generation_method': METHOD, 'created_at': now(), 'sequence_slot': slot,
-               'title': 'TikTok 热门复刻'}
+        row = {'id': 'agent-' + slot, 'generation_method': NAMED_METHOD if named else METHOD,
+               'created_at': now(), 'sequence_slot': slot, 'title': named['title'] if named else 'TikTok 热门复刻'}
+        if named:
+            row.update(trend_id=named['source_id'], source_url=named['url'], selection_basis=SELECTION, trend_verified=False)
         rows.insert(0, row)
     if row.get('status') == 'needs_attention':
         return False
     consumed = {f.get('trend_id') for f in gallery['items'] if f.get('generation_method') == METHOD}
     consumed.update(r['trend_id'] for r in rows if r is not row and r.get('trend_id') and r.get('plan_reserved_at'))
     photos = approved_photos(catalog, site)
-    verified, motion = capture_inputs(discovery, photos, consumed)
-    row.update(source_scan_count=len(discovery.get('videos', [])), eligible_trend_count=len(verified))
+    if named:
+        observed = next((s for s in discovery.get('videos', []) if s.get('id') == named['source_id']), None)
+        selected = named_source(slot, observed)
+        if selected is None:
+            update(document, row, save, 'waiting_material', 'matching', '指定原片缺少可核验的单人动作观察。')
+            return False
+        verified = [selected]
+        motion = [selected] if any(p['material_group'] == selected['material_group'] for p in photos) else []
+    else:
+        verified, motion = capture_inputs(discovery, photos, consumed)
+        row.update(source_scan_count=len(discovery.get('videos', [])), eligible_trend_count=len(verified))
     if row.get('agent_plan') and not motion:
         update(document, row, save, 'needs_attention', 'planning', '已保存分镜的原片或照片未通过最新核验。', 'plan_outdated')
         return False
@@ -250,6 +286,9 @@ def produce(document, catalog, discovery, site, run_id, slot, save, planner=None
         row['plan_reserved_at'] = now()
         update(document, row, save, 'agent_planning', 'planning', 'OpenAI 正在从核验原片与角色照片中选择素材、写分镜和文案。')
         try:
+            if not planner and named:
+                from scripts.agent_film_planner import plan_named_film
+                planner = plan_named_film
             plan = (planner or plan_film)(motion, photos, slot=slot, prior_films=gallery['items'])
             source, character = attach_plan(row, plan, motion, photos)
         except (FilmPlanError, KeyError, ValueError, IndexError, StopIteration) as exc:
@@ -272,6 +311,9 @@ def produce(document, catalog, discovery, site, run_id, slot, save, planner=None
     try:
         with tempfile.TemporaryDirectory(prefix='idore-trend-remake-') as scratch:
             directory = Path(scratch)
+            if not motion_renderer and named:
+                from scripts.run_pipeline import render_named_motion
+                motion_renderer = render_named_motion
             raw = (motion_renderer or render_agent_motion)(document, row, source, character, directory)
             if raw is None:
                 return False
@@ -291,6 +333,9 @@ def produce(document, catalog, discovery, site, run_id, slot, save, planner=None
                   'planner_provider', 'execution_host', 'trend_id', 'trend_verified', 'source_title', 'source_url', 'source_observed_at', 'source_metrics',
                   'source_metric_display', 'source_peers', 'peer_count', 'hook', 'caption', 'hashtags', 'shots')
         film.update({k: row[k] for k in fields}, generated_at=stamp, timestamp_basis='generation_completed', bytes=len(content))
+        if named:
+            film.update({k: row[k] for k in ('selection_basis','source_material_group','source_transformation',
+                                             'casting_basis','motion_reference_method')})
         temporary = manifest.with_suffix('.tmp')
         temporary.write_text(json.dumps(gallery, ensure_ascii=False, indent=2) + '\n')
         temporary.replace(manifest)
@@ -306,12 +351,25 @@ def produce(document, catalog, discovery, site, run_id, slot, save, planner=None
 
 def produce_due(document, catalog, discovery, site, run_id, save, clock, producer=produce):
     count = 0
-    while count < len(DAILY_SLOTS):
+    attempted = set()
+    while len(attempted) < len(DAILY_SLOTS):
         gallery = read(site / 'data' / 'creations.json', {'items': []})
-        slot = next_slot(clock(), gallery['items'], document.get('items', []))
-        if not slot or not producer(document, catalog, discovery, site, run_id, slot, save):
+        slot = next_slot(clock(), gallery['items'], document.get('items', []), attempted)
+        if not slot:
             break
-        count += 1
+        attempted.add(slot)
+        try:
+            generated = producer(document, catalog, discovery, site, run_id, slot, save)
+        except Exception:
+            # Only move on when this particular failure has already been checkpointed.
+            if slot not in NAMED or not any(r.get('sequence_slot') == slot and r.get('status') == 'needs_attention'
+                                             for r in document.get('items', [])):
+                raise
+            generated = False
+        if generated:
+            count += 1
+        elif slot not in NAMED:
+            break
     return count
 
 
@@ -327,7 +385,7 @@ def main():
         from scripts.trend_quality import eligible_trend
         gallery = read(SITE / 'data' / 'creations.json', {'items': []})
         slot = next_slot(datetime.now(NEW_YORK), gallery['items'], document.get('items', []))
-        needs_motion = bool(slot and any(eligible_trend(s) for s in discovery.get('videos', [])))
+        needs_motion = bool(slot and (slot in NAMED or any(eligible_trend(s) for s in discovery.get('videos', []))))
         if os.environ.get('GITHUB_OUTPUT'):
             with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
                 print('motion=' + str(needs_motion).lower(), file=output)

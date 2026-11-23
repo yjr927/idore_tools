@@ -4,7 +4,7 @@ import json
 import unittest
 from unittest.mock import patch
 
-from scripts.agent_film_planner import OPENROUTER, WORKER, FilmPlanError, _post, plan_film
+from scripts.agent_film_planner import OPENROUTER, WORKER, FilmPlanError, _post, plan_film, plan_named_film
 
 
 def trend(gender='male'):
@@ -52,6 +52,36 @@ def transport(output, calls):
 
 
 class PlannerTests(unittest.TestCase):
+    def test_named_sources_plan_once_with_observed_counts_and_approved_editorial_cast(self):
+        for name, creator, video, group, observed_group, likes in [
+            ('momoko','itsmomoko.jp','7703265627972128021','female','female',37),
+            ('bay','mybaybie','7709762212679683342','male','unknown',4752),
+        ]:
+            source = dict(trend(observed_group), id='tiktok-' + video, url=f'https://www.tiktok.com/@{creator}/video/{video}',
+                          kind='hands', checks={'fixed_camera':True, 'solo':True}, transformation='unknown',
+                          related_videos=[], metrics={'likes':likes,'views':None}, metric_display={},
+                          motion_summary='观察到双手贴近脸侧，再交叉双臂。动作不限定男女角色用途。')
+            calls = []
+            output = dict(decision(group),trend_id=source['id'])
+            slot = '2026-11-23-' + name
+            result = plan_named_film([source], [photo('male'), photo('female')], slot=slot,
+                                     api_key='fake-key', client=transport(output,calls))
+            self.assertEqual(result['selection_basis'],'user_selected_reference')
+            stored = calls[0][1]['trends'][0]
+            self.assertEqual(stored['metrics'],{'views':None,'likes':likes})
+            self.assertEqual((stored['source_material_group'],stored['material_group']), (observed_group,group))
+            self.assertEqual((stored['source_transformation'],stored['transformation']),('unknown','none'))
+            self.assertEqual(stored['other_creators'],0)
+            self.assertEqual(sum(url == OPENROUTER for url,_,_ in calls),1)
+            for planner, wrong_slot, reference in [
+                (plan_film,slot,source), (plan_named_film,slot.replace('23','24'),source),
+                (plan_named_film,slot,dict(source,url=source['url'].replace(creator,'unrelated'))),
+                (plan_named_film,slot,dict(source,original_watched=False)),
+            ]:
+                with self.assertRaises(FilmPlanError):
+                    planner([reference], [photo(group)], slot=wrong_slot, api_key='fake-key',
+                            client=lambda *_: self.fail('unexpected request for unapproved source'))
+
     def test_worker_directs_one_openrouter_inference_for_each_cast(self):
         for g in ('male', 'female'):
             with self.subTest(group=g):

@@ -50,6 +50,12 @@ button, a, summary, video { touch-action: manipulation; }
 .section-heading h2, #verification-dialog h2 { color: #312041; font: 600 clamp(23px,2.4vw,37px)/1.1 Georgia,"Songti SC",serif; letter-spacing: -.055em; }
 .count { display: inline-block; font: 650 12px/1.4 "Avenir Next",sans-serif; letter-spacing: 0; vertical-align: middle; padding: 4px 9px; color: #7650d4; background: rgba(255,255,255,.68); border: 1px solid var(--studio-line); border-radius: 999px; }
 .timezone { font-size: 12px; color: var(--studio-muted); }
+.daily-output { padding: 14px 18px; margin-bottom: 10px; border: 1px solid var(--studio-line); border-radius: 20px; background: rgba(255,255,255,.74); }
+.daily-output h3, .daily-output dl { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin: 0; }
+.daily-output h3 { font-size: 14px; }
+.daily-output h3 span, .daily-output dt { color: var(--studio-muted); font-size: 12px; font-weight: 400; }
+.daily-output dl { justify-content: flex-start; gap: 30px; margin-top: 8px; }
+.daily-output dd { margin: 0; font-size: 22px; font-variant-numeric: tabular-nums; }
 .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(min(100%,268px),1fr)); gap: 16px; }
 .film, #activity-list { border: 1px solid rgba(69,40,91,.12); border-radius: 24px; background: rgba(255,255,255,.74); box-shadow: 0 18px 45px rgba(79,48,112,.08); }
 .film { min-width: 0; overflow: hidden; }

@@ -50,7 +50,7 @@ def _image_ref(photo):
     return None
 
 
-def _table(trends, photos, prior_films):
+def _table(trends, photos, prior_films, named_slot=None):
     used_trends = set()
     used_photos = defaultdict(int)
     for film in prior_films:
@@ -59,21 +59,34 @@ def _table(trends, photos, prior_films):
             used_photos[pid] += 1
     candidates = {}
     for trend in trends:
-        if not eligible_trend(trend):
+        if named_slot is not None:
+            from scripts.named_motion import named_source
+            trend = named_source(named_slot, trend)
+            if trend is None:
+                continue
+        elif not eligible_trend(trend):
             continue
         url, _, video_id = canonical_video(trend['url'])
         tid = trend.get('id')
         if not isinstance(tid, str) or tid != 'tiktok-' + video_id or tid in used_trends:
             continue
         group, cast, watched, _ = _effective_reference(trend)
+        if named_slot is not None:
+            # The selected character may have an editorial casting group even when
+            # the observed choreography has no gender-specific casting requirement.
+            group = trend['material_group']
         transformation = trend.get('transformation')
         if (watched and group in ('male', 'female') and cast in ('solo', 'group') and
                 transformation in ('none','outfit','makeup','makeup_and_outfit')):
             candidates[tid] = {'id': tid, 'source_url': url, 'material_group': group, 'cast_type': cast,
                 'transformation': transformation, 'title': str(trend.get('title', ''))[:130], 'mechanic': str(trend.get('motion_summary', ''))[:650],
                 'notes': str(trend.get('recreation_notes', ''))[:450], 'metrics': {
-                    key: trend['metrics'][key] for key in ('views', 'likes')},
+                    key: (trend.get('metrics') or {}).get(key) for key in ('views', 'likes')},
                 'other_creators': len(verified_peers(trend)), 'observed_at': str(trend.get('last_seen_at', ''))[:48]}
+            if named_slot is not None:
+                candidates[tid].update(selection_basis='user_selected_reference',
+                                       source_material_group=trend['source_material_group'],
+                                       source_transformation=trend['source_transformation'])
     if not candidates:
         raise FilmPlanError('waiting_trend')
     buckets = {(row['material_group'], row['cast_type']) for row in candidates.values()}
@@ -219,6 +232,19 @@ def _validate(raw, candidates, photos, model):
 def plan_film(trends, photos, *, slot, prior_films=(), client=None, api_key=None, model=None):
     """Plan and validate on Cloudflare; only the single OpenRouter request carries a credential."""
     candidates, shortlist = _table(trends, photos, prior_films)
+    return _plan(candidates, shortlist, slot, client, api_key, model)
+
+
+def plan_named_film(trends, photos, *, slot, prior_films=(), client=None, api_key=None, model=None):
+    """Plan a single named reference bound to an authorized New York calendar slot."""
+    candidates, shortlist = _table(trends, photos, prior_films, named_slot=slot)
+    if len(candidates) != 1:
+        raise FilmPlanError('waiting_trend')
+    plan = _plan(candidates, shortlist, slot, client, api_key, model)
+    return dict(plan, selection_basis='user_selected_reference')
+
+
+def _plan(candidates, shortlist, slot, client, api_key, model):
     model = model or os.environ.get('OPENROUTER_TEXT_MODEL') or DEFAULT_ROUTER_MODEL
     if not isinstance(model, str) or not model.startswith('openai/') or not TEXT_MODEL.fullmatch(model[7:]):
         raise FilmPlanError('missing_model')

@@ -1,0 +1,20 @@
+{
+  "date": "2026-11-23",
+  "start_hour": 9,
+  "references": [
+    {
+      "slot": "2026-11-23-momoko",
+      "source_id": "tiktok-7703265627972128021",
+      "url": "https://www.tiktok.com/@itsmomoko.jp/video/7703265627972128021",
+      "title": "MOMOKO",
+      "casting_group": "female"
+    },
+    {
+      "slot": "2026-11-23-bay",
+      "source_id": "tiktok-7709762212679683342",
+      "url": "https://www.tiktok.com/@mybaybie/video/7709762212679683342",
+      "title": "bay · A2O LITE NEON",
+      "casting_group": "male"
+    }
+  ]
+}

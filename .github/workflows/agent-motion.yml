@@ -6,6 +6,10 @@ on:
       - 'scripts/run_agent_motion.py'
       - 'scripts/agent_film_planner.py'
       - 'scripts/trend_quality.py'
+      - 'scripts/named_motion.py'
+      - 'scripts/observed_dance.py'
+      - 'scripts/run_pipeline.py'
+      - 'site/data/named-motion.json'
       - 'site/data/characters.json'
       - 'work-results/latest.json'
       - 'work-results/classifications.json'
@@ -55,6 +59,8 @@ jobs:
         run: |
           python -m unittest discover -s tests -p 'test_agent_film_planner.py' -v
           python -m unittest discover -s tests -p 'test_agent_motion.py' -v
+          python -m unittest discover -s tests -p 'test_named_motion_render.py' -v
+          node --test tests/agent_worker.test.mjs tests/gallery.test.mjs tests/catalog.test.mjs
       - name: Produce outstanding films for the New York day
         id: archive
         env:

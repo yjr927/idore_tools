@@ -46,6 +46,31 @@ test('bounded requests and pinned input reject unrelated URLs and wrong source I
   s.model='x/other';
   assert.equal((await (await call('request',s)).json()).error,'missing_model');
 });
+test('a single dated studio pick retains unobserved metrics and original casting', async () => {
+  const s=sample();
+  s.slot='2026-11-23-bay';
+  const source=s.trends[0];
+  Object.assign(source,{id:'tiktok-7709762212679683342',source_url:'https://www.tiktok.com/@mybaybie/video/7709762212679683342',
+    selection_basis:'user_selected_reference',source_material_group:'unknown',source_transformation:'unknown',
+    transformation:'none',metrics:{views:null,likes:4752},other_creators:0});
+  const reply=await call('request',s);
+  assert.equal(reply.status,200);
+  const payload=await reply.json();
+  const context=JSON.parse(payload.messages[1].content[0].text);
+  assert.deepEqual(context.user_selected_reference.metrics,{views:null,likes:4752});
+  assert.equal(context.user_selected_reference.source_material_group,'unknown');
+  assert.equal(context.user_selected_reference.material_group,'male');
+  assert.equal(context.user_selected_reference.source_transformation,'unknown');
+  assert.equal(context.qualified_trends,undefined);
+  const completed=script(); completed.trend_id=source.id;
+  assert.equal((await call('accept',{slate:s,response:JSON.stringify(completed)})).status,200);
+  for (const badSlot of ['2026-11-23-momoko','2026-11-24-bay','2026-11-22-evening']) {
+    assert.equal((await call('request',{...s,slot:badSlot})).status,422);
+  }
+  const other={...source,source_url:source.source_url.replace('@mybaybie','@elsewhere')};
+  assert.equal((await call('request',{...s,trends:[other]})).status,422);
+  assert.equal((await call('request',{...s,trends:[source,source]})).status,422);
+});
 test('accepts only matched photo, valid copy and source, handles hold without side effects', async t => {
   t.mock.method(globalThis,'fetch', () => { throw Error('unexpected external I/O'); });
   const s = sample(), plan = script();

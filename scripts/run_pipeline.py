@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+from datetime import datetime
 from pathlib import Path
 import re
 import shutil
@@ -12,6 +13,7 @@ import subprocess
 import sys
 import tempfile
 import time
+from zoneinfo import ZoneInfo
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
@@ -134,18 +136,19 @@ def safe_child_env():
     return {k: v for k, v in os.environ.items() if not any(x in k for x in ('KEY', 'TOKEN', 'SECRET', 'INPUTS'))}
 
 
-def prepare_clay(document, item, scratch):
+def prepare_clay(document, item, scratch, *, original=None):
     from scripts.resolve_tiktok_reference import resolve_tiktok_reference
     from scripts.prepare_motion_source import download_reference
     from scripts.extract_motion_pose import extract_motion, write_motion
     if not re.fullmatch(r'tiktok-[0-9]{10,25}', item.get('source_id', '')):
         raise PipelineError('invalid_source', '原片编号无效。')
     mark(document, item, 'preparing_motion', 'motion', '正在读取原片并提取身体与手指动作。')
-    resolved = resolve_tiktok_reference(item['source_url'])
-    if str(resolved.video_id) != item['source_id'].removeprefix('tiktok-'):
-        raise PipelineError('source_mismatch', '读取的原片与任务不一致。')
-    original = scratch / 'original.mp4'
-    download_reference(resolved.url, original)
+    if original is None:
+        resolved = resolve_tiktok_reference(item['source_url'])
+        if str(resolved.video_id) != item['source_id'].removeprefix('tiktok-'):
+            raise PipelineError('source_mismatch', '读取的原片与任务不一致。')
+        original = scratch / 'original.mp4'
+        download_reference(resolved.url, original)
     motion = extract_motion(original, scratch / 'pose-models')
     pose = scratch / 'motion.json'
     write_motion(pose, motion)
@@ -214,7 +217,73 @@ def render_agent_motion(document, item, source, character, scratch):
     return render_motion_file(document, item, character, scratch)
 
 
-def render_motion_file(document, item, character, scratch):
+def render_named_motion(document, item, source, character, scratch):
+    """Use the commissioned dance and identity only; the three beats are documented observations."""
+    from scripts.named_motion import NAMED_METHOD, SCHEDULE, SCHEDULE_DATE, named_source
+    from scripts.run_agent_motion import source_file
+    from scripts.observed_dance import gesture_prompt, official_original
+    from scripts.prepare_motion_source import PreflightStopped
+    from scripts.extract_motion_pose import ExtractionError
+
+    slot = item.get('sequence_slot')
+    source = named_source(slot, source)
+    plan = item.get('agent_plan') or {}
+    if (not source or item.get('generation_method') != NAMED_METHOD
+            or plan.get('source_id') != source['id'] or plan.get('source_url') != source['url']
+            or plan.get('photo_ids') != [character.get('id')]
+            or character.get('material_group') != source['material_group']
+            or character.get('cast_type') != 'solo' or character.get('enabled') is not True
+            or character.get('auto_match_eligible') is not True or character.get('auto_match_blockers')
+            or character.get('asset_kind') not in ('portrait', 'single_character')
+            or not source_file(SITE, character)):
+        raise PipelineError('material_required', '指定舞蹈、分镜和已核验的角色原图需要一致。')
+    local = datetime.now(ZoneInfo('America/New_York'))
+    if (local.date() < SCHEDULE_DATE or local.date() == SCHEDULE_DATE and local.hour < SCHEDULE['start_hour']
+            or local.date() > SCHEDULE_DATE and not item.get('remote_id')):
+        raise PipelineError('outside_named_window', '当前不在这两条指定舞蹈的纽约制作时段内。')
+    binding = [source['id'], source['url'], character['id'], character['sha256']]
+    reserved = item.get('submission_reserved') or item.get('remote_id')
+    method = item.get('motion_reference_method')
+    if (item.get('motion_binding') not in (None, binding)
+            or reserved and (item.get('motion_binding') != binding or method not in ('source_motion', 'observed_description'))):
+        raise PipelineError('stale_plan', '已有任务需要按原动作与原角色恢复，请核对任务绑定。')
+    if not reserved:
+        # Only reuse a source-specific clay study produced by this pipeline.
+        clay_path = 'generated/clay-' + source['id'].removeprefix('tiktok-') + '.mp4'
+        existing = item.get('clay_reference_url') or ''
+        traced = (item.get('motion_binding') == binding and item.get('clay_path') == clay_path
+                  and re.fullmatch(r'https://raw\.githubusercontent\.com/yjr927/idore_tools/[a-f0-9]{40}/site/'
+                                   + re.escape(clay_path), existing)
+                  and item.get('clay_quality', {}).get('source_pixels_used') is False
+                  and re.fullmatch(r'[a-f0-9]{64}', item.get('clay_sha256', '')))
+        method = 'source_motion' if traced else None
+    item.update(motion_binding=binding, motion_reference_method=method, source_id=source['id'], source_url=source['url'],
+                material_group=character['material_group'], cast_type='solo', character=character['name'],
+                character_id=character['id'], character_image=character['image_url'], original_watched=True,
+                kind='hands', transformation='none', source_transformation=source['source_transformation'],
+                source_material_group=source['source_material_group'], motion_summary=source['motion_summary'])
+    if method is None:
+        mark(document, item, 'preparing_motion', 'motion', '正在从指定原片的 TikTok 页面检查动作参考。')
+        original = scratch / 'observed-original.mp4'
+        try:
+            official_original(source, original)
+            prepare_clay(document, item, scratch, original=original)
+            method = 'source_motion'
+        except PreflightStopped as exc:
+            item['motion_reference_reason'] = exc.reason
+            method = 'observed_description'
+        except ExtractionError as exc:
+            if exc.reason not in ('body_tracking_insufficient', 'local_video_decode_failed', 'source_video_too_short',
+                                  'unsupported_source_dimensions', 'unsupported_source_fps'):
+                raise
+            item['motion_reference_reason'] = exc.reason
+            method = 'observed_description'
+    item['motion_reference_method'] = method
+    prompt = gesture_prompt(source) if method == 'observed_description' else None
+    return render_motion_file(document, item, character, scratch, observed_prompt=prompt)
+
+
+def render_motion_file(document, item, character, scratch, *, observed_prompt=None):
     from video_service import VideoService
     from scripts.run_clay_video_generation import ObservedTransport
     if (item.get('material_group') not in ('male', 'female', 'mixed')
@@ -238,17 +307,22 @@ def render_motion_file(document, item, character, scratch):
     if item.get('remote_id'):
         job = service.recover(item['remote_id'], model)
     else:
-        clay = item.get('clay_reference_url') or prepare_clay(document, item, scratch)
-        if item.get('transformation') not in (None, 'none'):
-            prepare_styles(document, item, character, scratch)
-        references = [{'type': 'image_url', 'url': character['image_url']}, {'type': 'video_url', 'url': clay}]
-        references += [{'type': 'image_url', 'url': url} for url in item.get('style_reference_urls', [])]
+        if observed_prompt is not None:
+            source_inputs = {'mode': 'frames', 'first_frame': character['image_url'], 'prompt': observed_prompt}
+            message = '正在按原片观察到的动作生成角色舞蹈，使用已核验的角色照片作首帧。'
+        else:
+            clay = item.get('clay_reference_url') or prepare_clay(document, item, scratch)
+            if item.get('transformation') not in (None, 'none'):
+                prepare_styles(document, item, character, scratch)
+            references = [{'type': 'image_url', 'url': character['image_url']}, {'type': 'video_url', 'url': clay}]
+            references += [{'type': 'image_url', 'url': url} for url in item.get('style_reference_urls', [])]
+            source_inputs = {'mode': 'references', 'references': references, 'prompt': video_prompt(item)}
+            message = '白模已保存，正在提交角色动作视频。'
         item.update(submission_reserved=True, model=model)
-        mark(document, item, 'generating_video', 'video', '白模已保存，正在提交角色动作视频。')
+        mark(document, item, 'generating_video', 'video', message)
         try:
-            job = service.submit({'idempotency_key': 'pipeline-' + item['id'], 'model': model, 'mode': 'references',
-                'prompt': video_prompt(item), 'duration': 6, 'resolution': '720p', 'aspect_ratio': '9:16',
-                'generate_audio': False, 'consent': True, 'references': references})
+            job = service.submit({'idempotency_key': 'pipeline-' + item['id'], 'model': model, **source_inputs,
+                'duration': 6, 'resolution': '720p', 'aspect_ratio': '9:16', 'generate_audio': False, 'consent': True})
         except Exception:
             diagnosis = transport.diagnosis or {}
             raise PipelineError(diagnosis.get('reason', 'submission_uncertain'),
