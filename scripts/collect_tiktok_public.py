@@ -28,30 +28,14 @@ MAX_VIDEOS = 8
 MAX_RUN_HISTORY = 90
 
 
-class PublicPageError(Exception):
-    """Expected invalid input; does not contain page state or credentials."""
+try:
+    from scripts.trend_quality import PublicPageError, canonical_video, eligible_trend
+except ModuleNotFoundError:  # CLI entry point from scripts/
+    from trend_quality import PublicPageError, canonical_video, eligible_trend
 
 
 def utc_now():
     return datetime.now(timezone.utc).isoformat()
-
-
-def canonical_video(value):
-    if not isinstance(value, str):
-        raise PublicPageError("Expected a complete TikTok video URL.")
-    try:
-        parsed = urlsplit(value.strip())
-        port = parsed.port
-    except ValueError:
-        raise PublicPageError("Invalid video URL.") from None
-    if (parsed.scheme != "https" or parsed.hostname not in ("www.tiktok.com", "tiktok.com")
-            or parsed.username or parsed.password or port not in (None, 443)):
-        raise PublicPageError("Expected an HTTPS TikTok video URL.")
-    match = re.fullmatch(r"/@([A-Za-z0-9_.-]{1,100})/video/(\d{10,25})/?", parsed.path)
-    if not match:
-        raise PublicPageError("Only individual TikTok video links are accepted.")
-    author, ident = match.groups()
-    return f"https://www.tiktok.com/@{author}/video/{ident}", author, ident
 
 
 def access_blocker(text, page_url="", challenge_visible=False, login_dialog_visible=False):
@@ -140,6 +124,9 @@ def merge_candidates(previous, new_rows):
 
 
 def build_result(previous, new_rows, reports, started_at, finished_at, failure=None):
+    # Public search anchors are leads, never proof of a qualifying observation.
+    leads = len({row["id"] for row in new_rows})
+    new_rows = [row for row in new_rows if eligible_trend(row)]
     videos, added = merge_candidates(previous.get("videos", []), new_rows)
     successes = sum(report["status"] == "ok" for report in reports)
     blocked = sum(report["status"] == "blocked" for report in reports)
@@ -148,7 +135,9 @@ def build_result(previous, new_rows, reports, started_at, finished_at, failure=N
         status, message = "failed", failure
     elif found:
         status = "succeeded" if successes == len(reports) else "partial"
-        message = f"直接从 TikTok 公开页面发现 {found} 条视频链接，新增 {added} 条。当前热度和动作仍待核验。"
+        message = f"已核实 {found} 条达到播放、点赞和复刻门槛的趋势，新增 {added} 条。"
+    elif leads:
+        status, message = "empty", f"发现 {leads} 条搜索线索，均缺少可核实的播放、点赞或跨作者复刻证据。"
     elif blocked:
         status, message = "blocked", "TikTok 公开页面未返回可读取的视频列表；可能需要登录或人工验证。已有候选保留。"
     elif successes:

@@ -11,10 +11,13 @@ Work 在自己的云端浏览器中访问 TikTok，通过已授权的 GitHub 插
 - 主题与动作分别记录：`trend_category` 表示 K-pop／虚拟偶像；`kind` 表示手势舞／变装／表情对口型。一个同时符合两个主题的视频只能占一个主题名额，不能重复提交来凑两条。
 - **所有视频素材都使用两个独立维度：男／女素材分组，以及单人／多人。** `material_group` 按适合使用的角色素材分为 `male`（男生）、`female`（女生）、`mixed`（同时需要男、女素材）、`unknown`（待分类）。这不是对原片人物真实性别的判断；先播放原片再分组，依据不足时用 `unknown`，不要仅凭标题、姓名、脸部或声音猜测。多人男生素材仍为 `male`，多人女生素材仍为 `female`，不能把 `mixed` 当成多人的同义词。
 - 人数沿用 `checks.solo`，不新增字段：观看后确认只有 1 名可见人物／角色为 `true`；实际观察到至少 2 名人物／角色才为 `false`。未观看、无人物／角色或人数无法确认时为 `null`。在 `motion_summary` 中保留人数观察依据，`false` 不表示所有“不符合单人”的情况。
-- 这两个维度同样适用于旧版素材，但旧记录缺少可靠依据时保留待分类／人数待确认，不能按旧标题批量补标。旧素材需另行回看和重新分类；不要把全量旧记录塞入当日 v2 采集来绕过每日名额，历史回填须走单独的重分类流程，未完成前不能宣称全库已分好。
+- 这两个维度同样适用于旧版素材，但旧记录缺少可靠依据时保留待分类／人数待确认，不能按旧标题批量补标。旧素材需另行回看和重新分类；不要把全量旧记录塞入当日采集来绕过每日名额，历史回填须走单独的重分类流程，未完成前不能宣称全库已分好。
 - 播放原片后记录是否出现妆容变化、换装或二者都有。手指舞／简单舞蹈与变装可以同时出现；有造型变化时仍需要记录变化类型。未看原片或无法确认时用 `unknown`，不要把未核验当成无变装。
 - 优先单人、重复动作、固定机位。原片播放、动作观察、同玩法跟拍证据分别记录。只有一个跟拍作者时，不足以认定多个创作者的趋势已核验。
-- 记录页面实际显示的日期与互动数据。相对日期保留在 `published_text`；无法确定精确发布时间时，`published_at` 为 `null`。没有播放量就填 `null`。
+- 每条原片需同时满足三项硬门槛：原片至少 1,000,000 次播放、至少 100,000 个点赞、另有至少两位不同创作者分别复刻同一可辨认的动作或转场。逐条实际播放原片和跟拍，在 `related_videos` 填两个不同作者的单条视频链接、观看结果和具体相同动作。不计原作者的其他视频、重复链接、同音频但不同玩法、标签页或合集。
+- 在原视频页，或创作者主页中明确对应同一原片的卡片上核对两个指标；不能引用创作者累计点赞、标签播放量、搜索热度或推算值。记录页面**原样显示**的数字文本 `metric_display.views` 和 `metric_display.likes`，并在 `metrics` 写对应数值。精确显示的 1,000,000 和 100,000 可入库。若页面只显示 1M 或 100K，可能是向上取整，继续找公开的精确数字；无法确认就跳过。1.2M 和 130K 即使按显示位数取整也超过门槛。页面如明确显示 1M+ 可按字面下限使用，不得自行补加号。
+- 核验不足时不写入该视频；继续选择真正合格的结果。若没有合格视频，将 `status` 设为 `empty`、`videos` 设为空数组；无法访问则写 `blocked`。旧素材保留在历史记录中，未补齐证据不能进入严格趋势池或触发 Agent。
+- 记录页面实际显示的日期与互动数据。相对日期保留在 `published_text`；无法确定精确发布时间时，`published_at` 为 `null`。缺少播放量或点赞量的记录不能构成新候选。
 - `observed_at` 是实际抓取时间，与原视频发布时间分开。看板按首次抓到的纽约日期倒序分组，日期内分男生／女生素材，保留混合和待分类。候选和采集历史都展示素材分组及单人／多人／待确认标记；男女素材与人数分别筛选，可组合查询。新视频在顶部，复查旧视频不改变其首次抓取日期。
 - AI 适配仅是依据构图与动作复杂度的建议，并非生成测试已通过。无变装的手势舞可规划“角色照片＋动作参考”；变装可规划“同一角色的前后造型图 → 视频”。实际输入能力以所接视频 API 为准。
 
@@ -55,15 +58,15 @@ Work 在自己的云端浏览器中访问 TikTok，通过已授权的 GitHub 插
 
 推送后核对已发布 `data/discovery.json`：对应已有视频应出现 `material_classification`，检查本批 `observed_at`、`material_group`、`subject_group`、`note`，并检查首次抓取时间及历史记录未变。无法播放或无法判断的素材如实保留待确认，不能把分类文件写入完成当成全部原片已复核。首次执行本次一次性复核时，先读取本节最新说明；完成后不要自行创建周期性复核计划。
 
-## 固定输入格式（v2）
+## 固定输入格式（v3）
 
-新采集使用 `schema_version: 2`，每批最多 4 条，同批每个主题最多 2 条。接收程序保留旧版 v1 的兼容读取，旧记录不会因新名额被删除，也不会根据旧标题猜测补齐主题、素材分组或变装类型。
+新采集使用 `schema_version: 3`，每批最多 4 条，同批每个主题最多 2 条。旧版 v1/v2 记录保留于历史，原批次可按原内容重放；新候选按 v3 验证。
 
 写入 UTF-8 JSON，顶层、视频、检查、指标和关联视频只允许下面的字段。每次尝试使用新的唯一 `run_id`，重试同一批写入时保留原 ID。`observed_at` 必须包含时区。
 
 ```json
 {
-  "schema_version": 2,
+  "schema_version": 3,
   "run_id": "work-UNIQUE-RUN-ID",
   "observed_at": "2026-11-15T10:00:00-05:00",
   "status": "partial",
@@ -82,8 +85,12 @@ Work 在自己的云端浏览器中访问 TikTok，通过已授权的 GitHub 插
       "recreation_notes": "构图和动作复杂度判断；尚未实际生成测试。",
       "published_at": null,
       "published_text": "页面实际显示的日期，例如 6d ago",
-      "metrics": {"views": null, "likes": null, "comments": null, "shares": null},
-      "related_videos": [],
+      "metrics": {"views": 1200000, "likes": 130000, "comments": null, "shares": null},
+      "metric_display": {"views": "1.2M", "likes": "130K"},
+      "related_videos": [
+        {"url":"https://www.tiktok.com/@SECOND/video/VIDEO_ID_2","original_watched":true,"same_pattern":true,"note":"说明观察到相同的具体动作或转场。"},
+        {"url":"https://www.tiktok.com/@THIRD/video/VIDEO_ID_3","original_watched":true,"same_pattern":true,"note":"说明另一名作者如何复刻同一段动作。"}
+      ],
       "music_name": ""
     }
   ]
@@ -108,9 +115,11 @@ Work 在自己的云端浏览器中访问 TikTok，通过已授权的 GitHub 插
 {"url":"https://www.tiktok.com/@OTHER_CREATOR/video/OTHER_VIDEO_ID","original_watched":true,"same_pattern":true,"note":"同玩法的实际观察；不同之处也要写清楚。"}
 ```
 
-`checks.repetitive`、`checks.fixed_camera` 和 `same_pattern` 中：`true` 表示观察支持，`false` 表示不符合，`null` 表示未核验。`checks.solo` 按上面的人数定义填写：无人物不能写成多人。指标只接受非负数字或 `null`，不要写 `519.2K` 这类字符串；可以按显示值换算为 519200，但它仍是页面取整后的观测值。
+`checks.repetitive`、`checks.fixed_camera` 和 `same_pattern` 中：`true` 表示观察支持，`false` 表示不符合，`null` 表示未核验。`checks.solo` 按上面的人数定义填写：无人物不能写成多人。评论和分享可用非负数字或 `null`；合格原片的播放和点赞必须是已核实的数字，不要写 `519.2K` 这类字符串；可以按显示值换算为 519200，但它仍是页面取整后的观测值。
 
-`status`：取得候选用 `succeeded` 或 `partial`；`empty`、`blocked`、`failed` 必须搭配空 `videos`，以保留此前候选。`message` 只写公开、安全的结果摘要。当日选中的不同原视频达到纽约当日主题名额时应停止继续收录，不能换 `run_id` 或重复运行绕过限制。
+`status`：取得候选用 `succeeded` 或 `partial`；`empty`、`blocked`、`failed` 必须搭配空 `videos`，以保留此前候选。`message` 只写公开、安全的结果摘要。如果本轮因 TikTok 的人工验证而中断，使用 `status:"blocked"`、`videos:[]`，并在顶层另外设置 `"action_required":"human_verification"`。人工验证须由用户在原浏览器操作。不得写入验证码、挑战链接、Cookie 或令牌。后续任务以新的实际观察记录是否恢复；其他受阻原因或成功运行不添加此字段。
+
+当日选中的不同原视频达到纽约当日主题名额时应停止继续收录，不能换 `run_id` 或重复运行绕过限制。
 
 ## 验证与发布
 
@@ -119,7 +128,7 @@ Work 在自己的云端浏览器中访问 TikTok，通过已授权的 GitHub 插
 发布成功后读取：
 
 - https://yjr927.github.io/idore_tools/data/discovery.json
-- https://yjr927.github.io/idore_tools/
+- https://yjr927.github.io/idore_tools/discovery.html
 
 核对本次 `run_id`、观测时间与至少一个真实 URL，才算整条流程成功。没有候选时核对本次空结果或受阻记录；未发布、发布失败或旧数据仍在时，如实报告。
 
@@ -131,4 +140,4 @@ Work 在自己的云端浏览器中访问 TikTok，通过已授权的 GitHub 插
 
 可将下面这段作为已有每日任务的采集指令：
 
-> 每次运行先读取 `yjr927/idore_tools` 最新的 `docs/CHATGPT_WORK.md`、已发布候选和纽约当日采集记录，面向 TikTok 美国市场按 v2 格式执行。每天合计目标收录 4 条不同原视频：K-pop 最多 2 条、虚拟偶像最多 2 条；男女或人数分类不增加名额，质量不足允许 0 条。同视频当天重试不重复占名额，往日视频复查计入当天名额。每条都播放原片，独立记录主题、male／female／mixed／unknown 素材分组，以及 checks.solo：确认 1 名可见人物／角色为 true，实际至少 2 名为 false，未观看、无人物或无法确认用 null；mixed 仅表示同时需要男、女素材，不代表多人。另记 hands／transition／pov 玩法和 makeup／outfit／makeup_and_outfit／none／unknown 造型变化，未观看不能标无变装。原片观察、跟拍证据和公开指标分别如实填写，不猜热度或真实性别；旧素材缺少证据保留待分类，不在每日采集中全量补标。仅通过 GitHub 插件读取最新 SHA 并更新 `work-results/latest.json`，冲突先重读，同批重试保留 run_id；不改其他文件，不上传私有信息、密钥或角色素材，不调用付费数据、OpenAI、图片或视频 API，不下载重传原视频，不进行社交互动。写入后核对已发布数据和看板的本次 run_id、观测时间与真实 URL，空结果也核对记录；未发布不得称已上线。保留历史和首次抓取日期，新素材在最上。登录、权限、写入或发布失败及需要用户处理时通知；未变化且无需处理时保持安静。
+> 每次运行先读取 `yjr927/idore_tools` 最新的 `docs/CHATGPT_WORK.md`、已发布候选和纽约当日采集记录，面向 TikTok 美国市场按 v3 格式执行。只收录单条原片播放至少 100 万、点赞至少 10 万、至少两位不同的其他作者已实际观看并复刻同一可辨认玩法的视频。保存原样的两个指标文本、换算数值、跟拍链接及各自的观察依据。刚好显示 1M／100K 而不能确认下限时跳过；不得用账号级、话题级或估算数据；合格数可为零。每天合计目标收录 4 条不同原视频：K-pop 最多 2 条、虚拟偶像最多 2 条；男女或人数分类不增加名额，质量不足允许 0 条。同视频当天重试不重复占名额，往日视频复查计入当天名额。每条都播放原片，独立记录主题、male／female／mixed／unknown 素材分组，以及 checks.solo：确认 1 名可见人物／角色为 true，实际至少 2 名为 false，未观看、无人物或无法确认用 null；mixed 仅表示同时需要男、女素材，不代表多人。另记 hands／transition／pov 玩法和 makeup／outfit／makeup_and_outfit／none／unknown 造型变化，未观看不能标无变装。原片观察、跟拍证据和公开指标分别如实填写，不猜热度或真实性别；旧素材缺少证据保留待分类，不在每日采集中全量补标。仅通过 GitHub 插件读取最新 SHA 并更新 `work-results/latest.json`，冲突先重读，同批重试保留 run_id；不改其他文件，不上传私有信息、密钥或角色素材，不调用付费数据、OpenAI、图片或视频 API，不下载重传原视频，不进行社交互动。写入后核对已发布数据和看板的本次 run_id、观测时间与真实 URL，空结果也核对记录；未发布不得称已上线。保留历史和首次抓取日期，新素材在最上。遇到 TikTok 人工验证时以 blocked + 顶层 action_required=human_verification 记录并通知，在原会话等待用户处理。登录、权限、写入或发布失败及需要用户处理时通知；未变化且无需处理时保持安静。

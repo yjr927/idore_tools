@@ -321,7 +321,7 @@ function videoCard(video) {
     el('span', '', 'AI 复刻 · 未试做')
   );
   body.append(checks);
-  if (watched && video.trend_verified === true) body.append(el('p', 'assessment', '已有同玩法跟拍的原片观察依据；这不代表已确认当前热度或增长。'));
+  if (watched && video.trend_verified === true) body.append(el('p', 'assessment', '已有同玩法跟拍的原片观察依据；这不代表已确认未来热度或增长。'));
   if (typeof video.recreation_notes === 'string' && video.recreation_notes.trim()) {
     const notes = el('div', 'observation-notes');
     notes.append(el('strong', '', '复刻建议 · 尚未试做'), el('p', '', video.recreation_notes));
@@ -353,7 +353,7 @@ function videoCard(video) {
   return card;
 }
 function renderVideos() {
-  const valid = data.videos.filter(video => video && videoUrl(video.url));
+  const valid = data.videos.filter(video => video?.qualified_trend === true && videoUrl(video.url));
   const base = valid.filter(video => (topic === 'all' || topicOf(video) === topic) && (category === 'all' || video.kind === category || (Array.isArray(video.kinds) && video.kinds.includes(category))) && (!onlyFavorites || favorites.has(candidateId(video))) && `${video.title || ''} ${video.author || ''} ${video.kind || ''} ${topicLabels[topicOf(video)]} ${materialLabels[materialOf(video)]} ${castLabels[castOf(video)]} ${transformationLabels[transformationOf(video)]} ${video.motion_summary || ''} ${video.recreation_notes || ''}`.toLowerCase().includes(search.toLowerCase()));
   document.querySelectorAll('[data-material]').forEach(button => {
     const key = button.dataset.material;
@@ -407,8 +407,8 @@ function renderVideos() {
   }
   const empty = el('div', 'empty-state');
   empty.append(el('span', 'empty-icon', onlyFavorites ? '☆' : '⌕'));
-  empty.append(el('h3', '', onlyFavorites ? '还没有收藏的候选' : valid.length ? '没有符合当前筛选的候选' : '等待第一批原视频候选'));
-  empty.append(el('p', '', onlyFavorites ? '收藏喜欢的视频，方便回来继续比较。收藏只保存在当前浏览器。' : valid.length ? '试试其他主题、素材分区、人数、动作或搜索词。缺少观察的旧记录仍可在待确认区找到。' : '公开页面没有返回结果时，我们会保留真实状态，不会使用示例视频填充。可在上方查看采集记录。'));
+  empty.append(el('h3', '', onlyFavorites ? '还没有收藏的候选' : valid.length ? '没有符合当前筛选的候选' : '还没有通过核验的趋势'));
+  empty.append(el('p', '', onlyFavorites ? '收藏喜欢的视频，方便回来继续比较。收藏只保存在当前浏览器。' : valid.length ? '试试其他主题、素材分区、人数、动作或搜索词。' : '当前没有同时达到 100 万播放、10 万点赞并有两位其他创作者复刻证据的原片。过往观察可在采集记录中查看。'));
   grid.replaceChildren(empty);
 }
 function renderStatus() {

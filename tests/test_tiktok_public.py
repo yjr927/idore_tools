@@ -59,7 +59,9 @@ class TikTokPublicTests(unittest.TestCase):
 
     def test_partial_and_empty_states(self):
         result = collector.build_result({"videos": [], "runs": []}, [self.row()], [{"status": "ok"}, {"status": "failed"}], STAMP, STAMP)
-        self.assertEqual(result["runs"][0]["status"], "partial")
+        self.assertEqual(result["runs"][0]["status"], "empty")
+        self.assertEqual(result["videos"], [])
+        self.assertEqual(result["runs"][0]["added"], 0)
         result = collector.build_result({"videos": [], "runs": []}, [], [{"status": "ok"}], STAMP, STAMP)
         self.assertEqual(result["runs"][0]["status"], "empty")
 

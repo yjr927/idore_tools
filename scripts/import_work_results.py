@@ -4,6 +4,8 @@
 Input v1 has exactly schema_version, run_id, observed_at, status, message, videos.
 Each video has exactly url, title, kind, original_watched, motion_summary, checks,
 recreation_notes, published_at, published_text, metrics, related_videos, music_name.
+Input v3 adds the two original public metric labels and enforces both audience
+thresholds plus two independently watched remakes. Existing v1/v2 runs can replay.
 Input v2 adds trend_category, material_group and transformation to each video;
 it selects at most four videos and two per topic per America/New_York day.
 Same-day rechecks keep the existing reservation. Reservations outlive run history.
@@ -33,15 +35,9 @@ import sys
 from zoneinfo import ZoneInfo
 
 try:
-    from collect_tiktok_public import canonical_video, PublicPageError
-except ImportError:
-    # Import-by-path test callers may not have scripts/ on sys.path.
-    import importlib.util
-    _spec = importlib.util.spec_from_file_location(
-        "idore_public_url_validation", Path(__file__).with_name("collect_tiktok_public.py"))
-    _collector = importlib.util.module_from_spec(_spec)
-    _spec.loader.exec_module(_collector)
-    canonical_video, PublicPageError = _collector.canonical_video, _collector.PublicPageError
+    from scripts.trend_quality import PublicPageError, canonical_video, eligible_trend
+except ModuleNotFoundError:  # CLI entry point from scripts/
+    from trend_quality import PublicPageError, canonical_video, eligible_trend
 
 
 TOP_KEYS = {"schema_version", "run_id", "observed_at", "status", "message", "videos"}
@@ -65,7 +61,7 @@ SOURCE = "ChatGPT Work 云端浏览器"
 SNAPSHOT_KEYS = (
     "id", "video_id", "url", "title", "author", "kind", "original_watched",
     "motion_summary", "checks", "recreation_notes", "published_at", "published_text",
-    "metrics", "related_videos", "music_name", "motion_verified", "trend_verified",
+    "metrics", "metric_display", "qualified_trend", "related_videos", "music_name", "motion_verified", "trend_verified",
     "source", "source_url", "source_kind", "assessment", "assessment_note",
 )
 
@@ -131,9 +127,10 @@ def metric(value):
 
 
 def validate_payload(payload):
-    exact_object(payload, TOP_KEYS, "Work 结果")
+    intervention = isinstance(payload, dict) and payload.get("schema_version") == 3 and "action_required" in payload
+    exact_object(payload, TOP_KEYS | {"action_required"} if intervention else TOP_KEYS, "Work 结果")
     version = payload["schema_version"]
-    if type(version) is not int or version not in (1, 2):
+    if type(version) is not int or version not in (1, 2, 3):
         raise WorkResultError("不支持的 Work 结果版本。")
     ident = payload["run_id"]
     if not isinstance(ident, str) or not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_.:-]{0,99}", ident):
@@ -142,16 +139,21 @@ def validate_payload(payload):
     status = payload["status"]
     if not isinstance(status, str) or status not in STATUSES:
         raise WorkResultError("Work 采集状态无效。")
+    if intervention and (status != "blocked" or payload["action_required"] != "human_verification"):
+        raise WorkResultError("action_required 只接受 blocked 记录中的 human_verification。")
     message = public_text(payload["message"], "message", 1000, True)
     videos = payload["videos"]
-    maximum = MAX_DAILY_VIDEOS if version == 2 else 8
+    maximum = MAX_DAILY_VIDEOS if version >= 2 else 8
     if not isinstance(videos, list) or len(videos) > maximum:
         raise WorkResultError(f"每次 Work v{version} 结果最多包含 {maximum} 条视频。")
     if (status in ("succeeded", "partial")) != bool(videos):
         raise WorkResultError("成功或部分成功必须有视频；empty、blocked、failed 不得包含视频。")
     cleaned, seen, topics = [], set(), {}
     for video in videos:
-        exact_object(video, VIDEO_KEYS | set(CLASSIFICATION_KEYS) if version == 2 else VIDEO_KEYS, "视频")
+        keys = VIDEO_KEYS | set(CLASSIFICATION_KEYS) if version >= 2 else VIDEO_KEYS
+        if version == 3:
+            keys = keys | {"metric_display"}
+        exact_object(video, keys, "视频")
         url, author, video_id = public_url(video["url"])
         if video_id in seen:
             raise WorkResultError("本次结果包含重复的原视频。")
@@ -161,7 +163,7 @@ def validate_payload(payload):
             raise WorkResultError("视频 kind 必须为 hands、transition 或 pov。")
         seen_original = watched(video["original_watched"])
         classification = {}
-        if version == 2:
+        if version >= 2:
             for field, choices in (("trend_category", TOPICS), ("material_group", MATERIAL_GROUPS),
                                    ("transformation", TRANSFORMATIONS)):
                 if not isinstance(video[field], str) or video[field] not in choices:
@@ -194,6 +196,9 @@ def validate_payload(payload):
                 "original_watched": watched(example["original_watched"]),
                 "same_pattern": optional_bool(example["same_pattern"], "same_pattern"),
                 "note": public_text(example["note"], "跟拍 note", 500)})
+        if version == 3:
+            displays = exact_object(video["metric_display"], {"views", "likes"}, "metric_display")
+            classification["metric_display"] = {k: public_text(v, "metric_display", 40, True) for k, v in displays.items()}
         cleaned.append({**classification, "url": url, "title": public_text(video["title"], "title", 300, True),
             "kind": kind, "original_watched": seen_original,
             "motion_summary": public_text(video["motion_summary"], "motion_summary", 2000),
@@ -201,7 +206,9 @@ def validate_payload(payload):
             "published_at": published, "published_text": public_text(video["published_text"], "published_text", 100),
             "metrics": metrics, "related_videos": related_clean,
             "music_name": public_text(video["music_name"], "music_name", 300)})
-    return {"schema_version": version, "run_id": ident, "observed_at": stamp, "status": status,
+        if version == 3 and not eligible_trend(cleaned[-1]):
+            raise WorkResultError("趋势需要核实原片播放至少 1,000,000、点赞至少 100,000，以及两位其他创作者的同玩法复刻。")
+    return {**({"action_required": "human_verification"} if intervention else {}), "schema_version": version, "run_id": ident, "observed_at": stamp, "status": status,
             "message": message, "videos": cleaned}
 
 
@@ -216,7 +223,8 @@ def normalized_video(video, stamp):
     }
     trend = video["original_watched"] and len(other_authors) >= 2
     note = video["motion_summary"] if video["original_watched"] else "原片尚未观看；动作与跟拍仍待核验。"
-    return {**copy.deepcopy(video), "id": "tiktok-" + video_id, "video_id": video_id,
+    quality = {"qualified_trend": eligible_trend(video)} if "metric_display" in video else {}
+    return {**copy.deepcopy(video), **quality, "id": "tiktok-" + video_id, "video_id": video_id,
         "author": author, "kinds": [video["kind"]], "url": url,
         "first_seen_at": stamp, "last_seen_at": stamp, "duration": None, "music_id": "",
         "source": SOURCE, "source_url": url, "source_kind": "chatgpt_work", "search_query": "",
@@ -329,8 +337,22 @@ def daily_selections(previous, clean):
 
 
 def merge_work_results(previous, payload):
-    """Return a new state; validation/idempotency errors never mutate previous."""
+    """Only current, evidence-qualified observations can create a new nonempty run."""
     clean = validate_payload(payload)
+    if not isinstance(previous, dict) or not isinstance(previous.get("runs", []), list):
+        raise WorkResultError("已有候选库格式无效。")
+    if clean["schema_version"] < 3 and clean["videos"]:
+        ident = clean["run_id"]
+        imports = previous.get("work_imports", {})
+        replay = isinstance(imports, dict) and ident in imports or any(isinstance(r, dict)
+            and ident in (r.get("id"), r.get("run_id")) for r in previous.get("runs", []))
+        if not replay:
+            raise WorkResultError("新的非空采集必须使用 v3，附上原片的两个指标和跨作者复刻证据。")
+    return _merge_observation(previous, clean)
+
+
+def _merge_observation(previous, clean):
+    """Preserve immutable historical records and apply a validated observation."""
     if not isinstance(previous, dict) or not isinstance(previous.get("videos", []), list) or not isinstance(previous.get("runs", []), list):
         raise WorkResultError("已有候选库格式无效。")
     fingerprint = hashlib.sha256(json.dumps(clean, sort_keys=True, ensure_ascii=False,
@@ -349,14 +371,14 @@ def merge_work_results(previous, payload):
             raise WorkResultError("该 run_id 已用于不同结果，请使用新的 run_id。")
     result = copy.deepcopy(previous)
     result.setdefault("videos", []); result.setdefault("runs", [])
-    if clean["schema_version"] == 2:
+    if clean["schema_version"] >= 2:
         result["work_daily_selections"] = daily_selections(previous, clean)
     by_id = {row.get("id"): row for row in result["videos"] if isinstance(row, dict)}
     stamp, added = clean["observed_at"], 0
     for video in clean["videos"]:
         row = normalized_video(video, stamp)
         observation = {"run_id": clean["run_id"], "observed_at": stamp,
-            **{key: copy.deepcopy(row[key]) for key in ("metrics", "original_watched", "motion_summary",
+            **{key: copy.deepcopy(row[key]) for key in ("metrics", "metric_display", "qualified_trend", "original_watched", "motion_summary",
                 "checks", "recreation_notes", "related_videos", "motion_verified", "trend_verified") + CLASSIFICATION_KEYS if key in row}}
         existing = by_id.get(row["id"])
         if existing is None:
@@ -381,6 +403,8 @@ def merge_work_results(previous, payload):
         "found": len(clean["videos"]), "added": added, "message": clean["message"],
         "ingestion_status": "imported", "video_snapshots": video_snapshots(clean),
         "sources": [{"name": SOURCE, "url": url, "status": "ok", "found": 1} for url in source_urls]}
+    if "action_required" in clean:
+        run["action_required"] = clean["action_required"]
     result["runs"].append(run)
     result["runs"].sort(key=lambda row: _timestamp(row.get("observed_at") or row.get("started_at")), reverse=True)
     result["runs"] = result["runs"][:MAX_RUNS]
