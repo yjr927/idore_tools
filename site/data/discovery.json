@@ -1830,6 +1830,25 @@
   ],
   "runs": [
     {
+      "id": "work-tiktok-20261123T140240Z-v3",
+      "run_id": "work-tiktok-20261123T140240Z-v3",
+      "payload_sha256": "7d69806cb20f8951910490b0368538e276bb44a7d8ca911e6d4717109aa8956d",
+      "collector": "chatgpt_work",
+      "status": "blocked",
+      "kind": "all",
+      "query": "",
+      "started_at": "2026-11-23T14:02:40+00:00",
+      "finished_at": "2026-11-23T14:02:40+00:00",
+      "observed_at": "2026-11-23T14:02:40+00:00",
+      "found": 0,
+      "added": 0,
+      "message": "本轮新增0条。此前TikTok人工验证尚无完成证据，本轮重新访问被浏览器自动审批拒绝，未取得新的TikTok页面或播放观察；已停止相关操作，未绕过验证。需在原Work云端会话完成验证，工作台Confirm仅确认提示。对每日3条成片目标，本轮未提供可用新原片，缺3条；缺原片播放至少100万、点赞至少10万的公开指标原样值，以及每条至少2名不同其他作者的实际同玩法观看证据。保留此前候选、首次抓取日期和历史；未额外启动生成或调用付费API，未核验任何本轮收件箱送达回执。",
+      "ingestion_status": "imported",
+      "video_snapshots": [],
+      "sources": [],
+      "action_required": "human_verification"
+    },
+    {
       "id": "work-tiktok-20261120T140259Z-v2",
       "run_id": "work-tiktok-20261120T140259Z-v2",
       "payload_sha256": "b222d7b6ce8a49aeb3b5f0487f83384a99caa7fe31515ffd73accc269ccad5a8",
@@ -3192,7 +3211,7 @@
       ]
     }
   ],
-  "last_attempt_at": "2026-11-20T14:02:59+00:00",
+  "last_attempt_at": "2026-11-23T14:02:40+00:00",
   "last_success_at": "2026-11-19T14:10:21+00:00",
   "work_imports": {
     "work-tiktok-20261112T013104Z-7704859708200389902": "3f8b1c1e965c6bdb4e2aa62d5664177f4b4188cb0e4652526db2730fb82349c7",
@@ -3204,7 +3223,8 @@
     "work-tiktok-20261117T140951Z-v2": "e4d9ebfd85b7d4c9fd0ede215aa058fe634ad7bbea63c8df49dbc1d7b1775050",
     "work-tiktok-20261118T140231Z-v2": "a14b68426bdccd5a4a9b3aeaaaa076349d83eb65898ff98f891fce04eb5aadd7",
     "work-tiktok-20261119T141021Z-v2": "e7d79c810d91002ed89a7fc42e1bee99a3dc632e549556a86ada84619ac32cdd",
-    "work-tiktok-20261120T140259Z-v2": "b222d7b6ce8a49aeb3b5f0487f83384a99caa7fe31515ffd73accc269ccad5a8"
+    "work-tiktok-20261120T140259Z-v2": "b222d7b6ce8a49aeb3b5f0487f83384a99caa7fe31515ffd73accc269ccad5a8",
+    "work-tiktok-20261123T140240Z-v3": "7d69806cb20f8951910490b0368538e276bb44a7d8ca911e6d4717109aa8956d"
   },
   "material_classification_imports": {
     "2026-11-15T22:22:39.724000+00:00": "8cd3e17433a336f4ee0bcc3b43c3920f593ebf1d3c38b5039ecfc571ac1215ed"
