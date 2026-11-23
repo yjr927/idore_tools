@@ -2,6 +2,24 @@
   "schema_version": 1,
   "items": [
     {
+      "id": "agent-2026-11-23-momoko",
+      "generation_method": "named_reference_motion",
+      "created_at": "2026-11-23T14:31:59.503658Z",
+      "sequence_slot": "2026-11-23-momoko",
+      "title": "MOMOKO",
+      "trend_id": "tiktok-7703265627972128021",
+      "source_url": "https://www.tiktok.com/@itsmomoko.jp/video/7703265627972128021",
+      "selection_basis": "user_selected_reference",
+      "trend_verified": false,
+      "plan_reserved_at": "2026-11-23T14:31:59.539599Z",
+      "status": "agent_planning",
+      "stage": "planning",
+      "message": "OpenAI 正在从核验原片与角色照片中选择素材、写分镜和文案。",
+      "error_code": "",
+      "updated_at": "2026-11-23T14:31:59.539610Z",
+      "revision": "ef912ad088b482a4b089aa8a754080fb8296ac694ee8e568a6e93890b4bec160"
+    },
+    {
       "id": "agent-2026-11-22-morning",
       "generation_method": "agent_motion",
       "created_at": "2026-11-23T02:18:34.231415Z",
@@ -407,5 +425,5 @@
     "copy_provider": "openrouter",
     "copy_model": "openai/gpt-5.4-mini"
   },
-  "updated_at": "2026-11-23T14:20:47.362503Z"
+  "updated_at": "2026-11-23T14:31:59.539642Z"
 }
