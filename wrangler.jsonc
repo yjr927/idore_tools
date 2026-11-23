@@ -3,6 +3,10 @@
   "main": "worker/index.mjs",
   "compatibility_date": "2026-11-18",
   "workers_dev": true,
+  "keep_vars": true,
+  "vars": {
+    "NOV23_DRAFT_DESTINATION": "ccbc49324eb88daf8b977f1deb38d793155498f11f330ebdf514898e217ca2f8"
+  },
   "observability": {
     "enabled": true,
     "logs": { "enabled": true, "invocation_logs": false },
