@@ -12,12 +12,12 @@
       "selection_basis": "user_selected_reference",
       "trend_verified": false,
       "plan_reserved_at": "2026-11-23T14:32:03.125827Z",
-      "status": "agent_planning",
+      "status": "needs_attention",
       "stage": "planning",
-      "message": "OpenAI 正在从核验原片与角色照片中选择素材、写分镜和文案。",
-      "error_code": "",
-      "updated_at": "2026-11-23T14:32:03.125844Z",
-      "revision": "d3aafce0c17d09dd207573b2294d33ead33afd0d00519c51861d5aec259c2daa"
+      "message": "Cloudflare 上的策划服务暂时无法访问。",
+      "error_code": "planner_unavailable",
+      "updated_at": "2026-11-23T14:32:04.636872Z",
+      "revision": "794acdf2f363e9ab27878a6363158d988f79c854316dc49cc117b4162108961e"
     },
     {
       "id": "agent-2026-11-23-momoko",
@@ -443,5 +443,5 @@
     "copy_provider": "openrouter",
     "copy_model": "openai/gpt-5.4-mini"
   },
-  "updated_at": "2026-11-23T14:32:03.125883Z"
+  "updated_at": "2026-11-23T14:32:04.636933Z"
 }
