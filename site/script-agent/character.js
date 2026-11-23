@@ -837,7 +837,36 @@
     }
   }
 
+  async function prepareDemo() {
+    const button = $("#openDemo");
+    const base = location.hostname === "idore-tools.yjr927.workers.dev"
+      ? "https://yjr927.github.io/idore_tools/script-agent/" : new URL("./", location.href);
+    try {
+      const response = await fetch(new URL("demo/report.json", base), {
+        credentials: "omit", cache: "no-cache", redirect: "error", signal: AbortSignal.timeout(15000)
+      });
+      if (!response.ok || Number(response.headers.get("content-length")) > 8 * 1024 * 1024) return;
+      const blob = await response.blob();
+      if (blob.size > 8 * 1024 * 1024) return;
+      const preview = JSON.parse(await blob.text());
+      if (!record(preview?.characters) || !Object.keys(preview.characters).length || !record(preview.relationships)) return;
+      const file = new File([blob], "示例分析.json", {type: "application/json"});
+      button.disabled = false;
+      button.textContent = "查看示例分析";
+      button.addEventListener("click", () => openDocument(file));
+      const source = $("#demoSource");
+      source.href = new URL("demo/source.txt", base).href;
+      source.hidden = false;
+      if (new URLSearchParams(location.search).get("demo") === "1" && selection === 0) {
+        await openDocument(file);
+      }
+    } catch {
+      // The demo is enabled only after its verified report becomes publicly available.
+    }
+  }
+
   bindTabs();
+  prepareDemo();
   const input = $("#sourceFile"), zone = $("#dropzone");
   input.addEventListener("change", () => { const file = input.files[0]; input.value = ""; openDocument(file); });
   for (const type of ["dragenter", "dragover", "dragleave", "drop"]) {

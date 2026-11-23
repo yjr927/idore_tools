@@ -1,0 +1,100 @@
+name: Verify Script Character Agent on OpenRouter
+
+on:
+  # Bootstrap the authored demo once. An existing validated report skips inference.
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/script-agent-openrouter.yml'
+      - 'site/script-agent/demo/source.txt'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: script-agent-openrouter-demo
+  cancel-in-progress: false
+
+env:
+  DEMO_MODEL: openai/gpt-5.4-mini
+
+jobs:
+  verify:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    outputs:
+      generated: ${{ steps.plan.outputs.generate }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Check whether a verified demo already exists
+        id: plan
+        run: |
+          if [[ "$GITHUB_EVENT_NAME" == push ]] && [[ -f site/script-agent/demo/report.json ]] &&
+             python scripts/verify_script_report.py site/script-agent/demo/report.json --model "$DEMO_MODEL"; then
+            echo "generate=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "generate=true" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Analyze the public demonstration screenplay
+        if: steps.plan.outputs.generate == 'true'
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          SCRIPT_AGENT_MAX_MODEL_CALLS: '9'
+        run: |
+          if [[ -z "$OPENROUTER_API_KEY" ]]; then
+            echo "::error::Set the repository Actions secret OPENROUTER_API_KEY."
+            exit 1
+          fi
+          python -m script_agent analyze site/script-agent/demo/source.txt \
+            --output "$RUNNER_TEMP/screenplay-run" --workers 2 --max-output-tokens 5000 \
+            --extract-model "$DEMO_MODEL" --synthesis-model "$DEMO_MODEL"
+      - name: Verify real model stages, character cards and quoted dialogue
+        if: steps.plan.outputs.generate == 'true'
+        run: |
+          python scripts/verify_script_report.py "$RUNNER_TEMP/screenplay-run/output/report.json" \
+            --model "$DEMO_MODEL" | tee -a "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        if: steps.plan.outputs.generate == 'true'
+        with:
+          name: verified-public-demo
+          path: ${{ runner.temp }}/screenplay-run/output/report.json
+          if-no-files-found: error
+          retention-days: 7
+
+  publish:
+    needs: verify
+    if: needs.verify.outputs.generated == 'true'
+    permissions:
+      contents: write
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/download-artifact@v4
+        with:
+          name: verified-public-demo
+          path: ${{ runner.temp }}/verified-public-demo
+      - name: Publish the verified demo report alongside its source
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          for attempt in 1 2 3; do
+            git fetch origin main
+            git reset --hard origin/main
+            python3 scripts/verify_script_report.py "$RUNNER_TEMP/verified-public-demo/report.json" --model "$DEMO_MODEL"
+            cp "$RUNNER_TEMP/verified-public-demo/report.json" site/script-agent/demo/report.json
+            git add -- site/script-agent/demo/report.json
+            if git diff --cached --quiet; then exit 0; fi
+            git commit -m "Publish verified Script Character Agent demo"
+            if git push origin HEAD:main; then exit 0; fi
+          done
+          exit 1

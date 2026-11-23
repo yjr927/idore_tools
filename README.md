@@ -42,6 +42,16 @@ TikTok 尚未建立开发者应用及账号授权，目前只有接入入口与�
 
 原片、关节点文件、签名媒体地址、私有上传回执和 API 密钥不发布到 Pages。角色图、动作白模及成片若用于当前公开仓库流程，会作为已授权的公开素材保存；私人角色素材不要直接放入公开清单。
 
+## 剧本角色分析
+
+[剧本角色工作台](https://idore-tools.yjr927.workers.dev/script-agent/) 可以打开文本剧本或已有的角色报告。页面中的原创示例由 GitHub Actions 使用仓库的 `OPENROUTER_API_KEY` 运行完整分析后发布。报告包括逐场原文依据、角色卡和关系变化。
+
+在本机项目目录配置自己的 `OPENROUTER_API_KEY` 后，可对获准交给模型的剧本运行以下命令。文本输入无需安装额外的解析库。将运行目录中的 `output/report.json` 拖入工作台即可查看。请将私人剧本和分析目录保存在公开仓库以外。
+
+```sh
+python3 -m script_agent analyze /path/to/script.txt -o /path/to/private-analysis
+```
+
 ## 保留的工具
 
 匿名 TikTok 公开页采集仅为手动试跑，最多 4 条链接；受阻时保留旧数据并记录失败。它不替代 Work 的登录浏览和观看证据。原有 GitHub 手动视频／造型图任务仍可用于单独实验，不等同于每日生产队列。

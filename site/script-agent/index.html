@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="referrer" content="no-referrer">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'none'; img-src 'self'; style-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' https://yjr927.github.io; img-src 'self'; style-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
   <title>剧本角色 · idore</title>
   <link rel="icon" href="../mark.svg" type="image/svg+xml">
   <link rel="stylesheet" href="./character.css">
@@ -27,10 +27,13 @@
           </label>
         </div>
         <p class="file-hint" id="fileStatus" role="status">文件仅在此浏览器打开。</p>
-        <details class="local-tools"><summary>完整 AI 分析</summary>
-          <p>在本机 Script Character Agent 中分析剧本、PDF 或 DOCX，再将导出的报告 JSON 拖到这里。</p>
-          <p>在项目目录运行 <code>python3 -m script_agent serve</code></p>
-          <a class="text-button" href="http://127.0.0.1:8000/" target="_blank" rel="noopener noreferrer">打开本机 Agent ↗</a>
+        <div class="result-actions">
+          <button type="button" class="text-button" id="openDemo" disabled>示例待就绪</button>
+          <a id="demoSource" class="text-button" target="_blank" rel="noopener noreferrer" hidden>示例剧本 ↗</a>
+        </div>
+        <details class="local-tools"><summary>分析自己的剧本</summary>
+          <p>在本机设置 <code>OPENROUTER_API_KEY</code>，分析完成后将 <code>runs/角色分析/output/report.json</code> 拖到此页。</p>
+          <p>在项目目录运行 <code>python3 -m script_agent analyze 剧本.txt --output runs/角色分析</code></p>
         </details>
       </section>
     </section>

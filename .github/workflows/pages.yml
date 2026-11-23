@@ -5,7 +5,7 @@ on:
     paths: ['site/**', 'work-results/latest.json', 'work-results/classifications.json', 'scripts/import_work_results.py', 'scripts/import_material_classifications.py', 'tests/test_work_results.py', 'tests/test_material_classifications.py', '.github/workflows/pages.yml']
   workflow_dispatch:
   workflow_run:
-    workflows: ['TikTok public discovery']
+    workflows: ['TikTok public discovery', 'Verify Script Character Agent on OpenRouter']
     types: [completed]
 permissions:
   contents: write
