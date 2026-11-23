@@ -7,7 +7,11 @@ const sample = new Uint8Array([0,0,0,12,102,116,121,112,105,115,111,109]);
 const hash = createHash('sha256').update(sample).digest('hex');
 const path = 'generated/video-' + hash.slice(0,24) + '.mp4';
 const row = {sha256:hash, video_path:path, title:'Gallery', kind:'character',
-  generation_method:'photo_sequence', created_at:'2026-11-22T21:20:00Z'};
+  generation_method:'agent_motion', planner:'openai', trend_verified:true, material_group:'female',
+  source_photo_ids:['approved-a'], source_metrics:{views:1200000,likes:150000},
+  source_url:'https://www.tiktok.com/@original/video/1234567890123456789',
+  source_peers:[{url:'https://www.tiktok.com/@peer1/video/2234567890123456789',note:'same turn'},
+    {url:'https://www.tiktok.com/@peer2/video/3234567890123456789',note:'same beat'}], created_at:'2026-11-22T21:20:00Z'};
 const manifest = items => JSON.stringify({schema_version:1,items});
 const url = 'https://yjr927.github.io/idore_tools/';
 
@@ -20,7 +24,9 @@ test('only content-addressed archive records can be used, including older view-o
   });
   const [film] = await listFilms();
   assert.deepEqual(await listFilms(), [{hash, path:'/'+path, title:'Gallery', generatedAt:'2026-11-22T21:20:00.000Z', autoEligible:true}]);
-  for (const patch of [{kind:'api_test'}, {generation_method:undefined}, {created_at:'abc'}]) {
+  for (const patch of [{kind:'api_test'}, {generation_method:'photo_sequence'}, {created_at:'abc'}, {planner:'openrouter'},
+    {material_group:'unknown'}, {trend_verified:false}, {source_metrics:{views:999999,likes:150000}},
+    {source_metrics:{views:1200000,likes:99999}}, {source_peers:[row.source_peers[0], row.source_peers[0]]}]) {
     body = manifest([{...row,...patch}]);
     assert.equal((await listFilms())[0].autoEligible, false);
   }

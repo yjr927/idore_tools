@@ -1,0 +1,92 @@
+name: Plan and produce verified TikTok motion remakes
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/run_agent_motion.py'
+      - 'scripts/agent_film_planner.py'
+      - 'scripts/trend_quality.py'
+      - 'site/data/characters.json'
+      - 'work-results/latest.json'
+      - '.github/workflows/agent-motion.yml'
+  schedule:
+    # 09:17 / 18:17 New York, covering both UTC offsets. A slot is generated once.
+    - cron: '17 13,14,22,23 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  render:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 145
+    concurrency:
+      group: idore-production
+      cancel-in-progress: false
+    outputs:
+      changed: ${{ steps.archive.outputs.changed }}
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Merge observed metrics and classifications
+        run: |
+          python scripts/import_work_results.py --input work-results/latest.json --output site/data/discovery.json
+          python scripts/import_material_classifications.py --input work-results/classifications.json --output site/data/discovery.json
+      - name: Check for eligible source evidence
+        id: preflight
+        run: python scripts/run_agent_motion.py --preflight
+      - name: Install the video editor and motion dependencies
+        if: steps.preflight.outputs.motion == 'true'
+        run: |
+          python -m pip install --disable-pip-version-check -r requirements-motion.txt
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg blender xvfb fonts-dejavu-core
+      - name: Validate the planner, status transitions and editor
+        run: |
+          python -m unittest discover -s tests -p 'test_agent_film_planner.py' -v
+          python -m unittest discover -s tests -p 'test_agent_motion.py' -v
+      - name: Plan one due film and archive its completed motion edit
+        id: archive
+        env:
+          PIPELINE_PERSIST: 'true'
+          OPENROUTER_TEXT_MODEL: ${{ vars.OPENROUTER_TEXT_MODEL || 'openai/gpt-5.4-mini' }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          SEEDANCE_MODEL: ${{ vars.SEEDANCE_MODEL || 'bytedance/seedance-2.5' }}
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: python scripts/run_agent_motion.py
+
+  deploy:
+    needs: render
+    if: always() && needs.render.outputs.changed == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: false
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+      - uses: actions/deploy-pages@v4
+        id: deployment

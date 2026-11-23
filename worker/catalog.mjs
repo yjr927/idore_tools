@@ -43,6 +43,29 @@ function pagesRequest(path) {
   });
 }
 
+// Only final motion remakes admitted by the verified trend and OpenAI planning pipeline may be sent.
+function eligibleRemake(item) {
+  if (item.kind !== 'character' || item.generation_method !== 'agent_motion' ||
+      item.planner !== 'openai' || item.trend_verified !== true ||
+      !['male', 'female'].includes(item.material_group) || (!Array.isArray(item.source_photo_ids) || !item.source_photo_ids.length) ||
+      !Number.isSafeInteger(item.source_metrics?.views) || item.source_metrics.views < 1000000 ||
+      !Number.isSafeInteger(item.source_metrics?.likes) || item.source_metrics.likes < 100000) return false;
+  const video = /^https:\/\/www\.tiktok\.com\/@([\w.-]{1,32})\/video\/(\d+)$/i;
+  const original = video.exec(item.source_url);
+  if (!original || !Array.isArray(item.source_peers)) return false;
+  const creators = new Set([original[1].toLowerCase()]);
+  const videos = new Set([original[2]]);
+  for (const peer of item.source_peers) {
+    const match = video.exec(peer?.url);
+    if (!match || (typeof peer?.note !== 'string' || !peer.note.trim()) || videos.has(match[2])) continue;
+    const creator = match[1].toLowerCase();
+    if (creators.has(creator)) continue;
+    creators.add(creator);
+    videos.add(match[2]);
+  }
+  return creators.size >= 3;
+}
+
 // Use the published repository manifest even if its data changes between Worker deployments.
 export async function listFilms() {
   const bytes = await readBounded(await fetch(pagesRequest('/data/creations.json')), MANIFEST_LIMIT);
@@ -62,8 +85,7 @@ export async function listFilms() {
     const generatedAt = Number.isFinite(timestamp) ? new Date(timestamp).toISOString() : null;
     films.set(hash, {
       hash, path, title: String(item.title || item.character || 'idore').slice(0, 160), generatedAt,
-      autoEligible: Boolean(generatedAt && item.kind === 'character' &&
-        item.generation_method === 'photo_sequence')
+      autoEligible: Boolean(generatedAt && eligibleRemake(item))
     });
   }
   return [...films.values()];

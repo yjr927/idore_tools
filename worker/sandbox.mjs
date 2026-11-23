@@ -296,9 +296,9 @@ async function galleryRequest(request, url, env, auth) {
     const value = url.searchParams.get('clips') || '';
     const hashes = [...new Set(value ? value.split(',') : [])];
     if (hashes.length > 20 || hashes.some(h => !/^[a-f0-9]{64}$/.test(h))) return json({error:'invalid_clips'}, 400);
-    const automation = await inside(coordinator, 'automation/read');
+    const {requiresReconnect, ...automation} = await inside(coordinator, 'automation/read', {sid:auth?.session.sid});
     const rows = await Promise.all(hashes.map(async h => [h, publicReceipt(await inside(receiptActor(env, viewer, h), 'read'))]));
-    return json({connected:true, display:viewer.display, csrf:viewer.csrf, canEnable:Boolean(auth?.grant.renewal),
+    return json({connected:true, display:viewer.display, csrf:viewer.csrf, canEnable:Boolean(auth?.grant.renewal) && !requiresReconnect,
       automation, receipts:Object.fromEntries(rows.filter(([,row]) => row))});
   }
   if (request.headers.get('Origin') !== url.origin) return json({error:'invalid_origin'}, 403);
@@ -312,8 +312,8 @@ async function galleryRequest(request, url, env, auth) {
   if (toggle === '0') return json(await inside(coordinator, 'automation/disable'));
   if (!auth?.grant.renewal) return json({error:'reconnect_required'}, 401);
   const box = await seal(env, 'automation:' + viewer.account, auth.grant.renewal);
-  const result = await inside(coordinator, 'automation/enable', {account:viewer.account, origin:url.origin, box});
-  return json(result, result.error ? 503 : 200);
+  const result = await inside(coordinator, 'automation/enable', {sid:auth.session.sid, account:viewer.account, origin:url.origin, box});
+  return json(result, result.error === 'reconnect_required' ? 401 : result.error ? 503 : 200);
 }
 
 const states = {
@@ -626,6 +626,7 @@ export class SandboxAttempt {
 
   async enable(data) {
     const old = await this.storage.get('automation');
+    if (old?.problem === 'reconnect_required' && old.sid === data.sid) return {error:'reconnect_required'};
     if (old?.enabled) {
       await this.storage.setAlarm(Date.now() + 1000);
       return visibleSettings(old);
@@ -637,7 +638,7 @@ export class SandboxAttempt {
     // Usually empty. Snapshot any pre-existing oddly future-dated entries as
     // well as setting the normal time cutoff so enabling never sends history.
     const baseline = films.filter(f => f.autoEligible && Date.parse(f.generatedAt) > Date.parse(startedAt)).map(f => f.hash);
-    const config = {enabled:true, account:data.account, origin:data.origin, box:data.box, startedAt, baseline};
+    const config = {enabled:true, sid:data.sid, account:data.account, origin:data.origin, box:data.box, startedAt, baseline};
     await this.storage.setAlarm(Date.now() + 1000);
     await this.storage.put('automation', config);
     return visibleSettings(config);
@@ -762,7 +763,10 @@ export class SandboxAttempt {
     const path = new URL(request.url).pathname;
     if (request.method !== 'POST') return new Response(null, {status:405});
     const data = await request.json();
-    if (path === '/automation/read') return json(visibleSettings(await this.storage.get('automation')));
+    if (path === '/automation/read') {
+      const config = await this.storage.get('automation');
+      return json({...visibleSettings(config), requiresReconnect:config?.problem === 'reconnect_required' && config.sid === data.sid});
+    }
     if (path === '/automation/enable') return json(await this.serialized(() => this.enable(data)));
     if (path === '/automation/disable') return json(await this.serialized(async () => this.disable(await this.storage.get('automation'))));
     if (path === '/grant') {

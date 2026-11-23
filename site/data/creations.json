@@ -16,7 +16,8 @@
       "poster_path": "generated/video-36dc967ec3fc7e4cd1060f94.jpg",
       "workflow_url": "https://github.com/yjr927/idore_tools/actions/runs/43790641550",
       "kind": "character",
-      "sha256": "36dc967ec3fc7e4cd1060f94cf9572ee4a1a7e2def4c2bcdeb6d9648518a3b68"
+      "sha256": "36dc967ec3fc7e4cd1060f94cf9572ee4a1a7e2def4c2bcdeb6d9648518a3b68",
+      "timestamp_basis": "workflow_artifact"
     },
     {
       "id": "video-0dce843b11792bab97eecf8e",
@@ -33,7 +34,8 @@
       "poster_path": "generated/video-0dce843b11792bab97eecf8e.jpg",
       "workflow_url": "https://github.com/yjr927/idore_tools/actions/runs/43772946438",
       "kind": "api_test",
-      "sha256": "0dce843b11792bab97eecf8e1e995edb399a81f6bbae971502b862e3d7d13503"
+      "sha256": "0dce843b11792bab97eecf8e1e995edb399a81f6bbae971502b862e3d7d13503",
+      "timestamp_basis": "workflow_artifact"
     }
   ],
   "updated_at": "2026-11-16T02:36:56.343078Z"

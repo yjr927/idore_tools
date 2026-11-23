@@ -24,7 +24,7 @@
     <section>
       <h2>Creating and reviewing videos</h2>
       <p>The workspace processes the references, character images, motion guides, prompts, generated media, captions and review decisions used for a project. GitHub hosts the workspace and runs production jobs. Depending on the job, OpenRouter and the selected model provider, including OpenAI or ByteDance’s Seedance, receive the inputs needed to generate video, create images or suggest captions.</p>
-      <p>The Agent can choose photos from the project’s materials library and use them to make a video. The library, production previews and completed videos can be publicly accessible on GitHub and in the Studio. Only submit material suitable for this audience.</p>
+      <p>For a video planned by the Agent, Cloudflare prepares the planning request and checks the selections. GitHub calls the selected OpenAI model through OpenRouter with approved character photos and details of eligible trend references. The Studio extracts movement from the chosen reference, creates a faceless motion guide and uses that guide and the selected character image to generate the video. The video materials library, motion previews and completed videos can be publicly accessible on GitHub and in the Studio. Only submit material suitable for this audience.</p>
     </section>
     <section>
       <h2>Sending a draft to TikTok</h2>

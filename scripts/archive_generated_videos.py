@@ -201,7 +201,8 @@ def merge(site, videos, run, repository, historical=False):
             'resolution': resolution, 'aspect_ratio': ratio, 'video_path': 'generated/' + video.name,
             'poster_path': 'generated/' + poster.name,
             'workflow_url': 'https://github.com/' + repository + '/actions/runs/' + str(run['id']),
-            'kind': 'character', 'sha256': digest}
+            'kind': 'character', 'sha256': digest,
+            'timestamp_basis': 'workflow_artifact' if run.get('archive_created_at') else 'workflow_update'}
         if historical:
             metadata = HISTORICAL[str(run['id'])]
             item.update({key: metadata[key] for key in ('title', 'character', 'material_group', 'cast_type', 'kind')})

@@ -15,7 +15,7 @@ import time
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
-from scripts.pipeline_state import PipelineError, now, touch, revision, sync_queue, approve, approved_content
+from scripts.pipeline_state import PipelineError, now, touch, revision, classified, approve, approved_content
 
 REPOSITORY = 'yjr927/idore_tools'
 SITE = ROOT / 'site'
@@ -72,7 +72,8 @@ def mark(document, item, status, stage, message):
 
 def seed_completed(document):
     for creation in read(SITE / 'data/creations.json', {'items': []})['items']:
-        if creation.get('kind') != 'character' or any(i.get('sha256') == creation.get('sha256') for i in document['items']):
+        if (creation.get('kind') != 'character' or creation.get('generation_method') in ('photo_sequence', 'agent_motion')
+                or any(i.get('sha256') == creation.get('sha256') for i in document['items'])):
             continue
         item = {k: creation[k] for k in ('title', 'character', 'material_group', 'cast_type', 'video_path', 'poster_path', 'sha256', 'created_at', 'model') if k in creation}
         item.update(id='review-' + creation['id'], status='generating_copy', stage='copy',
@@ -185,10 +186,37 @@ def video_prompt(item):
            if item.get('style_reference_urls') else 'Keep the same outfit and makeup throughout; no transformation.'))
 
 
-def generate_video(document, item, character, scratch):
+def render_agent_motion(document, item, source, character, scratch):
+    """Render the planner's exact reference and identity. The caller edits and archives the final video."""
+    from scripts.trend_quality import eligible_trend
+    plan = item['agent_plan']
+    group, cast = classified(source)
+    source_id = source.get('id')
+    photo_ids = plan.get('photo_ids') or []
+    transformation = source.get('transformation', 'unknown')
+    if (not source_id or (plan.get('source_id') or plan.get('trend_id')) != source_id
+            or (plan.get('source_url') and plan['source_url'] != source.get('url'))
+            or not isinstance(photo_ids, list) or not photo_ids or photo_ids[0] != character.get('id')
+            or group not in ('female', 'male') or group != character.get('material_group')
+            or cast != 'solo' or character.get('cast_type') != cast or not character.get('image_url')
+            or character.get('enabled') is not True or character.get('auto_match_eligible') is not True
+            or character.get('auto_match_blockers') or not eligible_trend(source)
+            or source.get('kind') not in ('hands', 'transition')
+            or transformation not in ('none', 'outfit', 'makeup', 'makeup_and_outfit')):
+        raise PipelineError('material_required', '已核验的原片、导演方案与角色照片需要匹配。')
+    binding = [source_id, source['url'], character['id'], character['sha256']]
+    if item.get('motion_binding') not in (None, binding):
+        raise PipelineError('stale_plan', '任务已绑定其他原片或角色照片，请核对原任务。')
+    item.update(motion_binding=binding, source_id=source_id, source_url=source['url'],
+                material_group=group, cast_type=cast, character=character['name'], character_id=character['id'],
+                character_image=character['image_url'], original_watched=True, kind=source['kind'],
+                transformation=transformation, motion_summary=source.get('motion_summary', ''))
+    return render_motion_file(document, item, character, scratch)
+
+
+def render_motion_file(document, item, character, scratch):
     from video_service import VideoService
     from scripts.run_clay_video_generation import ObservedTransport
-    from scripts.archive_generated_videos import merge
     if (item.get('material_group') not in ('male', 'female', 'mixed')
             or item.get('material_group') != character.get('material_group') or item.get('cast_type') != 'solo'
             or character.get('cast_type') != 'solo' or character.get('enabled') is not True
@@ -232,23 +260,32 @@ def generate_video(document, item, character, scratch):
         time.sleep(30)
         job = service.refresh(job['id'])
     if job['status'] != 'completed':
-        if job['status'] in ('pending', 'in_progress'):
+        if job['status'] in ('pending', 'submitting', 'in_progress'):
             mark(document, item, 'generating_video', 'video', '模型仍在生成，下次只查询已有任务。')
-            return False
+            return None
         raise PipelineError('video_failed', '视频生成失败，已保留任务编号；不会自动再次扣费。')
     service.download(job['id'])
-    generated = scratch / 'video' / 'generated' / (job['id'] + '.mp4')
+    return scratch / 'video' / 'generated' / (job['id'] + '.mp4')
+
+
+def generate_video(document, item, character, scratch):
+    """Recover and archive an older provider job using its original gallery format."""
+    from scripts.archive_generated_videos import merge
+    generated = render_motion_file(document, item, character, scratch)
+    if generated is None:
+        return False
     raw = generated.read_bytes()
     digest = hashlib.sha256(raw).hexdigest()
     run = {'id': os.environ['GITHUB_RUN_ID'], 'updated_at': now()}
-    merge(SITE, [(raw, model)], run, REPOSITORY)
+    merge(SITE, [(raw, item.get('model') or os.environ.get('SEEDANCE_MODEL', 'bytedance/seedance-2.5'))], run, REPOSITORY)
     gallery = read(SITE / 'data/creations.json')
     result = next(i for i in gallery['items'] if i['sha256'] == digest)
-    result.update(title=item['character'] + ' · ' + item['title'], character=item['character'],
+    result.update(generated_at=result['created_at'], timestamp_basis='generation_completed', generation_method='motion_reference',
+                  title=item['character'] + ' · ' + item['title'], character=item['character'],
                   material_group=item['material_group'], cast_type=item['cast_type'])
     (SITE / 'data/creations.json').write_text(json.dumps(gallery, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
-    item.update(video_path=result['video_path'], poster_path=result['poster_path'], sha256=digest)
-    mark(document, item, 'generating_copy', 'copy', '成片已保存，正在准备英文文案和标签。')
+    item.update(video_path=result['video_path'], poster_path=result['poster_path'], sha256=digest, generated_at=result['generated_at'])
+    mark(document, item, 'generating_copy', 'copy', '已恢复原任务的成片，可在审核工作台准备英文文案和标签。')
     return True
 
 
@@ -397,7 +434,6 @@ def main():
     document['settings'].update(copy_provider=copy_provider, copy_model=copy_model)
     characters = read(SITE / 'data/characters.json', {'items': []})['items']
     seed_completed(document)
-    sync_queue(document, read(SITE / 'data/discovery.json'), characters)
     request_id = settings.get('request_id') or 'run-' + os.environ['GITHUB_RUN_ID']
     if not re.fullmatch(r'[A-Za-z0-9_-]{8,100}', request_id):
         return 1
@@ -412,15 +448,15 @@ def main():
             connections(document)
         elif action == 'sync':
             for row in document['items']:
-                if row.get('status') not in ('queued', 'generating_video', 'generating_copy'):
+                # Only the Agent's planner can initiate new production. Do not let the legacy
+                # scheduler consume a new plan or restart a paid job from its source alone.
+                if (row.get('agent_plan') or row.get('status') != 'generating_video'
+                        or row.get('video_path') or not row.get('remote_id')):
                     continue
                 try:
-                    if not row.get('video_path'):
-                        character = next(c for c in characters if c['id'] == row.get('character_id'))
-                        with tempfile.TemporaryDirectory() as scratch:
-                            if not generate_video(document, row, character, Path(scratch)):
-                                continue
-                    copy_for(document, row)
+                    character = next(c for c in characters if c['id'] == row.get('character_id'))
+                    with tempfile.TemporaryDirectory() as scratch:
+                        generate_video(document, row, character, Path(scratch))
                 except Exception as exc:
                     record_failure(document, row, exc)
         else:
@@ -428,6 +464,8 @@ def main():
                 raise PipelineError('missing_item', '任务不存在，请刷新。')
             if settings.get('revision') != item.get('revision'):
                 raise PipelineError('stale_review', '任务已有更新，请刷新后重试。')
+            if item.get('agent_plan') or item.get('generation_method') == 'agent_motion':
+                raise PipelineError('not_ready', '该作品由 Agent 管理，请在成片库查看生成和收件箱状态。')
             if action == 'approve':
                 token = os.environ.get('TIKTOK_ACCESS_TOKEN', '').strip()
                 account = os.environ.get('TIKTOK_ACCOUNT_ID', '').strip()
@@ -461,13 +499,13 @@ def main():
                     send_draft(document, item)
                 elif item.get('video_path'):
                     copy_for(document, item, allow_repeat=True)
-                elif item.get('character_id'):
+                elif item.get('remote_id') and not item.get('agent_plan'):
                     character = next(c for c in characters if c['id'] == item['character_id'])
                     with tempfile.TemporaryDirectory() as scratch:
                         if generate_video(document, item, character, Path(scratch)):
                             copy_for(document, item)
                 else:
-                    raise PipelineError('material_required', '请先补齐角色素材或分类。')
+                    raise PipelineError('material_required', '新的视频生成由 Agent 按已核验的趋势和角色方案发起。')
     except Exception as exc:
         if item and getattr(exc, 'code', '') not in ('stale_review', 'not_ready', 'invalid_caption', 'invalid_tags', 'caption_too_long', 'approval_required', 'already_uploaded', 'material_required'):
             record_failure(document, item, exc)

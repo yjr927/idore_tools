@@ -231,6 +231,52 @@ class PipelineRunnerTests(unittest.TestCase):
                 video.assert_not_called(); copy_call.assert_not_called()
         self.assertEqual(json.loads(self.state.read_text())['items'][0], item)
 
+    def test_legacy_scheduler_only_recovers_existing_nonagent_job(self):
+        rows = [dict(self.item(), id='queued'),
+                dict(self.item(), id='unconfirmed', submission_reserved=True, status='generating_video'),
+                dict(self.item(), id='agent', agent_plan={'trend_id': 'test'}, remote_id='job-A', status='generating_video'),
+                dict(self.item(), id='existing', remote_id='job-B', status='generating_video')]
+        document = self.document(rows[0])
+        document['items'] = rows
+        self.state.write_text(json.dumps(document))
+        (self.site / 'data/characters.json').write_text(json.dumps({'items': [self.character]}))
+        with patch.object(runner, 'generate_video') as recover, patch.object(runner, 'copy_for') as paid_copy:
+            self.assertEqual(runner.main(), 0)
+        self.assertEqual([c.args[1]['id'] for c in recover.call_args_list], ['existing'])
+        paid_copy.assert_not_called()
+
+    def test_legacy_retry_cannot_generate_unplanned_video(self):
+        with patch.object(runner, 'generate_video') as paid_render:
+            code, _ = self.run_action(self.item(), 'retry')
+        self.assertEqual(code, 1)
+        paid_render.assert_not_called()
+
+    def test_planned_motion_rechecks_real_evidence_and_returns_unarchived_clip(self):
+        source_id = '1234567890123456789'
+        source = {'id': 'tiktok-' + source_id, 'url': 'https://www.tiktok.com/@one/video/' + source_id,
+                  'material_group': 'male', 'original_watched': True, 'source_kind': 'chatgpt_work',
+                  'checks': {'solo': True}, 'kind': 'hands', 'transformation': 'none', 'motion_summary': 'arm swing',
+                  'metrics': {'views': 1500000, 'likes': 120000}, 'metric_display': {'views': '1.5M', 'likes': '120K'},
+                  'related_videos': [{'url': f'https://www.tiktok.com/@peer{p}/video/123456789012345670{p}',
+                                      'original_watched': True, 'same_pattern': True, 'note': 'Repeated arm swing'}
+                                     for p in (1, 2)]}
+        item = {'id': 'agent-slot', 'agent_plan': {'trend_id': source['id'], 'photo_ids': ['kai']}}
+        character = dict(self.character, sha256='a' * 64, auto_match_eligible=True)
+        scratch = Path(self.tmp.name)
+        with patch.object(runner, 'render_motion_file', return_value=scratch / 'unedited.mp4') as motion:
+            for changes, image in [({'metrics': {'views': 999, 'likes': 120000}}, character),
+                                   ({}, dict(character, material_group='female')),
+                                   ({}, dict(character, id='alternate'))]:
+                with self.subTest(changes=changes, image=image['id']), self.assertRaises(PipelineError):
+                    runner.render_agent_motion(self.document(item), item, dict(source, **changes), image, scratch)
+            motion.assert_not_called()
+            self.assertEqual(runner.render_agent_motion(self.document(item), item, source, character, scratch),
+                             scratch / 'unedited.mp4')
+            motion.assert_called_once()
+            with self.assertRaisesRegex(PipelineError, '已绑定'):
+                runner.render_agent_motion(self.document(item), item, source, dict(character, sha256='b' * 64), scratch)
+        self.assertEqual(json.loads((self.site / 'data/creations.json').read_text())['items'], [])
+
     @staticmethod
     def account_env(account='openid-private-account-A', label='@kai_owner'):
         return {'TIKTOK_ACCESS_TOKEN': 'not-a-real-tiktok-access-token',

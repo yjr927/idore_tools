@@ -453,7 +453,11 @@ for (const address of [
 const feedPath = landing + '/feed?clips=' + clipHash;
 const automationPath = landing + '/automation';
 function film(overrides = {}) {
-  return {kind:'character', generation_method:'photo_sequence', created_at:new Date().toISOString(), sha256:clipHash,
+  return {kind:'character', generation_method:'agent_motion', planner:'openai', trend_verified:true, material_group:'male',
+    source_photo_ids:['role-a'], source_metrics:{views:1000000,likes:100000},
+    source_url:'https://www.tiktok.com/@origin/video/1234567890123456789',
+    source_peers:[{url:'https://www.tiktok.com/@recreation1/video/2234567890123456789',note:'same two-step'},
+      {url:'https://www.tiktok.com/@recreation2/video/3234567890123456789',note:'same cut'}], created_at:new Date().toISOString(), sha256:clipHash,
     video_path:'generated/video-' + clipHash.slice(0,24) + '.mp4', ...overrides};
 }
 
@@ -498,7 +502,7 @@ test('gallery is account-scoped and the current archive is never sent on enable'
   assert.deepEqual(await (await h.visit(feedPath)).json(), {connected:false, receipts:{}});
 });
 
-test('gallery alarm sends new photo sequences once when the browser is closed and exposes real receipt times', async t => {
+test('gallery alarm sends new qualified agent films once when the browser is closed and exposes real receipt times', async t => {
   const archive = {items:[]};
   let phase = 'SEND_TO_USER_INBOX';
   const h = fixture(t, {archive, statusReply:() => phase});
@@ -556,6 +560,8 @@ test('background grant refresh privately rotates both tokens and stops on remove
   const state = await (await h.visit(feedPath)).json();
   assert.equal(state.automation.enabled, false);
   assert.equal(state.automation.problem, 'reconnect_required');
+  assert.equal(state.canEnable, false);
+  assert.equal((await setAutomation(h, csrf, '1')).status, 401);
   assert.equal((await agent.storage.get('automation')).box, undefined);
 });
 

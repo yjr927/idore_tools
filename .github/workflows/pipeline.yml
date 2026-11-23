@@ -1,4 +1,4 @@
-name: Produce and review character videos
+name: Recover and review existing character videos
 on:
   push:
     branches: [main]
@@ -66,7 +66,7 @@ jobs:
         run: |
           python scripts/import_work_results.py --input work-results/latest.json --output site/data/discovery.json
           python scripts/import_material_classifications.py --input work-results/classifications.json --output site/data/discovery.json
-      - name: Match, render clay, generate or process a reviewed action
+      - name: Recover a submitted video or process a reviewer action
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
