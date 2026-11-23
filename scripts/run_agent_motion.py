@@ -283,13 +283,16 @@ def produce(document, catalog, discovery, site, run_id, slot, save, planner=None
         if planner is None and not os.environ.get('OPENROUTER_API_KEY'):
             update(document, row, save, 'waiting_openai', 'planning', '等待 GitHub 配置项目的 OpenRouter 密钥。', 'missing_key')
             return False
-        row['plan_reserved_at'] = now()
-        update(document, row, save, 'agent_planning', 'planning', 'OpenAI 正在从核验原片与角色照片中选择素材、写分镜和文案。')
+        def reserve_inference():
+            row['plan_reserved_at'] = now()
+            update(document, row, save, 'agent_planning', 'planning', '正在向 OpenRouter 提交分镜策划请求。')
+
         try:
             if not planner and named:
                 from scripts.agent_film_planner import plan_named_film
                 planner = plan_named_film
-            plan = (planner or plan_film)(motion, photos, slot=slot, prior_films=gallery['items'])
+            plan = (planner or plan_film)(motion, photos, slot=slot, prior_films=gallery['items'],
+                                          before_inference=reserve_inference)
             source, character = attach_plan(row, plan, motion, photos)
         except (FilmPlanError, KeyError, ValueError, IndexError, StopIteration) as exc:
             code = getattr(exc, 'code', 'invalid_output')
@@ -298,7 +301,17 @@ def produce(document, catalog, discovery, site, run_id, slot, save, planner=None
                       'no_fit': 'OpenAI 未找到符合要求的原片与角色组合。', 'invalid_output': 'OpenAI 的分镜未通过素材与文案校验。',
                       'planner_unavailable': 'Cloudflare 上的策划服务暂时无法访问。',
                       'submission_uncertain': '未收到可确认的 OpenAI 规划结果。'}
-            update(document, row, save, 'needs_attention', 'planning', errors.get(code, 'OpenAI 规划未完成。'), code)
+            if code == 'planner_request_unavailable' and not row.get('plan_reserved_at'):
+                # Only the stateless Worker was contacted. A later scheduled run can retry.
+                status, message = 'waiting_openai', 'Cloudflare 未能准备分镜请求，尚未调用模型，等待重试。'
+            elif code == 'planner_accept_unavailable':
+                status, message = 'needs_attention', '模型已返回分镜，Cloudflare 校验未完成，已阻止重复提交。'
+            else:
+                status, message = 'needs_attention', errors.get(code, 'OpenAI 规划未完成。')
+            http_status = getattr(exc, 'status', None)
+            if isinstance(http_status, int):
+                message += f' (HTTP {http_status})'
+            update(document, row, save, status, 'planning', message, code)
             return False
         row['agent_plan'] = plan
         update(document, row, save, 'plan_ready', 'planning', 'OpenAI 分镜、素材及文案已保存。')

@@ -42,6 +42,10 @@ class AgentMotionTests(unittest.TestCase):
         self.doc = {'items':[]}
         self.events = []
         self.planner = Mock(return_value=self.plan)
+        def invoke_planner(*args, before_inference, **kwargs):
+            before_inference()
+            return self.planner.return_value
+        self.planner.side_effect = invoke_planner
         self.renderer = Mock(return_value=None)
 
     def run_slot(self, slot='2026-11-22-evening'):
@@ -181,6 +185,16 @@ class AgentMotionTests(unittest.TestCase):
         self.assertEqual(self.renderer.call_count, 2)
         self.assertEqual(len(self.doc['items']), 1)
         self.assertEqual(self.doc['items'][0]['source_peers'][0]['creator'], 'p1')
+
+    def test_worker_request_failure_leaves_no_model_reservation(self):
+        self.planner.side_effect = FilmPlanError('planner_request_unavailable')
+        self.assertFalse(self.run_slot())
+        row = self.doc['items'][0]
+        self.assertEqual(row['status'], 'waiting_openai')
+        self.assertNotIn('plan_reserved_at', row)
+        self.assertFalse(self.run_slot())
+        self.assertEqual(self.planner.call_count, 2)
+        self.renderer.assert_not_called()
 
     def test_unknown_prior_reservation_blocks_duplicate_paid_planning(self):
         self.doc['items']=[{'id':'agent-2026-11-22-evening','sequence_slot':'2026-11-22-evening',

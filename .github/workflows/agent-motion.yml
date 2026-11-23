@@ -56,6 +56,8 @@ jobs:
           sudo apt-get update -qq
           sudo apt-get install -y -qq ffmpeg blender xvfb fonts-dejavu-core
       - name: Validate the planner, status transitions and editor
+        env:
+          IDORE_CHECK_LIVE_WORKER: ${{ github.event_name == 'push' }}
         run: |
           python -m unittest discover -s tests -p 'test_agent_film_planner.py' -v
           python -m unittest discover -s tests -p 'test_agent_motion.py' -v

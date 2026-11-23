@@ -24,7 +24,8 @@ MAX_RESULT = 256 * 1024
 
 
 class FilmPlanError(Exception):
-    def __init__(self, code):
+    def __init__(self, code, *, status=None):
+        self.status = status
         self.code = code
         super().__init__(code)
 
@@ -121,21 +122,26 @@ def _post(url, payload, key=None):
     if url not in (WORKER + 'request', WORKER + 'accept', OPENROUTER) or (key is not None) != (url == OPENROUTER):
         raise FilmPlanError('invalid_output')
     headers = {'Content-Type': 'application/json', 'Accept': 'application/json'}
-    if key is not None:
+    if url == OPENROUTER:
         headers['Authorization'] = 'Bearer ' + key
+        transport_error = 'submission_uncertain'
+    else:
+        # Identify the planner to the idore Worker. The default urllib agent receives HTTP 403.
+        headers['User-Agent'] = 'idore-film-planner/1.0'
+        transport_error = 'planner_request_unavailable' if url == WORKER + 'request' else 'planner_accept_unavailable'
     request = Request(url, method='POST', data=json.dumps(payload, separators=(',', ':')).encode(), headers=headers)
     try:
         with build_opener(_NoRedirect).open(request, timeout=120 if key else 25) as response:
             if response.status != 200 or response.geturl() != url:
-                raise FilmPlanError('submission_uncertain' if key else 'planner_unavailable')
+                raise FilmPlanError(transport_error, status=response.status)
             raw = response.read(MAX_RESULT + 1)
     except HTTPError as exc:
         if url == OPENROUTER:
             errors = {401:'auth', 403:'auth', 402:'insufficient_quota', 404:'missing_model', 429:'rate_limited'}
-            raise FilmPlanError(errors.get(exc.code, 'submission_uncertain' if exc.code >= 500 else 'provider_error')) from None
-        raise FilmPlanError('invalid_output' if exc.code in (400,422) else 'planner_unavailable') from None
+            raise FilmPlanError(errors.get(exc.code, 'submission_uncertain' if exc.code >= 500 else 'provider_error'), status=exc.code) from None
+        raise FilmPlanError('invalid_output' if exc.code in (400,422) else transport_error, status=exc.code) from None
     except OSError:
-        raise FilmPlanError('submission_uncertain' if key else 'planner_unavailable') from None
+        raise FilmPlanError(transport_error) from None
     try:
         result = json.loads(raw) if len(raw) <= MAX_RESULT else None
         if not isinstance(result, dict):
@@ -229,22 +235,22 @@ def _validate(raw, candidates, photos, model):
             'caption': caption, 'hashtags': tags}
 
 
-def plan_film(trends, photos, *, slot, prior_films=(), client=None, api_key=None, model=None):
+def plan_film(trends, photos, *, slot, prior_films=(), client=None, api_key=None, model=None, before_inference=None):
     """Plan and validate on Cloudflare; only the single OpenRouter request carries a credential."""
     candidates, shortlist = _table(trends, photos, prior_films)
-    return _plan(candidates, shortlist, slot, client, api_key, model)
+    return _plan(candidates, shortlist, slot, client, api_key, model, before_inference)
 
 
-def plan_named_film(trends, photos, *, slot, prior_films=(), client=None, api_key=None, model=None):
+def plan_named_film(trends, photos, *, slot, prior_films=(), client=None, api_key=None, model=None, before_inference=None):
     """Plan a single named reference bound to an authorized New York calendar slot."""
     candidates, shortlist = _table(trends, photos, prior_films, named_slot=slot)
     if len(candidates) != 1:
         raise FilmPlanError('waiting_trend')
-    plan = _plan(candidates, shortlist, slot, client, api_key, model)
+    plan = _plan(candidates, shortlist, slot, client, api_key, model, before_inference)
     return dict(plan, selection_basis='user_selected_reference')
 
 
-def _plan(candidates, shortlist, slot, client, api_key, model):
+def _plan(candidates, shortlist, slot, client, api_key, model, before_inference):
     model = model or os.environ.get('OPENROUTER_TEXT_MODEL') or DEFAULT_ROUTER_MODEL
     if not isinstance(model, str) or not model.startswith('openai/') or not TEXT_MODEL.fullmatch(model[7:]):
         raise FilmPlanError('missing_model')
@@ -254,7 +260,10 @@ def _plan(candidates, shortlist, slot, client, api_key, model):
     send = client or _post
     slate = _slate(model, slot, candidates, shortlist)
     envelope = send(WORKER + 'request', slate)
-    reply = send(OPENROUTER, _inference(envelope, slate), key)
+    payload = _inference(envelope, slate)
+    if before_inference is not None:
+        before_inference()
+    reply = send(OPENROUTER, payload, key)
     try:
         choice = reply['choices'][0]
         raw = choice['message']['content']
@@ -262,5 +271,12 @@ def _plan(candidates, shortlist, slot, client, api_key, model):
             raise ValueError()
     except (KeyError, IndexError, TypeError, ValueError):
         raise FilmPlanError('invalid_output') from None
-    accepted = send(WORKER + 'accept', {'slate': slate, 'response': raw})
+    validation = {'slate': slate, 'response': raw}
+    try:
+        accepted = send(WORKER + 'accept', validation)
+    except FilmPlanError as exc:
+        if exc.code != 'planner_accept_unavailable' or (exc.status is not None and exc.status < 500):
+            raise
+        # Validation is stateless. Reuse the reply while it is still in memory.
+        accepted = send(WORKER + 'accept', validation)
     return _validate(accepted, candidates, shortlist, model)

@@ -1,6 +1,7 @@
 import copy
 from urllib.error import HTTPError
 import json
+import os
 import unittest
 from unittest.mock import patch
 
@@ -52,6 +53,16 @@ def transport(output, calls):
 
 
 class PlannerTests(unittest.TestCase):
+    @unittest.skipUnless(os.environ.get('IDORE_CHECK_LIVE_WORKER') == 'true', 'live Worker check disabled')
+    def test_live_worker_compiles_and_validates_without_inference(self):
+        from scripts.agent_film_planner import _inference, _slate, _table
+        candidates, photos = _table([trend()], [photo()], [])
+        slate = _slate('openai/gpt-5.4-mini', 'transport-check', candidates, photos)
+        envelope = _post(WORKER + 'request', slate)
+        self.assertEqual(_inference(envelope, slate)['model'], slate['model'])
+        held = _post(WORKER + 'accept', {'slate': slate, 'response': '{"decision":"hold"}'})
+        self.assertEqual(held, {'decision': 'hold'})
+
     def test_named_sources_plan_once_with_observed_counts_and_approved_editorial_cast(self):
         for name, creator, video, group, observed_group, likes in [
             ('momoko','itsmomoko.jp','7703265627972128021','female','female',37),
@@ -146,6 +157,45 @@ class PlannerTests(unittest.TestCase):
                 self.assertEqual(opener.return_value.open.call_count, 1)
         with self.assertRaises(FilmPlanError):
             _post(WORKER + 'request', {}, 'must-not-transmit')
+
+    def test_worker_client_identifies_itself_and_preserves_failure_stage(self):
+        for stage in ('request', 'accept'):
+            url = WORKER + stage
+            with self.subTest(stage=stage), patch('scripts.agent_film_planner.build_opener') as opener:
+                opener.return_value.open.side_effect = HTTPError(url, 403, 'private error detail', {}, None)
+                with self.assertRaises(FilmPlanError) as caught:
+                    _post(url, {})
+                request = opener.return_value.open.call_args.args[0]
+                self.assertEqual(request.get_header('User-agent'), 'idore-film-planner/1.0')
+                self.assertIsNone(request.get_header('Authorization'))
+                self.assertEqual(caught.exception.code, 'planner_' + stage + '_unavailable')
+                self.assertEqual(caught.exception.status, 403)
+                self.assertNotIn('private error detail', str(caught.exception))
+
+    def test_transient_validation_failure_reuses_the_paid_reply(self):
+        calls = []
+        normal = transport(decision(), calls)
+        attempts = []
+        def send(url, payload, key=None):
+            if url == WORKER + 'accept':
+                attempts.append(payload)
+                if len(attempts) == 1:
+                    raise FilmPlanError('planner_accept_unavailable', status=503)
+            return normal(url, payload, key)
+        plan_film([trend()], [photo()], slot='evening', api_key='fake-key', client=send)
+        self.assertEqual([url for url, _, _ in calls].count(OPENROUTER), 1)
+        self.assertEqual(len(attempts), 2)
+        self.assertEqual(attempts[0], attempts[1])
+
+    def test_failed_provider_checkpoint_prevents_payment(self):
+        calls = []
+        def checkpoint():
+            self.assertEqual([call[0] for call in calls], [WORKER + 'request'])
+            raise OSError('unable to save reservation')
+        with self.assertRaises(OSError):
+            plan_film([trend()], [photo()], slot='evening', client=transport(decision(), calls),
+                      api_key='fake-key', before_inference=checkpoint)
+        self.assertEqual([call[0] for call in calls], [WORKER + 'request'])
 
     def test_modified_worker_message_never_reaches_openrouter(self):
         for tamper in ('model','url'):
