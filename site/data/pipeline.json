@@ -2,6 +2,24 @@
   "schema_version": 1,
   "items": [
     {
+      "id": "agent-2026-11-23-bay",
+      "generation_method": "named_reference_motion",
+      "created_at": "2026-11-23T14:32:03.091529Z",
+      "sequence_slot": "2026-11-23-bay",
+      "title": "bay · A2O LITE NEON",
+      "trend_id": "tiktok-7709762212679683342",
+      "source_url": "https://www.tiktok.com/@mybaybie/video/7709762212679683342",
+      "selection_basis": "user_selected_reference",
+      "trend_verified": false,
+      "plan_reserved_at": "2026-11-23T14:32:03.125827Z",
+      "status": "agent_planning",
+      "stage": "planning",
+      "message": "OpenAI 正在从核验原片与角色照片中选择素材、写分镜和文案。",
+      "error_code": "",
+      "updated_at": "2026-11-23T14:32:03.125844Z",
+      "revision": "d3aafce0c17d09dd207573b2294d33ead33afd0d00519c51861d5aec259c2daa"
+    },
+    {
       "id": "agent-2026-11-23-momoko",
       "generation_method": "named_reference_motion",
       "created_at": "2026-11-23T14:31:59.503658Z",
@@ -425,5 +443,5 @@
     "copy_provider": "openrouter",
     "copy_model": "openai/gpt-5.4-mini"
   },
-  "updated_at": "2026-11-23T14:32:01.705404Z"
+  "updated_at": "2026-11-23T14:32:03.125883Z"
 }
