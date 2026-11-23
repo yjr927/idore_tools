@@ -51,3 +51,35 @@ test('require a bounded verified MP4 from the fixed Pages archive', async t => {
   response = () => new Response(null, {status:302,headers:{Location:'https://example.org'}});
   await assert.rejects(readFilm(null, null, film), /unavailable/);
 });
+
+test('named motion enrollment is limited to the exact two references and never enables global delivery', async t => {
+  const momoko = {...row, sequence_slot:'2026-11-23-momoko', source_url:'https://www.tiktok.com/@itsmomoko.jp/video/7703265627972128021',
+    trend_id:'tiktok-7703265627972128021', created_at:'2026-11-23T14:01:00Z', generated_at:'2026-11-23T14:01:00Z',
+    generation_method:'named_reference_motion', trend_verified:false, selection_basis:'user_selected_reference',
+    sequence_type:'selected_reference', cast_type:'solo', planner_provider:'openrouter', planner_model:'openai/gpt-5.4-mini',
+    execution_host:'cloudflare', motion_reference_method:'source_motion', timestamp_basis:'generation_completed',
+    duration:6.042, bytes:1234567, source_photo_sha256:['1'.repeat(64)]};
+  const bay = {...momoko, sequence_slot:'2026-11-23-bay', source_url:'https://www.tiktok.com/@mybaybie/video/7709762212679683342',
+    material_group:'male', trend_id:'tiktok-7709762212679683342', motion_reference_method:'observed_description'};
+  let item;
+  t.mock.method(globalThis, 'fetch', async () => new Response(manifest([item])));
+  for (const eligible of [momoko, bay]) {
+    item = eligible;
+    const [film] = await listFilms();
+    assert.equal(film.namedSlot, item.sequence_slot);
+    assert.equal(film.autoEligible, false);
+  }
+  for (const patch of [
+    {sequence_slot:bay.sequence_slot}, {sequence_slot:'2026-11-24-momoko'}, {source_url:bay.source_url}, {trend_id:bay.trend_id},
+    {material_group:'male'}, {planner_model:'other/model'}, {planner_provider:'test'}, {selection_basis:'suggested'},
+    {execution_host:'local'}, {trend_verified:true}, {source_photo_sha256:[]}, {source_photo_ids:[]},
+    {motion_reference_method:'photo_sequence'}, {duration:0}, {bytes:17*1024*1024}, {timestamp_basis:'workflow_update'},
+    {created_at:'2026-11-23T13:59:00Z',generated_at:'2026-11-23T13:59:00Z'},
+    {created_at:'2026-11-24T05:00:00Z',generated_at:'2026-11-24T05:00:00Z'}, {generated_at:'2026-11-24T12:00:00Z'},
+  ]) {
+    item = {...momoko,...patch};
+    const [film] = await listFilms();
+    assert.equal(film.namedSlot, undefined, JSON.stringify(patch));
+    assert.equal(film.autoEligible, false);
+  }
+});

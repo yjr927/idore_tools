@@ -484,6 +484,28 @@ function coordinator(h) {
   return [...h.objects].find(([key]) => key.startsWith('automation:'))[1];
 }
 
+test('scheduled drafts are routed only to the assigned authenticated account and once per named slot', async t => {
+  const h = fixture(t, {archive:{items:[]}});
+  const route = landing + '/feed?destination=2026-11-23';
+  assert.equal((await (await h.visit(route)).json()).destination, undefined);
+  const {csrf} = await openGallery(h);
+  await setAutomation(h, csrf, '1');
+  const allocation = await (await h.visit(route)).json();
+  assert.match(allocation.destination, /^[a-f0-9]{64}$/);
+  assert.equal(allocation.assigned, false);
+  const storage = coordinator(h).storage;
+  const worker = new SandboxAttempt({storage}, h.env);
+  const config = {...await storage.get('automation'), startedAt:'2026-01-01T00:00:00Z'};
+  const scheduled = {hash:clipHash, namedSlot:'2026-11-23-momoko', autoEligible:false, generatedAt:new Date().toISOString()};
+  assert.equal(await worker.nextFilm(config,[scheduled]), null);
+  h.env.NOV23_DRAFT_DESTINATION = allocation.destination;
+  assert.equal((await (await h.visit(route)).json()).assigned, true);
+  assert.equal(await worker.nextFilm({...config, account:'another-account'},[scheduled]), null);
+  assert.equal(await worker.nextFilm(config,[scheduled]), scheduled);
+  await storage.put('named:' + scheduled.namedSlot, 'previously-sent-digest');
+  assert.equal(await worker.nextFilm(config,[scheduled]), null);
+});
+
 test('gallery is account-scoped and the current archive is never sent on enable', async t => {
   const archive = {items:[film()]};
   const h = fixture(t, {archive});

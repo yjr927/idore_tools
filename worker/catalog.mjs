@@ -2,6 +2,13 @@ const PAGES = 'https://yjr927.github.io/idore_tools/';
 const MANIFEST_LIMIT = 4 * 1024 * 1024;
 const VIDEO_LIMIT = 16 * 1024 * 1024;
 const HASH = /^[a-f0-9]{64}$/;
+// These slots are independently enrolled for one account in sandbox.mjs.
+const NAMED_REFERENCES = new Map([
+  ['2026-11-23-momoko', {id:'tiktok-7703265627972128021', url:'https://www.tiktok.com/@itsmomoko.jp/video/7703265627972128021', cast:'female'}],
+  ['2026-11-23-bay', {id:'tiktok-7709762212679683342', url:'https://www.tiktok.com/@mybaybie/video/7709762212679683342', cast:'male'}],
+]);
+const NAMED_START = Date.parse('2026-11-23T09:00:00-05:00');
+const NAMED_END = Date.parse('2026-11-24T00:00:00-05:00');
 
 async function readBounded(response, limit) {
   const length = response.headers.get('content-length');
@@ -66,6 +73,26 @@ function eligibleRemake(item) {
   return creators.size >= 3;
 }
 
+function eligibleNamedSlot(item, created) {
+  const ref = NAMED_REFERENCES.get(item.sequence_slot);
+  if (!ref || item.trend_id !== ref.id || item.source_url !== ref.url ||
+      item.sequence_type !== 'selected_reference' || item.selection_basis !== 'user_selected_reference' ||
+      item.kind !== 'character' || item.generation_method !== 'named_reference_motion' || item.trend_verified !== false ||
+      item.cast_type !== 'solo' || item.material_group !== ref.cast || item.planner !== 'openai' ||
+      item.planner_provider !== 'openrouter' || typeof item.planner_model !== 'string' ||
+      !/^openai\/[\w.-]+$/.test(item.planner_model) || item.execution_host !== 'cloudflare' ||
+      !['source_motion', 'observed_description'].includes(item.motion_reference_method) ||
+      item.timestamp_basis !== 'generation_completed' || !Number.isFinite(created) ||
+      created < NAMED_START || created >= NAMED_END || Date.parse(item.generated_at) !== created ||
+      !Number.isSafeInteger(item.bytes) || item.bytes < 12 || item.bytes > VIDEO_LIMIT ||
+      !Number.isFinite(item.duration) || item.duration < 5.5 || item.duration > 6.5) return null;
+  if (!Array.isArray(item.source_photo_ids) || item.source_photo_ids.length !== 1 ||
+      typeof item.source_photo_ids[0] !== 'string' || !item.source_photo_ids[0].trim() ||
+      !Array.isArray(item.source_photo_sha256) || item.source_photo_sha256.length !== 1 ||
+      !HASH.test(item.source_photo_sha256[0])) return null;
+  return item.sequence_slot;
+}
+
 // Use the published repository manifest even if its data changes between Worker deployments.
 export async function listFilms() {
   const bytes = await readBounded(await fetch(pagesRequest('/data/creations.json')), MANIFEST_LIMIT);
@@ -83,9 +110,11 @@ export async function listFilms() {
       /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/.test(item.created_at)
       ? Date.parse(item.created_at) : NaN;
     const generatedAt = Number.isFinite(timestamp) ? new Date(timestamp).toISOString() : null;
+    const namedSlot = eligibleNamedSlot(item, timestamp);
     films.set(hash, {
       hash, path, title: String(item.title || item.character || 'idore').slice(0, 160), generatedAt,
-      autoEligible: Boolean(generatedAt && eligibleRemake(item))
+      autoEligible: Boolean(generatedAt && eligibleRemake(item)),
+      ...(namedSlot ? {namedSlot} : {})
     });
   }
   return [...films.values()];

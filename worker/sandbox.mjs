@@ -272,6 +272,11 @@ function receiptActor(env, grant, clip) {
   return actor(env, 'attempt:' + grant.account + ':' + clip);
 }
 
+// A routing label for this single dated commission. It grants no TikTok access.
+function november23Destination(account) {
+  return fingerprint('idore:named-drafts:2026-11-23:' + account);
+}
+
 function publicReceipt(row) {
   if (!Object.hasOwn(states, row.state)) return null;
   const result = {state:row.state};
@@ -293,6 +298,10 @@ async function galleryRequest(request, url, env, auth) {
   if (!viewer) return url.pathname === FEED ? json({connected:false, receipts:{}}) : json({error:'reconnect_required'}, 401);
   const coordinator = actor(env, 'automation:' + viewer.account);
   if (url.pathname === FEED) {
+    if (url.searchParams.get('destination') === '2026-11-23') {
+      const destination = await november23Destination(viewer.account);
+      return json({display:viewer.display, destination, assigned:destination === env.NOV23_DRAFT_DESTINATION});
+    }
     const value = url.searchParams.get('clips') || '';
     const hashes = [...new Set(value ? value.split(',') : [])];
     if (hashes.length > 20 || hashes.some(h => !/^[a-f0-9]{64}$/.test(h))) return json({error:'invalid_clips'}, 400);
@@ -695,10 +704,16 @@ export class SandboxAttempt {
   async nextFilm(config, films) {
     const cutoff = Date.parse(config.startedAt);
     const skipped = new Set(config.baseline);
-    const candidates = films.filter(f => f.autoEligible && Date.parse(f.generatedAt) > cutoff &&
+    const assigned = Boolean(this.env.NOV23_DRAFT_DESTINATION) &&
+      await november23Destination(config.account) === this.env.NOV23_DRAFT_DESTINATION;
+    const candidates = films.filter(f => (f.autoEligible || (assigned && f.namedSlot)) && Date.parse(f.generatedAt) > cutoff &&
       Date.parse(f.generatedAt) <= Date.now() && !skipped.has(f.hash));
     candidates.sort((a,b) => Date.parse(a.generatedAt) - Date.parse(b.generatedAt));
     for (const film of candidates) {
+      if (film.namedSlot) {
+        const previous = await this.storage.get('named:' + film.namedSlot);
+        if (previous && previous !== film.hash) continue;
+      }
       const handled = await this.storage.get('handled:' + film.hash);
       if (!handled || typeof handled === 'number' && handled <= Date.now()) return film;
     }
@@ -717,6 +732,7 @@ export class SandboxAttempt {
       }
       // Mark for polling before init so a process restart cannot lose the
       // provider receipt. The account/digest reservation prevents repeat PUTs.
+      if (film.namedSlot) await this.storage.put('named:' + film.namedSlot, film.hash);
       const watches = await this.storage.get('watches') || {};
       watches[film.hash] = Date.now();
       await this.storage.put('watches', watches);
