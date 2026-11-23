@@ -1,71 +1,337 @@
 'use strict';
 
+const workerOrigin = 'https://idore-tools.yjr927.workers.dev';
+const onWorker = location.origin === workerOrigin;
+const pagesRoot = 'https://yjr927.github.io/idore_tools/';
+const assetBase = onWorker ? pagesRoot : new URL('./', location.href).href;
 const $ = selector => document.querySelector(selector);
-const MATERIAL_LABELS = { male: '男生', female: '女生', mixed: '男女混合', unknown: '男女分组未标记' };
-const CAST_LABELS = { solo: '单人', group: '多人', unknown: '人数未标记' };
-const FILTER_LABELS = { all: '全部作品', character: '角色作品', api_test: '接口测试' };
-const ID_PATTERN = /^[A-Za-z0-9][A-Za-z0-9_-]{0,119}$/;
-let creations = [], selectedKind = 'all', manifestUpdatedAt = null, loading = false;
+const shaPattern = /^[a-f0-9]{64}$/;
+const dateFormatter = new Intl.DateTimeFormat('zh-CN', {
+  timeZone: 'America/New_York', year: 'numeric', month: '2-digit', day: '2-digit',
+  hour: '2-digit', minute: '2-digit', hourCycle: 'h23'
+});
+const receiptLabels = {
+  reserved: ['等待发送', 'busy'], processing: ['TikTok 处理中', 'busy'],
+  delivered: ['已送达 TikTok 收件箱', 'done'], published: ['已在 TikTok 发布', 'done'],
+  failed: ['发送失败', 'issue'], rejected: ['TikTok 拒绝了上传', 'issue'], uncertain: ['投递结果待核实', 'issue']
+};
+const queueLabels = {
+  waiting_classification: '等待素材分类', waiting_material: '等待可用角色图', queued: '已排队',
+  preparing_motion: '提取动作中', rendering_clay: '渲染动作中', generating_styles: '准备造型中',
+  rendering_sequence: '正在串剪角色照片', generating_video: '生成影片中', generating_copy: '生成文案中', needs_attention: '制作需要检查',
+  rejected: '已退回制作'
+};
+const problemLabels = {
+  reconnect_required: '请重新授权 TikTok。', catalog_unavailable: '暂时无法读取成片库。',
+  media_unavailable: '暂时无法读取视频文件。', delivery_uncertain: '有一条投递需要核实。',
+  quota_limited: '已达到 TikTok 上传限额。', provider_rejected: 'TikTok 拒绝了上传。',
+  temporary_failure: '沙盒暂时不可用。'
+};
 
-function element(tag, className, text) { const item = document.createElement(tag); if (className) item.className = className; if (text !== undefined) item.textContent = String(text); return item; }
-function boundedText(value, maximum) { return typeof value === 'string' ? value.trim().slice(0, maximum) : ''; }
-function timestamp(value) { if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}T.+(?:Z|[+-]\d{2}:\d{2})$/.test(value)) return null; const moment = new Date(value).getTime(); return Number.isFinite(moment) ? moment : null; }
-function formatDate(value) { return timestamp(value) === null ? '时间未记录' : new Intl.DateTimeFormat('zh-CN', { timeZone: 'America/New_York', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).format(new Date(value)); }
-function workflowUrl(value) { try { const url = new URL(value); return url.protocol === 'https:' && url.host === 'github.com' && !url.username && !url.password && !url.search && !url.hash && /^\/yjr927\/idore_tools\/actions\/runs\/[0-9]{1,25}$/.test(url.pathname) ? url.href : ''; } catch { return ''; } }
-function normalizeCreation(value) {
-  if (!value || typeof value.id !== 'string' || !ID_PATTERN.test(value.id) || !['character', 'api_test'].includes(value.kind) || value.video_path !== `generated/${value.id}.mp4` || typeof value.sha256 !== 'string' || !/^[a-f0-9]{64}$/.test(value.sha256)) return null;
-  return { id: value.id, title: boundedText(value.title, 160) || (value.kind === 'api_test' ? '接口测试视频' : '已保存的角色作品'), character: boundedText(value.character, 80), kind: value.kind,
-    material: Object.hasOwn(MATERIAL_LABELS, value.material_group) ? value.material_group : 'unknown', cast: Object.hasOwn(CAST_LABELS, value.cast_type) ? value.cast_type : 'unknown',
-    createdAt: timestamp(value.created_at) === null ? null : value.created_at, moment: timestamp(value.created_at) ?? -Infinity,
-    model: boundedText(value.model, 140) || '模型未记录', duration: typeof value.duration === 'number' && Number.isFinite(value.duration) && value.duration > 0 && value.duration <= 300 ? value.duration : null,
-    resolution: typeof value.resolution === 'string' && /^(?:[0-9]{3,4}p|4k)$/.test(value.resolution) ? value.resolution : '', aspect: typeof value.aspect_ratio === 'string' && /^[1-9][0-9]?:[1-9][0-9]?$/.test(value.aspect_ratio) ? value.aspect_ratio : '',
-    video: new URL(`./generated/${value.id}.mp4`, location.href).href, poster: value.poster_path === `generated/${value.id}.jpg` ? new URL(`./generated/${value.id}.jpg`, location.href).href : '', workflow: workflowUrl(value.workflow_url) };
+let library = null;
+let queue = null;
+let feed = null;
+let loading = false;
+let changing = false;
+const cardCache = new Map();
+const warnings = new Set();
+
+function node(tag, className, text) {
+  const item = document.createElement(tag);
+  if (className) item.className = className;
+  if (text !== undefined) item.textContent = text;
+  return item;
 }
-function status(text = '', failed = false) { $('#gallery-status').textContent = text; $('#gallery-status').className = failed ? 'status error' : 'status'; }
-function emptyState(filtered = false) {
-  const empty = element('div', 'empty-state'); empty.append(element('span', '', '✳'), element('h3', '', filtered ? '这个分类，还在等第一条作品。' : '作品，会从这里开始。'), element('p', '', filtered ? '切换到全部作品，看看已经保存的视频。' : '已保存的成片会按时间排列在这里，随时播放和下载。'));
-  const link = element('a', 'button', filtered ? '查看全部作品' : '开始角色创作 ↗');
-  if (filtered) { link.href = '#collection-heading'; link.addEventListener('click', event => { event.preventDefault(); selectedKind = 'all'; render(); }); } else link.href = './create.html';
-  empty.append(link); return empty;
+
+function dateValue(raw) {
+  if (typeof raw !== 'string' || !/^\d{4}-\d\d-\d\dT.+(?:Z|[+-]\d\d:\d\d)$/.test(raw)) return null;
+  const time = Date.parse(raw);
+  return Number.isFinite(time) ? time : null;
 }
-function creationCard(creation) {
-  const card = element('article', 'creation-card'), media = element('div', 'creation-media'), video = element('video');
-  video.src = creation.video; if (creation.poster) video.poster = creation.poster; video.controls = true; video.playsInline = true; video.preload = 'metadata'; video.setAttribute('aria-label', creation.title + '，点击播放');
-  const type = element('span', 'creation-type' + (creation.kind === 'api_test' ? ' api-test' : ''), creation.kind === 'api_test' ? '接口测试' : '角色作品'); media.append(video, type);
-  const body = element('div', 'creation-body'), date = element('p', 'creation-date', formatDate(creation.createdAt) + (creation.createdAt ? ' · 纽约' : ''));
-  body.append(date, element('h3', '', creation.title));
-  const tags = element('div', 'creation-tags'); tags.append(element('span', 'character-tag', creation.character || '角色未标记'), element('span', '', MATERIAL_LABELS[creation.material]), element('span', '', CAST_LABELS[creation.cast])); body.append(tags);
-  const note = element('p', 'playback-note', '视频暂时无法播放，可以尝试下载后观看。'); note.hidden = true; body.append(note);
-  video.addEventListener('error', () => { note.hidden = false; });
-  video.addEventListener('play', () => { for (const other of $('#gallery-grid').querySelectorAll('video')) if (other !== video) other.pause(); });
-  const details = element('details', 'creation-info'); details.append(element('summary', '', '作品信息'), element('p', '', creation.model));
-  const specs = [creation.duration === null ? '' : `${creation.duration} 秒`, creation.resolution, creation.aspect].filter(Boolean).join(' · '); if (specs) details.append(element('p', '', specs));
-  if (creation.kind === 'api_test') details.append(element('p', '', '这是一条接口测试片，单独标记以便与角色作品区分。'));
-  if (creation.workflow) { const source = element('a', '', '查看生成记录 ↗'); source.href = creation.workflow; source.target = '_blank'; source.rel = 'noopener noreferrer'; details.append(source); }
-  body.append(details);
-  const actions = element('div', 'creation-actions'), download = element('a', 'button', '下载 MP4'); download.href = creation.video; download.download = creation.id + '.mp4'; download.setAttribute('aria-label', '下载 ' + creation.title + ' MP4'); actions.append(download); body.append(actions); card.append(media, body); return card;
+
+function when(raw) {
+  const date = dateValue(raw);
+  if (date === null) return node('small', '', '时间未记录');
+  const result = node('time', '', dateFormatter.format(date));
+  result.dateTime = raw;
+  return result;
 }
-function render() {
-  for (const video of $('#gallery-grid').querySelectorAll('video')) video.pause();
-  const selected = selectedKind === 'all' ? creations : creations.filter(item => item.kind === selectedKind);
-  $('#collection-count').textContent = `${selected.length} 件`;
-  $('#gallery-updated').textContent = manifestUpdatedAt ? '更新于 ' + formatDate(manifestUpdatedAt) + ' · 纽约' : '';
-  for (const button of $('#kind-filters').querySelectorAll('[data-kind]')) { const active = button.dataset.kind === selectedKind, count = button.dataset.kind === 'all' ? creations.length : creations.filter(item => item.kind === button.dataset.kind).length; button.classList.toggle('active', active); button.setAttribute('aria-pressed', String(active)); button.textContent = `${FILTER_LABELS[button.dataset.kind]} ${count}`; }
-  $('#gallery-grid').replaceChildren(...(selected.length ? selected.map(creationCard) : [emptyState(selectedKind !== 'all')]));
+
+async function readJson(path, options = {}) {
+  const response = await fetch(path, { cache: 'no-store', credentials: 'same-origin', redirect: 'error', ...options });
+  if (!response.ok) throw Error('http ' + response.status);
+  if (Number(response.headers.get('Content-Length')) > 3000000) throw Error('too large');
+  const text = await response.text();
+  if (text.length > 3000000) throw Error('too large');
+  return JSON.parse(text);
 }
-async function loadGallery() {
-  if (loading) return; loading = true; $('#reload-gallery').disabled = true; $('#gallery-grid').setAttribute('aria-busy', 'true'); status('正在读取已保存的作品…');
+
+async function readManifest(name) {
+  const data = await readJson(new URL('data/' + name + '.json', assetBase), { credentials: 'omit' });
+  if (data?.schema_version !== 1 || !Array.isArray(data.items)) throw Error('invalid manifest');
+  return data.items;
+}
+
+function normalizeFilm(raw) {
+  if (!raw || !shaPattern.test(raw.sha256) || !['character', 'api_test'].includes(raw.kind)) return null;
+  const id = 'video-' + raw.sha256.slice(0, 24);
+  if (raw.id !== id || raw.video_path !== 'generated/' + id + '.mp4') return null;
+  return {
+    id, sha: raw.sha256, kind: raw.kind, video: new URL(raw.video_path, assetBase).href,
+    poster: raw.poster_path === 'generated/' + id + '.jpg' ? new URL(raw.poster_path, assetBase).href : '',
+    title: typeof raw.title === 'string' && raw.title.trim() ? raw.title.trim().slice(0, 180) : '未命名成片',
+    created: dateValue(raw.generated_at) !== null ? raw.generated_at : raw.created_at,
+    archivedOnly: raw.timestamp_basis === 'workflow_artifact', sequence: raw.generation_method === 'photo_sequence',
+    ensemble: raw.sequence_type === 'ip_cast',
+    photoCount: Array.isArray(raw.source_photo_ids) ? new Set(raw.source_photo_ids.filter(id => typeof id === 'string')).size : 0
+  };
+}
+
+function validFilms(rows) {
+  const films = new Map();
+  for (const raw of rows) {
+    const film = normalizeFilm(raw);
+    if (film && !films.has(film.sha)) films.set(film.sha, film);
+  }
+  return [...films.values()].sort((a, b) => (dateValue(b.created) ?? 0) - (dateValue(a.created) ?? 0) || a.id.localeCompare(b.id));
+}
+
+async function readFeed(films) {
+  const ids = films.filter(film => film.kind === 'character').map(film => film.sha);
+  let result = null;
+  for (let i = 0; i < Math.max(ids.length, 1); i += 20) {
+    const response = await readJson('/sandbox/tiktok/feed?clips=' + ids.slice(i, i + 20).join(','));
+    if (typeof response?.connected !== 'boolean') throw Error('invalid feed');
+    if (!response.connected) return { connected: false, receipts: {} };
+    if (!result) result = { ...response, receipts: {} };
+    if (response.csrf !== result.csrf) throw Error('session changed');
+    for (const sha of ids.slice(i, i + 20)) {
+      const row = response.receipts?.[sha];
+      if (row && Object.hasOwn(receiptLabels, row.state)) result.receipts[sha] = row;
+    }
+  }
+  return result;
+}
+
+function connection() {
+  const link = $('#connection-link'), button = $('#automation-button'), msg = $('#connection-message');
+  const connected = feed?.connected === true;
+  $('#connection-light').classList.toggle('on', connected);
+  $('#account').textContent = connected && typeof feed.display === 'string' ? feed.display : '';
+  button.hidden = true;
+  link.hidden = false;
+  if (!onWorker) {
+    link.href = workerOrigin + '/gallery.html';
+    link.textContent = '打开沙盒工作台 ↗';
+    msg.textContent = '进入 JJ TEST 工作台即可查看账号回执和自动投递设置。';
+    return;
+  }
+  link.href = '/auth/tiktok/start?return=gallery';
+  if (!feed) {
+    link.hidden = true;
+    msg.textContent = '暂时无法读取账号状态，可以刷新重试。';
+    return;
+  }
+  if (!connected) {
+    link.textContent = '连接 TikTok 沙盒';
+    msg.textContent = '连接测试账号后即可查看 TikTok 回执，并选择是否自动投递新成片。';
+    return;
+  }
+  const enabled = feed.automation?.enabled === true;
+  const problem = problemLabels[feed.automation?.problem] || '';
+  msg.textContent = (enabled
+    ? '自动投递已开启。之后生成的照片串剪会送到此账号的 TikTok 收件箱，可在 TikTok 内完成发布。'
+    : '自动投递已关闭。开启后，之后生成的照片串剪会自动送到此账号的 TikTok 收件箱。') + (problem ? ' ' + problem : '');
+  const reauthorize = (!enabled && feed.canEnable === false) || feed.automation?.problem === 'reconnect_required';
+  link.textContent = '重新授权 TikTok';
+  link.hidden = !reauthorize;
+  button.hidden = (!enabled && reauthorize) || !feed.csrf;
+  button.disabled = changing || loading;
+  button.textContent = enabled ? '暂停自动投递' : '开启新成片自动投递';
+}
+
+function receiptFor(film) { return feed?.connected ? feed.receipts[film.sha] : null; }
+
+function filmStatus(film) {
+  const receipt = receiptFor(film);
+  if (receipt) return receiptLabels[receipt.state];
+  if (film.kind === 'api_test') return ['测试片 · 仅预览', ''];
+  if (!feed?.connected) return ['已生成 · 回执需连接沙盒', ''];
+  if (film.sequence && feed.automation?.enabled && dateValue(film.created) > (dateValue(feed.automation.startedAt) ?? Infinity)) {
+    return ['等待沙盒投递', 'busy'];
+  }
+  return ['已生成 · 暂无投递回执', ''];
+}
+
+function timelineRow(label, raw) {
+  const item = node('div');
+  const time = node('dd');
+  time.append(when(raw));
+  item.append(node('dt', '', label), time);
+  return item;
+}
+
+function cardFor(film) {
+  let saved = cardCache.get(film.sha);
+  if (!saved) {
+    const card = node('article', 'film'), player = node('div', 'player'), video = node('video');
+    video.src = film.video;
+    if (film.poster) video.poster = film.poster;
+    video.controls = true;
+    video.playsInline = true;
+    video.preload = 'none';
+    let kindLabel = film.kind === 'api_test' ? '接口测试' : '角色成片';
+    if (film.sequence) {
+      kindLabel = film.ensemble ? '系列角色混剪' : '单角色串剪';
+      if (film.photoCount) kindLabel += ' · ' + film.photoCount + ' 张照片';
+    }
+    const kind = node('span', 'kind', kindLabel);
+    player.append(video, kind);
+    const body = node('div', 'film-body'), heading = node('div', 'film-heading'), title = node('h3');
+    const download = node('a', '', onWorker ? '打开 MP4 ↗' : '下载 MP4');
+    if (onWorker) { download.target = '_blank'; download.rel = 'noopener noreferrer'; }
+    download.href = film.video;
+    if (!onWorker) download.download = film.id + '.mp4';
+    heading.append(title, download);
+    const state = node('span', 'state'), times = node('dl', 'timestamps');
+    const error = node('p', 'play-error', '当前无法播放，可以下载 MP4 查看。');
+    error.hidden = true;
+    video.addEventListener('error', () => { error.hidden = false; });
+    video.addEventListener('play', () => {
+      for (const other of $('#gallery-grid').querySelectorAll('video')) if (other !== video) other.pause();
+    });
+    body.append(heading, state, times, error);
+    card.append(player, body);
+    saved = { card, video, title, download, state, times };
+    cardCache.set(film.sha, saved);
+  }
+  saved.video.setAttribute('aria-label', film.title);
+  saved.title.textContent = film.title;
+  saved.download.setAttribute('aria-label', (onWorker ? '打开 ' : '下载 ') + film.title);
+  const [label, tone] = filmStatus(film);
+  saved.state.textContent = label;
+  saved.state.className = 'state ' + tone;
+  const receipt = receiptFor(film);
+  const times = [timelineRow(film.archivedOnly ? '归档时间' : '生成完成', film.created)];
+  if (receipt?.startedAt) times.push(timelineRow('开始投递', receipt.startedAt));
+  if (receipt?.acceptedAt) times.push(timelineRow('上传接收确认', receipt.acceptedAt));
+  if (receipt?.deliveredAt || receipt?.state === 'delivered') times.push(timelineRow('收件箱送达确认', receipt.deliveredAt));
+  if (receipt?.state === 'published') times.push(timelineRow('TikTok 发布确认', receipt.publishedAt));
+  if (['failed', 'uncertain', 'rejected'].includes(receipt?.state)) times.push(timelineRow('投递状态更新', receipt.failedAt || receipt.updatedAt));
+  saved.times.replaceChildren(...times);
+  return saved.card;
+}
+
+function renderFilms() {
+  const grid = $('#gallery-grid');
+  $('#collection-count').textContent = library === null ? '—' : library.length;
+  if (!library?.length) {
+    grid.replaceChildren(node('p', 'empty', library === null ? '暂时无法读取成片。' : 'Agent 生成的成片将显示在这里。'));
+    return;
+  }
+  const active = new Set(library.map(film => film.sha));
+  for (const [sha, saved] of cardCache) {
+    if (!active.has(sha)) { saved.card.remove(); cardCache.delete(sha); }
+  }
+  // Preserve each mounted player across status polls, including its playback position and focus.
+  for (const child of [...grid.children]) if (!child.matches('article')) child.remove();
+  for (const [index, film] of library.entries()) {
+    const card = cardFor(film);
+    if (grid.children[index] !== card) grid.insertBefore(card, grid.children[index] || null);
+  }
+}
+
+function eventItem(label, title, date, tone = '', detail = '') {
+  const item = node('li', tone), top = node('div', 'event-top', label);
+  top.append(when(date));
+  item.append(top, node('p', 'event-title', title));
+  if (detail) item.append(node('p', 'event-detail', detail));
+  return item;
+}
+
+function renderActivity() {
+  const events = [];
+  for (const film of library || []) {
+    events.push({ label: film.archivedOnly ? '成片已归档' : '成片已生成', title: film.title, date: film.created });
+    const receipt = receiptFor(film);
+    if (receipt) {
+      const [stateLabel, tone] = receiptLabels[receipt.state];
+      const label = ['delivered', 'published'].includes(receipt.state) ? 'TikTok 确认 · ' + stateLabel : stateLabel;
+      const date = { delivered: receipt.deliveredAt, published: receipt.publishedAt, processing: receipt.acceptedAt,
+        failed: receipt.failedAt, rejected: receipt.failedAt, reserved: receipt.startedAt, uncertain: receipt.updatedAt }[receipt.state];
+      events.push({ label, title: film.title, date, tone });
+    }
+  }
+  events.sort((a, b) => (dateValue(b.date) ?? -Infinity) - (dateValue(a.date) ?? -Infinity));
+  const list = node('ol', 'events');
+  for (const event of events.slice(0, 8)) list.append(eventItem(event.label, event.title, event.date, event.tone));
+  const container = $('#activity-list');
+  const expanded = container.querySelector('details')?.open === true;
+  container.replaceChildren(list);
+  if (!events.length) container.prepend(node('p', 'empty', '暂无成片活动记录。'));
+  const tasks = (queue || []).filter(task => task && Object.hasOwn(queueLabels, task.status) && !task.video_path);
+  if (tasks.length) {
+    const details = node('details'), tasksList = node('ol', 'events');
+    details.open = expanded;
+    details.append(node('summary', '', '制作队列 · ' + tasks.length));
+    for (const task of tasks) {
+      tasksList.append(eventItem(queueLabels[task.status], task.title || '未命名任务', task.created_at, '', '时间为任务加入队列的时间'));
+    }
+    details.append(tasksList);
+    container.append(details);
+  }
+}
+
+async function refresh() {
+  if (loading || changing) return;
+  loading = true;
+  $('#refresh').disabled = true;
+  $('#gallery-grid').setAttribute('aria-busy', 'true');
+  warnings.clear();
   try {
-    const url = new URL('./data/creations.json', location.href), response = await fetch(url.href, { credentials: 'omit', cache: 'no-store', redirect: 'error' });
-    if (response.status === 404) { creations = []; manifestUpdatedAt = null; render(); status(); return; }
-    if (!response.ok || response.url && response.url !== url.href || Number(response.headers?.get('Content-Length')) > 2 * 1024 * 1024) throw new Error();
-    const raw = await response.text(); if (raw.length > 2 * 1024 * 1024) throw new Error();
-    const document = JSON.parse(raw); if (!document || document.schema_version !== 1 || !Array.isArray(document.items) || document.items.length > 1000) throw new Error();
-    const seen = new Set(); creations = document.items.map(normalizeCreation).filter(item => { if (!item || seen.has(item.id)) return false; seen.add(item.id); return true; }).sort((a, b) => (b.moment - a.moment) || a.id.localeCompare(b.id));
-    manifestUpdatedAt = timestamp(document.updated_at) === null ? null : document.updated_at; render(); status(creations.length < document.items.length ? '部分作品信息暂时无法显示，其余作品仍可播放与下载。' : '');
-  } catch { if (!creations.length) { $('#collection-count').textContent = '暂不可读'; const empty = element('div', 'empty-state'); empty.append(element('span', '', '↻'), element('h3', '', '作品暂时无法读取。'), element('p', '', '稍后点击“刷新作品”再试，已保存的视频不会因此被移除。')); $('#gallery-grid').replaceChildren(empty); } status('暂时无法读取作品，请稍后刷新。', true); }
-  finally { loading = false; $('#reload-gallery').disabled = false; $('#gallery-grid').setAttribute('aria-busy', 'false'); }
+    const [films, pipeline] = await Promise.allSettled([readManifest('creations'), readManifest('pipeline')]);
+    if (films.status === 'fulfilled') {
+      library = validFilms(films.value);
+      if (films.value.length !== library.length) warnings.add('部分成片信息不完整。');
+    } else warnings.add('成片清单暂时无法更新。');
+    if (pipeline.status === 'fulfilled') queue = pipeline.value;
+    else warnings.add('制作队列暂时无法更新。');
+    if (onWorker) {
+      try { feed = await readFeed(library || []); }
+      catch { feed = null; warnings.add('未能取得当前沙盒的回执。'); }
+    }
+    renderFilms();
+    renderActivity();
+  } finally {
+    loading = false;
+    $('#gallery-grid').setAttribute('aria-busy', 'false');
+    $('#refresh').disabled = false;
+    $('#feedback').textContent = [...warnings].join(' ');
+    connection();
+  }
 }
-for (const button of $('#kind-filters').querySelectorAll('[data-kind]')) button.addEventListener('click', () => { selectedKind = button.dataset.kind; render(); });
-$('#reload-gallery').addEventListener('click', loadGallery);
-loadGallery();
+
+async function toggleAutomation() {
+  if (!onWorker || !feed?.connected || !feed.csrf || changing || loading) return;
+  const enable = !feed.automation?.enabled;
+  changing = true;
+  $('#automation-button').disabled = true;
+  $('#refresh').disabled = true;
+  let message = '';
+  try {
+    await readJson('/sandbox/tiktok/automation', {
+      method: 'POST', referrerPolicy: 'same-origin', body: new URLSearchParams({ enabled: enable ? '1' : '0', csrf: feed.csrf })
+    });
+  } catch { message = '未能确认自动投递设置，请核对账号和最新状态。'; }
+  changing = false;
+  await refresh();
+  if (message) $('#feedback').textContent = [message, ...warnings].join(' ');
+}
+
+$('#refresh').addEventListener('click', refresh);
+$('#automation-button').addEventListener('click', toggleAutomation);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) refresh(); });
+window.addEventListener('pagehide', () => { feed = null; });
+window.addEventListener('pageshow', event => { if (event.persisted) refresh(); });
+setInterval(() => { if (!document.hidden) refresh(); }, 60000);
+refresh();

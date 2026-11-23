@@ -11,10 +11,10 @@
   <header><div class="policy-wrap"><a href="./" class="home-link"><img src="./mark.svg" alt="" width="30" height="30">idore Creative Studio</a></div></header>
   <main class="policy-wrap">
     <h1>Privacy Policy</h1>
-    <p class="date">Effective <time datetime="2026-11-18">November 18, 2026</time></p>
+    <p class="date">Effective <time datetime="2026-11-22">November 22, 2026</time></p>
     <section>
       <h2>What this policy covers</h2>
-      <p>This policy explains how the idore Creative Studio team handles information when you browse the Studio, make or review a video, or send an approved video to TikTok. It applies to the Studio hosted at <a href="./">yjr927.github.io/idore_tools</a>.</p>
+      <p>This policy explains how the idore Creative Studio team handles information when you browse the gallery, use the Agent to make videos, or connect your TikTok account. It covers the <a href="https://yjr927.github.io/idore_tools/">Studio on GitHub Pages</a> and its <a href="https://idore-tools.yjr927.workers.dev/sandbox/tiktok">JJ TEST sandbox on Cloudflare</a>.</p>
     </section>
     <section>
       <h2>Browsing and saving references</h2>
@@ -24,13 +24,13 @@
     <section>
       <h2>Creating and reviewing videos</h2>
       <p>The workspace processes the references, character images, motion guides, prompts, generated media, captions and review decisions used for a project. GitHub hosts the workspace and runs production jobs. Depending on the job, OpenRouter and the selected model provider, including OpenAI or ByteDance’s Seedance, receive the inputs needed to generate video, create images or suggest captions.</p>
-      <p>The materials library, production previews and completed videos can be publicly accessible. A finished video can appear in the Studio gallery before anyone approves sending it to TikTok. Only submit material suitable for this audience.</p>
+      <p>The Agent can choose photos from the project’s materials library and use them to make a video. The library, production previews and completed videos can be publicly accessible on GitHub and in the Studio. Only submit material suitable for this audience.</p>
     </section>
     <section>
       <h2>Sending a draft to TikTok</h2>
-      <p>When the connection is enabled, an authorized reviewer can select an approved video and confirm the destination TikTok account. The upload uses TikTok’s <code>video.upload</code> permission. The workflow uses the configured account identifier, account label and access token to send the video and check the transfer. The account holder opens the upload in TikTok, adds or pastes a caption, chooses visibility and decides whether to publish.</p>
-      <p>TikTok receives the video for the authorized account. The Studio records the transfer status and identifiers needed to check delivery or prevent a duplicate. You can revoke the app’s access through <a href="https://support.tiktok.com/en/safety-hc/account-and-user-safety/connect-to-third-party-apps">TikTok’s connected-app settings</a>. Manage copies already transferred to TikTok in your TikTok account.</p>
-      <p>In the JJ TEST sandbox, Cloudflare hosts the login and upload service. When you connect TikTok, the service reads your display name and account identifier, keeps your access token encrypted for up to 30 minutes, and sets a session cookie. You can preview the test video on your device. When you confirm the upload, the service forwards the video to TikTok and keeps a receipt associated with a hashed account identifier to prevent duplicate delivery.</p>
+      <p>Cloudflare hosts the sandbox sign-in and transfer service. When you connect TikTok, the service reads your account identifier and display name, sets a sign-in session cookie and uses TikTok’s <code>video.upload</code> permission. A separate protected cookie lets the gallery show receipts for your account. If you turn on automatic delivery, the Agent can send new videos made from library photos to your TikTok inbox. Earlier gallery videos and test clips are excluded from automatic delivery.</p>
+      <p>For automatic delivery, the sandbox stores encrypted TikTok access and refresh tokens on Cloudflare and renews them while authorized. Turning off automatic delivery removes these saved credentials and stops future transfers. The sandbox keeps a private receipt linked to a fingerprint of your account and video, with transfer identifiers, status and available timestamps to show progress and prevent duplicate uploads. The separate manual review workflow, when configured, uses the destination account and video confirmed by an authorized reviewer.</p>
+      <p>Opening a delivery notification in TikTok lets you edit the video, choose its visibility and decide whether to post. You can revoke the Studio’s access through <a href="https://support.tiktok.com/en/safety-hc/account-and-user-safety/connect-to-third-party-apps">TikTok’s connected-app settings</a>. You can manage videos already transferred to TikTok in your TikTok account.</p>
     </section>
     <section>
       <h2>Where records are kept</h2>

@@ -29,7 +29,8 @@ class MemoryStorage {
   async put(key, value) { this.entries.set(key, structuredClone(value)); }
   async delete(key) { return this.entries.delete(key); }
   async deleteAll() { this.entries.clear(); }
-  async setAlarm() {}
+  async setAlarm(at) { this.alarmAt = at; }
+  async deleteAlarm() { this.alarmAt = null; }
   transaction(fn) {
     const result = this.queue.then(() => fn(this));
     this.queue = result.catch(() => {});
@@ -38,7 +39,8 @@ class MemoryStorage {
 }
 
 function fixture(t, { scope = 'video.upload,user.info.basic', dropInitResponse = false, useDeployment = false,
-  kaiAsset, redirectOn, initReply, signedUploadUrl = uploadUrl, onPut } = {}) {
+  kaiAsset, redirectOn, initReply, signedUploadUrl = uploadUrl, onPut, archive, refresh, tokenTTL = 86400,
+  statusReply } = {}) {
   const worker = useDeployment ? deployedWorker : createSandboxWorker(clipHash);
   const calls = [];
   const objects = new Map();
@@ -56,7 +58,7 @@ function fixture(t, { scope = 'video.upload,user.info.basic', dropInitResponse =
         if (!objects.has(id)) {
           const storage = new MemoryStorage();
           const instance = new SandboxAttempt({ storage }, env);
-          objects.set(id, { storage, fetch: (input, options) => instance.fetch(new Request(input, options)) });
+          objects.set(id, { storage, alarm: () => instance.alarm(), fetch: (input, options) => instance.fetch(new Request(input, options)) });
         }
         return objects.get(id);
       },
@@ -71,6 +73,12 @@ function fixture(t, { scope = 'video.upload,user.info.basic', dropInitResponse =
     calls.push({ url, method: req.method, headers: req.headers, bytes, text, redirect: req.redirect });
     // workerd accepts manual/follow. These credentialed requests must use manual.
     assert.equal(req.redirect, 'manual');
+    if (url.origin === 'https://yjr927.github.io' && archive) {
+      assert.equal(req.headers.get('Authorization'), null);
+      if (url.pathname === '/idore_tools/data/creations.json') return Response.json({schema_version:1, items:archive.items});
+      if (url.pathname === '/idore_tools/generated/video-' + clipHash.slice(0,24) + '.mp4') return new Response(archive.bytes || clip);
+      throw new Error('unexpected archive URL');
+    }
     if (redirectOn === url.pathname) {
       return new Response('private provider diagnostic', { status: 302, headers: { Location: mockRedirect } });
     }
@@ -78,15 +86,16 @@ function fixture(t, { scope = 'video.upload,user.info.basic', dropInitResponse =
     assert.equal(url.origin, 'https://open.tiktokapis.com');
     switch (url.pathname) {
       case '/v2/oauth/token/':
+        if (new URLSearchParams(text).get('grant_type') === 'refresh_token' && refresh) return refresh();
         return Response.json({ access_token: accessToken, token_type: 'Bearer', open_id: openId,
-          refresh_token: 'fake-ignored-refresh-token', expires_in: 86400, scope });
+          refresh_token: 'fake-ignored-refresh-token', expires_in:tokenTTL, refresh_expires_in:86400 * 100, scope });
       case '/v2/user/info/':
         return ok({ user: { open_id: openId, display_name: 'Sandbox Tester' } });
       case initPath:
         if (dropInitResponse) throw new Error('Mocked lost initialization response');
         return initReply ? initReply() : ok({ publish_id: 'v_inbox_file~v2.12345', upload_url: signedUploadUrl });
       case statusPath:
-        return ok({ status: 'SEND_TO_USER_INBOX' });
+        return ok({ status: statusReply ? statusReply() : 'SEND_TO_USER_INBOX' });
       default:
         throw new Error('Unexpected mock endpoint ' + url.pathname);
     }
@@ -110,8 +119,8 @@ function fixture(t, { scope = 'video.upload,user.info.basic', dropInitResponse =
     }
     return res;
   }
-  async function start() {
-    const res = await visit('/auth/tiktok/start');
+  async function start(gallery = false) {
+    const res = await visit('/auth/tiktok/start' + (gallery ? '?return=gallery' : ''));
     assert.ok([302, 303, 307].includes(res.status));
     const authorization = new URL(res.headers.get('Location'));
     assert.equal(authorization.origin, 'https://www.tiktok.com');
@@ -440,3 +449,134 @@ for (const address of [
     assert.equal(puts[0].redirect, 'manual');
   });
 }
+
+const feedPath = landing + '/feed?clips=' + clipHash;
+const automationPath = landing + '/automation';
+function film(overrides = {}) {
+  return {kind:'character', generation_method:'photo_sequence', created_at:new Date().toISOString(), sha256:clipHash,
+    video_path:'generated/video-' + clipHash.slice(0,24) + '.mp4', ...overrides};
+}
+
+async function openGallery(h) {
+  const auth = await h.complete(await h.start(true));
+  assert.equal(auth.headers.get('Location'), '/gallery.html');
+  const state = await (await h.visit(feedPath)).json();
+  assert.equal(state.connected, true);
+  assert.equal(state.canEnable, true);
+  return state;
+}
+
+function setAutomation(h, csrf, enabled, requestOrigin = origin) {
+  return h.visit(automationPath, {method:'POST', requestOrigin, form:new URLSearchParams({csrf, enabled})});
+}
+
+async function putNewFilm(archive, source) {
+  // A new GitHub Pages deployment is observed only after the opt-in timestamp.
+  await new Promise(resolve => setTimeout(resolve, 8));
+  archive.items = [film(source)];
+}
+
+function coordinator(h) {
+  return [...h.objects].find(([key]) => key.startsWith('automation:'))[1];
+}
+
+test('gallery is account-scoped and the current archive is never sent on enable', async t => {
+  const archive = {items:[film()]};
+  const h = fixture(t, {archive});
+  assert.deepEqual(await (await h.visit(feedPath)).json(), {connected:false, receipts:{}});
+  const {csrf} = await openGallery(h);
+  assert.equal((await setAutomation(h, csrf, '1', 'https://attacker.example')).status, 403);
+  assert.equal((await setAutomation(h, 'bad', '1')).status, 403);
+  assert.equal((await setAutomation(h, csrf, '1')).status, 200);
+  await coordinator(h).alarm();
+  assert.equal(h.callsTo(initPath).length, 0);
+  assert.ok(coordinator(h).storage.alarmAt > Date.now());
+  assert.equal((await h.visit(landing + '/feed?clips=not-a-hash')).status, 400);
+  const envData = JSON.stringify([...h.objects.values()].map(o => [...o.storage.entries]));
+  assert.ok(!envData.includes(accessToken) && !envData.includes('fake-ignored-refresh-token'));
+  h.cookies.clear();
+  assert.deepEqual(await (await h.visit(feedPath)).json(), {connected:false, receipts:{}});
+});
+
+test('gallery alarm sends new photo sequences once when the browser is closed and exposes real receipt times', async t => {
+  const archive = {items:[]};
+  let phase = 'SEND_TO_USER_INBOX';
+  const h = fixture(t, {archive, statusReply:() => phase});
+  const {csrf} = await openGallery(h);
+  await setAutomation(h, csrf, '1');
+  const agent = coordinator(h);
+  h.cookies.delete('__Host-idore-tt-session');
+  await putNewFilm(archive, {kind:'api_test'});
+  await agent.alarm();
+  assert.equal(h.callsTo(initPath).length, 0);
+  await putNewFilm(archive, {generation_method:'legacy'});
+  await agent.alarm();
+  assert.equal(h.callsTo(initPath).length, 0);
+  await putNewFilm(archive);
+  await Promise.all([agent.alarm(), agent.alarm()]);
+  const feed = await (await h.visit(feedPath)).json();
+  assert.equal(feed.receipts[clipHash].state, 'delivered');
+  assert.ok(Date.parse(feed.receipts[clipHash].deliveredAt) >= Date.parse(feed.receipts[clipHash].acceptedAt));
+  assert.equal(h.callsTo(initPath).length,1);
+  assert.equal(h.calls.filter(x => x.method === 'PUT').length,1);
+  assert.ok(!JSON.stringify(feed).includes('v_inbox_file'));
+  phase = 'PUBLISH_COMPLETE';
+  await agent.storage.put('watches', {[clipHash]:Date.now() - 1});
+  await agent.alarm();
+  const posted = (await (await h.visit(feedPath)).json()).receipts[clipHash];
+  assert.equal(posted.state, 'published');
+  assert.equal(posted.deliveredAt, feed.receipts[clipHash].deliveredAt);
+  assert.ok(Date.parse(posted.publishedAt));
+  assert.equal((await setAutomation(h, csrf, '0')).status, 200);
+  assert.equal(agent.storage.alarmAt, null);
+  assert.equal((await agent.storage.get('automation')).box, undefined);
+  await agent.alarm();
+  assert.equal(h.callsTo(initPath).length,1);
+});
+
+test('background grant refresh privately rotates both tokens and stops on removed access', async t => {
+  const archive = {items:[]};
+  let revoked = false;
+  const h = fixture(t, {archive, tokenTTL:90, refresh:() => revoked ?
+    Response.json({error:'invalid_grant'}, {status:400}) :
+    Response.json({open_id:openId, scope:'video.upload,user.info.basic', expires_in:90, refresh_expires_in:20000,
+      access_token:'fresh-token', refresh_token:'rotated-refresh'})});
+  const {csrf} = await openGallery(h);
+  await setAutomation(h, csrf, '1');
+  await putNewFilm(archive);
+  const agent = coordinator(h);
+  await agent.alarm();
+  assert.equal(h.callsTo(initPath)[0].headers.get('Authorization'), 'Bearer fresh-token');
+  const saved = JSON.stringify(await agent.storage.get('automation'));
+  assert.ok(!saved.includes('fresh-token') && !saved.includes('rotated-refresh'));
+  revoked = true;
+  await agent.alarm();
+  const latestRequest = h.callsTo('/v2/oauth/token/').at(-1);
+  assert.equal(new URLSearchParams(latestRequest.text).get('refresh_token'), 'rotated-refresh');
+  const state = await (await h.visit(feedPath)).json();
+  assert.equal(state.automation.enabled, false);
+  assert.equal(state.automation.problem, 'reconnect_required');
+  assert.equal((await agent.storage.get('automation')).box, undefined);
+});
+
+test('auto sends reject changed archive bytes and respect a definitive quota rejection', async t => {
+  const archive = {items:[], bytes:Buffer.from('bad')};
+  const h = fixture(t, {archive, initReply:() => Response.json({error:{code:'spam_risk_too_many_pending_share'}}, {status:403})});
+  const {csrf} = await openGallery(h);
+  await setAutomation(h, csrf, '1');
+  await putNewFilm(archive);
+  const agent = coordinator(h);
+  await agent.alarm();
+  assert.equal(h.callsTo(initPath).length, 0);
+  let result = await (await h.visit(feedPath)).json();
+  assert.equal(result.automation.problem, 'media_unavailable');
+  delete archive.bytes;
+  await agent.storage.delete('handled:' + clipHash);
+  await agent.alarm();
+  await agent.alarm();
+  result = await (await h.visit(feedPath)).json();
+  assert.equal(h.callsTo(initPath).length, 1);
+  assert.equal(result.automation.problem, 'quota_limited');
+  assert.equal(result.receipts[clipHash].state, 'rejected');
+  assert.ok(Date.parse(result.receipts[clipHash].failedAt));
+});
