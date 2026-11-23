@@ -2,6 +2,21 @@
   "schema_version": 1,
   "items": [
     {
+      "id": "agent-2026-11-22-morning",
+      "generation_method": "agent_motion",
+      "created_at": "2026-11-23T02:18:34.231415Z",
+      "sequence_slot": "2026-11-22-morning",
+      "title": "TikTok 热门复刻",
+      "source_scan_count": 19,
+      "eligible_trend_count": 0,
+      "status": "waiting_trend",
+      "stage": "matching",
+      "message": "已检查 19 条候选，等待同时达到播放量、点赞数和同玩法创作者门槛的未复刻原片。",
+      "error_code": "",
+      "updated_at": "2026-11-23T02:18:34.274686Z",
+      "revision": "547167d8361f90087221e7f0f12b51ae29a36533e22dcfa508d7d5a4c23d29f4"
+    },
+    {
       "id": "agent-2026-11-22-evening",
       "generation_method": "agent_motion",
       "created_at": "2026-11-23T01:54:33.203491Z",
@@ -390,5 +405,5 @@
     "copy_provider": "openrouter",
     "copy_model": "openai/gpt-5.4-mini"
   },
-  "updated_at": "2026-11-23T01:54:33.239792Z"
+  "updated_at": "2026-11-23T02:18:34.274743Z"
 }
