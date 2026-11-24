@@ -202,12 +202,12 @@
       "selection_basis": "user_selected_reference",
       "trend_verified": false,
       "plan_reserved_at": "2026-11-23T14:31:59.539599Z",
-      "status": "plan_ready",
-      "stage": "planning",
-      "message": "Work 已固定角色与分镜，OpenRouter 已完成英文文案，Cloudflare 已校验。",
+      "status": "generating_video",
+      "stage": "video",
+      "message": "正在按原片观察到的动作生成角色舞蹈，使用已核验的角色照片作首帧。",
       "error_code": "",
-      "updated_at": "2026-11-24T01:17:04.374090Z",
-      "revision": "4ec09f688ea7b1287b5e9c01a9608bdfd6dd584ebe02abc28ec1d3772be809bc",
+      "updated_at": "2026-11-24T01:35:23.878747Z",
+      "revision": "7f5573db3342819508320399545661a129ffff0da2a4071ed30573bb9c9f3574",
       "editorial_recovery": {
         "method": "work_locked_board_openrouter_copy",
         "reserved_at": "2026-11-24T01:16:58.381496Z",
@@ -363,7 +363,23 @@
       "storyboard_author": "work",
       "copy_provider": "openrouter",
       "validation_host": "cloudflare",
-      "recovery_method": "work_locked_board_openrouter_copy"
+      "recovery_method": "work_locked_board_openrouter_copy",
+      "motion_binding": [
+        "tiktok-7703265627972128021",
+        "https://www.tiktok.com/@itsmomoko.jp/video/7703265627972128021",
+        "role-3abb96e025889f47",
+        "3abb96e025889f477fd976ab634e8fd79dee3c7bf70a92157d617bcb614cbf85"
+      ],
+      "motion_reference_method": "observed_description",
+      "source_id": "tiktok-7703265627972128021",
+      "character_image": "https://raw.githubusercontent.com/yjr927/idore_tools/58853770e09acaa4d0a7ffd92eb68c21590365ef/site/characters/Danny%2B%E8%84%86%E8%84%86%E5%AE%9D%20%E5%90%8C%E5%89%A7%E6%BC%94%E5%91%98%E5%AE%88%E5%88%99/%E4%BC%8A%E8%8A%99%E7%90%B3%E6%97%A5%E5%B8%B8.png",
+      "original_watched": true,
+      "kind": "hands",
+      "transformation": "none",
+      "motion_summary": "已播放13秒原片，查看约1秒、4秒及11秒关键画面；仅1名角色在黑色练习室墙面与木地板前表演，画面边缘位置稳定。开始屈臂将拳放脸侧，随后双掌在侧边呈交叉角度并抬起一膝，后段再次出现一臂横放胸前、另一拳靠脸侧的动作。黑色短外套、灰色百褶裙和长靴在所见画面一致，完整造型变化仍待核验。页面显示Contains AI-generated media并自称VirtualIdol；female为百褶裙舞台角色的素材用途。",
+      "motion_reference_reason": "work_human_verification",
+      "submission_reserved": true,
+      "model": "bytedance/seedance-2.5"
     },
     {
       "id": "agent-2026-11-22-morning",
@@ -772,5 +788,5 @@
     "copy_provider": "openrouter",
     "copy_model": "openai/gpt-5.4-mini"
   },
-  "updated_at": "2026-11-24T01:35:22.322076Z"
+  "updated_at": "2026-11-24T01:35:23.878802Z"
 }
