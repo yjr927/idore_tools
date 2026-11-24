@@ -1,0 +1,19 @@
+{
+  "2026-11-23-momoko": {
+    "attempt": 2,
+    "status": "reserved",
+    "model": "bytedance/seedance-2.5",
+    "run_id": "45308693102",
+    "reserved_at": "2026-11-24T01:56:31.516539Z",
+    "prior_reservation_commit": "299488d51a70b3f7e7fa053a1753883a00a6043a",
+    "prior_outcome_commit": "db2b79d2122dc8d2553da134c2adbb49097d01c1",
+    "prior_revision": "cc1f57cca9c625987b08ffcef87247698881409110fad2e1f5eb8ab4b58fd2f7",
+    "prior_status": "submission_uncertain",
+    "binding": [
+      "tiktok-7703265627972128021",
+      "https://www.tiktok.com/@itsmomoko.jp/video/7703265627972128021",
+      "role-3abb96e025889f47",
+      "3abb96e025889f477fd976ab634e8fd79dee3c7bf70a92157d617bcb614cbf85"
+    ]
+  }
+}
