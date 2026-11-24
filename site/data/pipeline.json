@@ -16,7 +16,7 @@
       "stage": "planning",
       "message": "Cloudflare 上的策划服务暂时无法访问。",
       "error_code": "planner_unavailable",
-      "updated_at": "2026-11-24T01:16:58.381533Z",
+      "updated_at": "2026-11-24T01:17:02.737978Z",
       "revision": "794acdf2f363e9ab27878a6363158d988f79c854316dc49cc117b4162108961e",
       "editorial_recovery": {
         "method": "work_locked_board_openrouter_copy",
@@ -41,6 +41,34 @@
           "error_code": "planner_unavailable",
           "updated_at": "2026-11-23T14:32:04.636872Z",
           "revision": "794acdf2f363e9ab27878a6363158d988f79c854316dc49cc117b4162108961e"
+        },
+        "generation_id": "gen-1795483020-7uLBZH8uxFTaiY8NMNuU",
+        "approved_copy": {
+          "decision": "render",
+          "trend_id": "tiktok-7709762212679683342",
+          "shots": [
+            {
+              "photo_id": "role-323c636618027cbd",
+              "framing": "medium",
+              "overlay": "Side turn first, hands parked by the face."
+            },
+            {
+              "photo_id": "role-323c636618027cbd",
+              "framing": "medium",
+              "overlay": "Then the forearms cross and roll back."
+            },
+            {
+              "photo_id": "role-323c636618027cbd",
+              "framing": "medium",
+              "overlay": "Hands down, and the look seals it."
+            }
+          ],
+          "caption": "Jace turns in, rolls through the chest, then lets the expression land it.",
+          "hashtags": [
+            "#JaceDance",
+            "#ForearmRoll",
+            "#A2OLiteNeon"
+          ]
         }
       }
     },
@@ -59,7 +87,7 @@
       "stage": "planning",
       "message": "Cloudflare 上的策划服务暂时无法访问。",
       "error_code": "planner_unavailable",
-      "updated_at": "2026-11-24T01:16:58.381516Z",
+      "updated_at": "2026-11-24T01:17:02.737910Z",
       "revision": "6777b7878ab96650200c830d63ded7a2428c3024b948f6f3abe9317bfba9e765",
       "editorial_recovery": {
         "method": "work_locked_board_openrouter_copy",
@@ -84,6 +112,34 @@
           "error_code": "planner_unavailable",
           "updated_at": "2026-11-23T14:32:01.705341Z",
           "revision": "6777b7878ab96650200c830d63ded7a2428c3024b948f6f3abe9317bfba9e765"
+        },
+        "generation_id": "gen-1795483020-7uLBZH8uxFTaiY8NMNuU",
+        "approved_copy": {
+          "decision": "render",
+          "trend_id": "tiktok-7703265627972128021",
+          "shots": [
+            {
+              "photo_id": "role-3abb96e025889f47",
+              "framing": "wide",
+              "overlay": "Fists up, full-body, let’s start clean."
+            },
+            {
+              "photo_id": "role-3abb96e025889f47",
+              "framing": "wide",
+              "overlay": "Then the knee gets one clear spotlight."
+            },
+            {
+              "photo_id": "role-3abb96e025889f47",
+              "framing": "wide",
+              "overlay": "Forearm in, fist back—clean finish."
+            }
+          ],
+          "caption": "Evelyn keeps it crisp: fists, knee, then a tidy finish by the cheek.",
+          "hashtags": [
+            "#EvelynDance",
+            "#ArmChoreo",
+            "#KneeLift"
+          ]
         }
       }
     },
@@ -494,5 +550,5 @@
     "copy_provider": "openrouter",
     "copy_model": "openai/gpt-5.4-mini"
   },
-  "updated_at": "2026-11-24T01:16:58.381544Z"
+  "updated_at": "2026-11-24T01:17:02.737994Z"
 }
