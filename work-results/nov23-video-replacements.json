@@ -36,6 +36,10 @@
       "https://www.tiktok.com/@mybaybie/video/7709762212679683342",
       "role-323c636618027cbd",
       "323c636618027cbd6d200dcb82eb823ba8d2c83a66a89a2d2f4b7b3eecd0318c"
-    ]
+    ],
+    "paid_posts": 1,
+    "video_post_http_status": 403,
+    "video_post_reason": "access_denied",
+    "checked_at": "2026-11-24T01:56:42.153614Z"
   }
 }
