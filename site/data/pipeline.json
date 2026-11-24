@@ -12,12 +12,12 @@
       "selection_basis": "user_selected_reference",
       "trend_verified": false,
       "plan_reserved_at": "2026-11-23T14:32:03.125827Z",
-      "status": "generating_video",
+      "status": "needs_attention",
       "stage": "video",
-      "message": "正在按原片观察到的动作生成角色舞蹈，使用已核验的角色照片作首帧。",
-      "error_code": "",
-      "updated_at": "2026-11-24T01:35:17.305609Z",
-      "revision": "3f50b3b0cb395bd5a4b3df79cc1816bee5fa4ce3c9d3d1ba26bf8f3e9f2376db",
+      "message": "视频提交未取得明确结果，请核对后再处理；不会自动重试。",
+      "error_code": "submission_uncertain",
+      "updated_at": "2026-11-24T01:35:22.322023Z",
+      "revision": "5bbd34af24f13ccbd67335c1ffaefaaa0fc0819e63076d6c8bc6969711848f00",
       "editorial_recovery": {
         "method": "work_locked_board_openrouter_copy",
         "reserved_at": "2026-11-24T01:16:58.381496Z",
@@ -772,5 +772,5 @@
     "copy_provider": "openrouter",
     "copy_model": "openai/gpt-5.4-mini"
   },
-  "updated_at": "2026-11-24T01:35:17.305656Z"
+  "updated_at": "2026-11-24T01:35:22.322076Z"
 }
