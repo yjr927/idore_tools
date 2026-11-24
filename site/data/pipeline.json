@@ -12,12 +12,12 @@
       "selection_basis": "user_selected_reference",
       "trend_verified": false,
       "plan_reserved_at": "2026-11-23T14:32:03.125827Z",
-      "status": "plan_ready",
-      "stage": "planning",
-      "message": "Work 已固定角色与分镜，OpenRouter 已完成英文文案，Cloudflare 已校验。",
+      "status": "generating_video",
+      "stage": "video",
+      "message": "正在按原片观察到的动作生成角色舞蹈，使用已核验的角色照片作首帧。",
       "error_code": "",
-      "updated_at": "2026-11-24T01:17:05.990496Z",
-      "revision": "2603c44ca0d4a83dd9b1b6e381e0d3399ece463b04b8079aa67f87df94769458",
+      "updated_at": "2026-11-24T01:35:17.305609Z",
+      "revision": "3f50b3b0cb395bd5a4b3df79cc1816bee5fa4ce3c9d3d1ba26bf8f3e9f2376db",
       "editorial_recovery": {
         "method": "work_locked_board_openrouter_copy",
         "reserved_at": "2026-11-24T01:16:58.381496Z",
@@ -173,7 +173,23 @@
       "storyboard_author": "work",
       "copy_provider": "openrouter",
       "validation_host": "cloudflare",
-      "recovery_method": "work_locked_board_openrouter_copy"
+      "recovery_method": "work_locked_board_openrouter_copy",
+      "motion_binding": [
+        "tiktok-7709762212679683342",
+        "https://www.tiktok.com/@mybaybie/video/7709762212679683342",
+        "role-323c636618027cbd",
+        "323c636618027cbd6d200dcb82eb823ba8d2c83a66a89a2d2f4b7b3eecd0318c"
+      ],
+      "motion_reference_method": "observed_description",
+      "source_id": "tiktok-7709762212679683342",
+      "character_image": "https://raw.githubusercontent.com/yjr927/idore_tools/58853770e09acaa4d0a7ffd92eb68c21590365ef/site/characters/Jace/Jace%E6%95%B4%E4%BD%93.png",
+      "original_watched": true,
+      "kind": "hands",
+      "transformation": "none",
+      "motion_summary": "已播放17秒原片并查看开头、中段和后段关键画面，只见1名表演者在固定柜门背景前；身体侧转时双手平放在脸侧，随后回正将双臂在胸前交叉转动，最后放下手臂并配合表情。白色宽松上衣与长卷发在所见画面一致；完整妆容和换装情况未全面确认。页面dc: A2O LITE NEON及K-pop文案提供主题依据。服装及动作不限定男女角色用途，素材组待确认。",
+      "motion_reference_reason": "work_human_verification",
+      "submission_reserved": true,
+      "model": "bytedance/seedance-2.5"
     },
     {
       "id": "agent-2026-11-23-momoko",
@@ -756,5 +772,5 @@
     "copy_provider": "openrouter",
     "copy_model": "openai/gpt-5.4-mini"
   },
-  "updated_at": "2026-11-24T01:17:05.990550Z"
+  "updated_at": "2026-11-24T01:35:17.305656Z"
 }
