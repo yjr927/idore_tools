@@ -2,6 +2,123 @@
   "schema_version": 1,
   "items": [
     {
+      "id": "video-930b3d5dde9e3aff59207733",
+      "sha256": "930b3d5dde9e3aff59207733bee05339d30161d508357a6651ba32ee335dd6ef",
+      "title": "Isaiah Marsh · Full moon",
+      "character": "Isaiah Marsh",
+      "material_group": "male",
+      "cast_type": "solo",
+      "kind": "character",
+      "model": "idore original photo edit",
+      "duration": 10.416667,
+      "aspect_ratio": "9:16",
+      "resolution": "720p",
+      "created_at": "2026-11-23T02:17:46.322766+00:00",
+      "caption": "left on read but the lunar calendar checks out 🌕 #idore #WerewolfTok #CharacterEdit",
+      "audio": "Original synthesized score exclusive to this edit",
+      "production_mode": "original_photo_edit",
+      "motion_replication": false,
+      "source_asset_ids": [
+        "asset-519c73dca50e1a15",
+        "asset-d039498800061566",
+        "asset-0d9d5e329da17384"
+      ],
+      "bytes": 1418559,
+      "generation_method": "original_character_edit",
+      "source_photo_ids": [
+        "role-4647f75bf89c818e",
+        "role-8dc0c5ef392ff35f",
+        "role-68380d03e06bd760"
+      ],
+      "source_photo_sha256": [
+        "4647f75bf89c818e6213a02a053d385faef24213513a55a19b3d270d124c674c",
+        "8dc0c5ef392ff35fc13a188314d9f20c6f84a59becd56055f14314479fd3596c",
+        "68380d03e06bd760932f7f062cdd5cc052a91b761a9f135c42846c07912232a8"
+      ],
+      "timestamp_basis": "generation_completed",
+      "generated_at": "2026-11-23T02:17:46.322766+00:00",
+      "video_path": "generated/video-930b3d5dde9e3aff59207733.mp4",
+      "poster_path": "generated/video-930b3d5dde9e3aff59207733.jpg"
+    },
+    {
+      "id": "video-ce4b52dc8b2768739d6553e0",
+      "sha256": "ce4b52dc8b2768739d6553e07700f095efb3b029c05eec2759012ac439c6fa8b",
+      "title": "Beckett Hale · The dress code",
+      "character": "Beckett Hale",
+      "material_group": "male",
+      "cast_type": "solo",
+      "kind": "character",
+      "model": "idore original photo edit",
+      "duration": 9.583333,
+      "aspect_ratio": "9:16",
+      "resolution": "720p",
+      "created_at": "2026-11-23T02:17:46.025083+00:00",
+      "caption": "The dress code said formal. Beckett heard immortal. 🦇 #idore #OriginalCharacter #VampireTok",
+      "audio": "Original synthesized score exclusive to this edit",
+      "production_mode": "original_photo_edit",
+      "motion_replication": false,
+      "source_asset_ids": [
+        "asset-6fc80346c5c4f546",
+        "asset-8554a92e6b3d7b61",
+        "asset-8ff54fb660aaf627"
+      ],
+      "bytes": 1257048,
+      "generation_method": "original_character_edit",
+      "source_photo_ids": [
+        "role-d69db462fd69b439",
+        "role-dc3900069fdaa5da",
+        "role-ec56315d54d09916"
+      ],
+      "source_photo_sha256": [
+        "d69db462fd69b439b322455f5efb575fb440e7cb7078db1f0314d1e592ff7481",
+        "dc3900069fdaa5da7e75903a664bdae429e70affd34a2daadfc4eb1bd726d342",
+        "ec56315d54d0991618a1c93c431e6f97ee8cf74739fc2a6e3ec6ce137ac7f859"
+      ],
+      "timestamp_basis": "generation_completed",
+      "generated_at": "2026-11-23T02:17:46.025083+00:00",
+      "video_path": "generated/video-ce4b52dc8b2768739d6553e0.mp4",
+      "poster_path": "generated/video-ce4b52dc8b2768739d6553e0.jpg"
+    },
+    {
+      "id": "video-3aadb81b7d2aecb631b7104c",
+      "sha256": "3aadb81b7d2aecb631b7104cc115f1b682bd9bbcfe409541d303bf1610db312b",
+      "title": "Lena Reyes · Understudy",
+      "character": "Lena Reyes",
+      "material_group": "female",
+      "cast_type": "solo",
+      "kind": "character",
+      "model": "idore original photo edit",
+      "duration": 8.708005,
+      "aspect_ratio": "9:16",
+      "resolution": "720p",
+      "created_at": "2026-11-23T02:17:45.855614+00:00",
+      "caption": "“Just the understudy.” Sure, Lena. 🩰 #idore #BlackSwan #CharacterEdit",
+      "audio": "Original synthesized score exclusive to this edit",
+      "production_mode": "original_photo_edit",
+      "motion_replication": false,
+      "source_asset_ids": [
+        "asset-222e366cefbc3f75",
+        "asset-6944a3a7334befde",
+        "asset-7135d29367187e1a"
+      ],
+      "bytes": 1201529,
+      "generation_method": "original_character_edit",
+      "source_photo_ids": [
+        "role-060b517f8f3e524a",
+        "role-245dc6f5cefa1200",
+        "role-5fd6a1fe25f4aa49"
+      ],
+      "source_photo_sha256": [
+        "060b517f8f3e524a8d06630e8c52586afd8e66a3562c22f13ff971aaa14ea8bf",
+        "245dc6f5cefa12002fedc6dc99a84f97b6b874836149d9205ff54c4f0ba0fed3",
+        "5fd6a1fe25f4aa492e40f946ff9bdf22edda887ab5464cdcc8bb6d21fbdd627e"
+      ],
+      "timestamp_basis": "generation_completed",
+      "generated_at": "2026-11-23T02:17:45.855614+00:00",
+      "video_path": "generated/video-3aadb81b7d2aecb631b7104c.mp4",
+      "poster_path": "generated/video-3aadb81b7d2aecb631b7104c.jpg"
+    },
+    {
       "id": "video-36dc967ec3fc7e4cd1060f94",
       "title": "KAI · Bizzyboom 手势舞",
       "character": "KAI",
@@ -38,5 +155,5 @@
       "timestamp_basis": "workflow_artifact"
     }
   ],
-  "updated_at": "2026-11-16T02:36:56.343078Z"
+  "updated_at": "2026-11-24T03:10:56.942720Z"
 }
