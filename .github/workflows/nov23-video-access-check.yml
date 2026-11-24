@@ -1,0 +1,58 @@
+name: Diagnose November 23 video endpoint access without generating
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/nov23-video-access-check.yml']
+permissions: {}
+jobs:
+  diagnose:
+    if: github.repository == 'yjr927/idore_tools' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 2
+    steps:
+      - name: Classify the endpoint response to a request missing the mandatory model
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+        run: |
+          python3 - <<'PY'
+          import http.client, json, os, re
+          # Fixed empty payload -- no model, prompt, frame, video, identifiers, or routing options.
+          # The video API requires a model to generate a job. Read only fixed diagnostics.
+          for authenticated in (False, True):
+              headers = {'User-Agent': 'idore-video/1.0', 'Content-Type': 'application/json', 'Accept': 'application/json'}
+              if authenticated:
+                  headers['Authorization'] = 'Bearer ' + os.environ['OPENROUTER_API_KEY']
+              conn = http.client.HTTPSConnection('openrouter.ai', timeout=12)
+              try:
+                  conn.request('POST', '/api/v1/videos', body=b'{}', headers=headers)
+                  response = conn.getresponse()
+                  raw = response.read(65536)
+                  mime = response.getheader('Content-Type','').split(';')[0].lower()
+                  media = mime if mime in ('application/json','text/html','text/plain','application/problem+json') else 'other'
+                  hint = response.getheader('cf-mitigated', '').lower() == 'challenge'
+                  body = raw.decode('utf-8','replace').lower()
+                  categories = {
+                      'model_required_or_schema_validation': r'model.{0,80}required|required.{0,80}model|invalid_type|invalid input',
+                      'account_or_user_verification_mentioned': r'verify your|verification required|verify (your )?identity',
+                      'workspace_policy_mentioned': r'guardrail|not allowed in (this|your) workspace|administrator has restricted',
+                      'geographic_restriction_mentioned': r'unsupported (country|region)|not (available|permitted) in your (country|region)|region.{0,40}restricted',
+                      'authentication_mentioned': r'no auth credentials|authentication required|missing (api key|authorization)|unauthorized',
+                      'access_denied_mentioned': r'access denied|forbidden|not authorized|do not have (access|permission)|not allowed',
+                      'edge_block_page_marker': r'cloudflare.{0,100}ray id|error (code: )?10(10|20)|sorry, you have been blocked',
+                  }
+                  tags = sorted(key for key, rule in categories.items() if re.search(rule, body))
+                  envelope = 'other'
+                  if media in ('application/json','application/problem+json'):
+                      try:
+                          obj = json.loads(raw)
+                          envelope = 'error' if isinstance(obj,dict) and 'error' in obj else 'json'
+                      except ValueError:
+                          pass
+                  print('ACCESS_CHECK', 'project_key' if authenticated else 'anonymous',
+                        'http', response.status, 'format', media, 'envelope', envelope,
+                        'challenge_header', hint, 'markers', ','.join(tags) or 'none')
+              except (OSError,http.client.HTTPException):
+                  print('ACCESS_CHECK', 'project_key' if authenticated else 'anonymous', 'network_unconfirmed')
+              finally:
+                  conn.close()
+          PY
