@@ -20,5 +20,22 @@
     "video_post_reason": "access_denied",
     "checked_at": "2026-11-24T01:56:37.322854Z",
     "error_code": "access_denied"
+  },
+  "2026-11-23-bay": {
+    "attempt": 2,
+    "status": "reserved",
+    "model": "bytedance/seedance-2.5",
+    "run_id": "45308693102",
+    "reserved_at": "2026-11-24T01:56:38.293082Z",
+    "prior_reservation_commit": "4e048a1b8cf42523bc7e0fbc4599c95fb3ec0e9a",
+    "prior_outcome_commit": "edf5eeb28555fb9af12fa4acec359eb3b6a8b83f",
+    "prior_revision": "5bbd34af24f13ccbd67335c1ffaefaaa0fc0819e63076d6c8bc6969711848f00",
+    "prior_status": "submission_uncertain",
+    "binding": [
+      "tiktok-7709762212679683342",
+      "https://www.tiktok.com/@mybaybie/video/7709762212679683342",
+      "role-323c636618027cbd",
+      "323c636618027cbd6d200dcb82eb823ba8d2c83a66a89a2d2f4b7b3eecd0318c"
+    ]
   }
 }
