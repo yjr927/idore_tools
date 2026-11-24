@@ -1,0 +1,56 @@
+{
+  "2026-11-23-momoko": {
+    "decision": "render",
+    "trend_id": "tiktok-7703265627972128021",
+    "shots": [
+      {
+        "photo_id": "role-3abb96e025889f47",
+        "framing": "wide",
+        "overlay": "I thought this was just arm day."
+      },
+      {
+        "photo_id": "role-3abb96e025889f47",
+        "framing": "wide",
+        "overlay": "Then the knee got a solo."
+      },
+      {
+        "photo_id": "role-3abb96e025889f47",
+        "framing": "wide",
+        "overlay": "Back to the fists."
+      }
+    ],
+    "caption": "Evelyn gives the knee one count, then brings a fist back beside her cheek.",
+    "hashtags": [
+      "#EvelynDance",
+      "#ArmChoreo",
+      "#KneeLift"
+    ]
+  },
+  "2026-11-23-bay": {
+    "decision": "render",
+    "trend_id": "tiktok-7709762212679683342",
+    "shots": [
+      {
+        "photo_id": "role-323c636618027cbd",
+        "framing": "medium",
+        "overlay": "Hands up by my cheek."
+      },
+      {
+        "photo_id": "role-323c636618027cbd",
+        "framing": "medium",
+        "overlay": "Cross and roll on the way back."
+      },
+      {
+        "photo_id": "role-323c636618027cbd",
+        "framing": "medium",
+        "overlay": "My face gets the last count."
+      }
+    ],
+    "caption": "Jace drops his hands and lets the look finish the count.",
+    "hashtags": [
+      "#JaceDance",
+      "#ForearmRoll",
+      "#A2OLiteNeon"
+    ]
+  }
+}

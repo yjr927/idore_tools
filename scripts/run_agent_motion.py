@@ -347,6 +347,7 @@ def produce(document, catalog, discovery, site, run_id, slot, save, planner=None
                   'source_metric_display', 'source_peers', 'peer_count', 'hook', 'caption', 'hashtags', 'shots')
         film.update({k: row[k] for k in fields}, generated_at=stamp, timestamp_basis='generation_completed', bytes=len(content))
         if named:
+            film.update({k: row[k] for k in ('storyboard_author','copy_provider','validation_host','recovery_method') if k in row})
             film.update({k: row[k] for k in ('selection_basis','source_material_group','source_transformation',
                                              'casting_basis','motion_reference_method')})
         temporary = manifest.with_suffix('.tmp')
@@ -402,6 +403,9 @@ def main():
         if os.environ.get('GITHUB_OUTPUT'):
             with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
                 print('motion=' + str(needs_motion).lower(), file=output)
+                from scripts.run_pipeline import named_observation_only
+                observed_only = slot in NAMED and named_observation_only(SITE)
+                print('observed_only=' + str(observed_only).lower(), file=output)
         return
     before = STATE.read_bytes() if STATE.exists() else b''
     try:

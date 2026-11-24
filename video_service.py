@@ -390,6 +390,9 @@ class VideoService:
                 raise VideoError('首尾帧和参考素材不能同时提交。')
             if not first:
                 raise VideoError('首尾帧模式至少需要首帧图片。')
+            if aspect == 'adaptive' and re.fullmatch(r'bytedance/seedance-2\.5(?:-[a-z0-9-]+)?', model):
+                # Seedance 2.5 derives its first-frame ratio. OpenRouter accepts omission here.
+                del payload['aspect_ratio']
             payload['frame_images'] = [dict(type='image_url', image_url={'url': _media_url(first, 'image_url')}, frame_type='first_frame')]
             if last:
                 payload['frame_images'].append(dict(type='image_url', image_url={'url': _media_url(last, 'image_url')}, frame_type='last_frame'))
@@ -416,10 +419,10 @@ class VideoService:
         model = next((row for row in models if row['id'] == payload['model']), None)
         if model is None:
             raise VideoError('当前 OpenRouter 模型列表中没有这个 Seedance 视频模型。')
-        for value, name in ((payload['duration'], 'supported_durations'), (payload['resolution'], 'supported_resolutions'),
-                            (payload['aspect_ratio'], 'supported_aspect_ratios')):
+        for key, name in (('duration', 'supported_durations'), ('resolution', 'supported_resolutions'),
+                          ('aspect_ratio', 'supported_aspect_ratios')):
             supported = model.get(name)
-            if not isinstance(supported, list) or not supported or value not in supported:
+            if key in payload and (not isinstance(supported, list) or payload[key] not in supported):
                 raise VideoError('所选时长、分辨率或画幅未经模型当前能力支持，请刷新模型后重选。')
         if 'frame_images' in payload:
             supported = model.get('supported_frame_images')
@@ -465,7 +468,7 @@ class VideoService:
             row = dict(id='video-' + uuid.uuid4().hex, idempotency_key=idempotency,
                        status='submitting', created_at=self._now(), updated_at=self._now(),
                        model=payload['model'], prompt=_safe_prompt(payload['prompt'], self._key), mode=mode,
-                       duration=payload['duration'], resolution=payload['resolution'], aspect_ratio=payload['aspect_ratio'],
+                       duration=payload['duration'], resolution=payload['resolution'], aspect_ratio=payload.get('aspect_ratio', 'adaptive'),
                        generate_audio=payload['generate_audio'], media_count=len(payload.get('frame_images', payload.get('input_references', []))),
                        result_url=None, _request_hash=fingerprint, _last_poll=self._clock())
             self._rows.insert(0, row)

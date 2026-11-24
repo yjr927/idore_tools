@@ -217,6 +217,11 @@ def render_agent_motion(document, item, source, character, scratch):
     return render_motion_file(document, item, character, scratch)
 
 
+def named_observation_only(site):
+    work = read(site.parent / 'work-results/latest.json', {})
+    return work.get('action_required') == 'human_verification'
+
+
 def render_named_motion(document, item, source, character, scratch):
     """Use the commissioned dance and identity only; the three beats are documented observations."""
     from scripts.named_motion import NAMED_METHOD, SCHEDULE, SCHEDULE_DATE, named_source
@@ -262,6 +267,10 @@ def render_named_motion(document, item, source, character, scratch):
                 character_id=character['id'], character_image=character['image_url'], original_watched=True,
                 kind='hands', transformation='none', source_transformation=source['source_transformation'],
                 source_material_group=source['source_material_group'], motion_summary=source['motion_summary'])
+    if method is None and named_observation_only(SITE):
+        # named_source and gesture_prompt validate the exact clip and previously watched beats.
+        method = 'observed_description'
+        item['motion_reference_reason'] = 'work_human_verification'
     if method is None:
         mark(document, item, 'preparing_motion', 'motion', '正在从指定原片的 TikTok 页面检查动作参考。')
         original = scratch / 'observed-original.mp4'
@@ -284,7 +293,7 @@ def render_named_motion(document, item, source, character, scratch):
 
 
 def render_motion_file(document, item, character, scratch, *, observed_prompt=None):
-    from video_service import VideoService
+    from video_service import VideoError, VideoService
     from scripts.run_clay_video_generation import ObservedTransport
     if (item.get('material_group') not in ('male', 'female', 'mixed')
             or item.get('material_group') != character.get('material_group') or item.get('cast_type') != 'solo'
@@ -318,12 +327,21 @@ def render_motion_file(document, item, character, scratch, *, observed_prompt=No
             references += [{'type': 'image_url', 'url': url} for url in item.get('style_reference_urls', [])]
             source_inputs = {'mode': 'references', 'references': references, 'prompt': video_prompt(item)}
             message = '白模已保存，正在提交角色动作视频。'
+        item.pop('video_preflight_paid_posts', None)
         item.update(submission_reserved=True, model=model)
         mark(document, item, 'generating_video', 'video', message)
+        adaptive_frame = source_inputs['mode'] == 'frames' and re.fullmatch(r'bytedance/seedance-2\.5(?:-[a-z0-9-]+)?', model)
         try:
             job = service.submit({'idempotency_key': 'pipeline-' + item['id'], 'model': model, **source_inputs,
-                'duration': 6, 'resolution': '720p', 'aspect_ratio': '9:16', 'generate_audio': False, 'consent': True})
-        except Exception:
+                'duration': 6, 'resolution': '720p', 'aspect_ratio': 'adaptive' if adaptive_frame else '9:16',
+                'generate_audio': False, 'consent': True})
+        except Exception as exc:
+            # ObservedTransport increments the counter before any POST, including one with a lost reply.
+            if isinstance(exc, VideoError) and transport.paid_posts == 0:
+                item.pop('submission_reserved', None)
+                item['video_preflight_paid_posts'] = 0
+                checkpoint(document)
+                raise PipelineError('video_preflight_failed', '视频模型能力或参数检查未通过，尚未提交生成。') from None
             diagnosis = transport.diagnosis or {}
             raise PipelineError(diagnosis.get('reason', 'submission_uncertain'),
                 diagnosis.get('message', '视频提交未取得明确结果，请核对后再处理；不会自动重试。')) from None

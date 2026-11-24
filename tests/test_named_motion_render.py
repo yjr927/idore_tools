@@ -14,7 +14,7 @@ from scripts import observed_dance, run_pipeline as runner
 from scripts.named_motion import NAMED, NAMED_METHOD, named_source
 from scripts.pipeline_state import PipelineError
 from scripts.prepare_motion_source import PreflightStopped
-from video_service import VideoService
+from video_service import VideoError, VideoService
 
 SLOTS = list(NAMED)
 NOTES = {
@@ -28,7 +28,8 @@ class RenderTests(unittest.TestCase):
         self.addCleanup(patch.stopall)
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)
-        self.root = Path(self.temp.name)
+        self.root = Path(self.temp.name) / 'site'
+        self.root.mkdir()
         (self.root / 'data').mkdir()
         (self.root / 'characters').mkdir()
         (self.root / 'characters/r.png').write_bytes(b'fixture image')
@@ -74,6 +75,7 @@ class RenderTests(unittest.TestCase):
                 request = VideoService(self.root / 'check')._request(payload)[2]
                 self.assertEqual(request['frame_images'], [{'type':'image_url','image_url':{'url':char['image_url']},'frame_type':'first_frame'}])
                 self.assertNotIn('input_references', request)
+                self.assertNotIn('aspect_ratio', request)
                 self.assertEqual(request['duration'], 6)
                 self.assertIn(gesture, request['prompt'])
                 self.assertNotIn(src['url'], str(request))
@@ -85,6 +87,80 @@ class RenderTests(unittest.TestCase):
             self.assertEqual(row['source_transformation'], 'unknown')
         self.assertEqual(self.original.call_count, 2)
         self.clay.assert_not_called()
+
+    def test_pending_work_verification_uses_watched_beats_without_opening_tiktok(self):
+        state = self.root.parent / 'work-results/latest.json'
+        state.parent.mkdir()
+        state.write_text(json.dumps({'status': 'blocked', 'action_required': 'human_verification'}))
+        for slot in SLOTS:
+            row, source, character = self.fixture(slot)
+            self.run_row(row, source, character)
+            self.assertEqual(row['motion_reference_method'], 'observed_description')
+            self.assertEqual(row['motion_reference_reason'], 'work_human_verification')
+            payload = self.video.submit.call_args.args[0]
+            self.assertEqual(payload['mode'], 'frames')
+            self.assertEqual(payload['first_frame'], character['image_url'])
+            self.assertIn(observed_dance.BEATS[source['id']][1], payload['prompt'])
+        self.original.assert_not_called()
+        self.clay.assert_not_called()
+
+    def test_missing_watched_beats_cannot_start_video_while_verification_is_pending(self):
+        state = self.root.parent / 'work-results/latest.json'
+        state.parent.mkdir()
+        state.write_text(json.dumps({'status': 'blocked', 'action_required': 'human_verification'}))
+        row, source, character = self.fixture(SLOTS[0])
+        source['motion_summary'] = 'Unrelated motion record'
+        with self.assertRaises(PipelineError) as failure:
+            self.run_row(row, source, character)
+        self.assertEqual(failure.exception.code, 'motion_observation_missing')
+        self.original.assert_not_called()
+        self.video.submit.assert_not_called()
+
+    def test_failed_video_preflight_leaves_proven_unsubmitted_job_recoverable(self):
+        row, source, character = self.fixture(SLOTS[0])
+        self.video.submit.side_effect = VideoError('Service unavailable', 502)
+        with self.assertRaises(PipelineError) as failure:
+            self.run_row(row, source, character)
+        self.assertEqual(failure.exception.code, 'video_preflight_failed')
+        saved = json.loads(runner.STATE.read_text())['items'][0]
+        self.assertNotIn('submission_reserved', saved)
+        self.assertEqual(saved['video_preflight_paid_posts'], 0)
+        self.video.submit.side_effect = None
+        self.run_row(row, source, character)
+        self.assertNotIn('video_preflight_paid_posts', row)
+        self.assertEqual(row['remote_id'], self.done['remote_id'])
+
+    def test_error_after_video_post_remains_reserved(self):
+        row, source, character = self.fixture(SLOTS[0])
+        with patch('scripts.run_clay_video_generation.ObservedTransport') as transport:
+            transport.return_value.paid_posts = 1
+            transport.return_value.diagnosis = None
+            self.video.submit.side_effect = VideoError('Ambiguous reply', 502)
+            with self.assertRaises(PipelineError) as failure:
+                self.run_row(row, source, character)
+        self.assertEqual(failure.exception.code, 'submission_uncertain')
+        self.assertTrue(row['submission_reserved'])
+        self.assertNotIn('video_preflight_paid_posts', row)
+
+    def test_adaptive_seedance_frame_request_is_validated_and_sent_once_without_ratio(self):
+        row, source, character = self.fixture(SLOTS[0])
+        self.run_row(row, source, character)
+        inputs = self.video.submit.call_args.args[0]
+        model = {'id': inputs['model'], 'supported_durations': [6], 'supported_resolutions': ['720p'],
+                 'supported_aspect_ratios': ['9:16'], 'supported_frame_images': ['first_frame']}
+        transport = Mock(side_effect=[
+            (200, {}, json.dumps({'data': [model]}).encode()),
+            (202, {}, b'{"id":"remote-123","status":"pending"}'),
+        ])
+        service = VideoService(self.root / 'api', request_fn=transport)
+        job = service.submit(inputs)
+        self.assertEqual(job['aspect_ratio'], 'adaptive')
+        self.assertEqual(job['remote_id'], 'remote-123')
+        methods = [call.args[0].get_method() for call in transport.call_args_list]
+        self.assertEqual(methods, ['GET', 'POST'])
+        submitted = json.loads(transport.call_args_list[-1].args[0].data)
+        self.assertNotIn('aspect_ratio', submitted)
+        self.assertEqual(submitted['resolution'], '720p')
 
     def test_original_traced_when_official_video_available(self):
         row, src, char = self.fixture(SLOTS[0])

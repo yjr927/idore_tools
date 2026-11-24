@@ -5,6 +5,8 @@ on:
     paths:
       - 'scripts/run_agent_motion.py'
       - 'scripts/agent_film_planner.py'
+      - 'scripts/recover_named_storyboards.py'
+      - 'scripts/data/named-storyboards-20261123.json'
       - 'scripts/trend_quality.py'
       - 'scripts/named_motion.py'
       - 'scripts/observed_dance.py'
@@ -46,15 +48,29 @@ jobs:
         run: |
           python scripts/import_work_results.py --input work-results/latest.json --output site/data/discovery.json
           python scripts/import_material_classifications.py --input work-results/classifications.json --output site/data/discovery.json
+      - name: Resume the two November 23 storyboards if their original planning attempt is unresolved
+        env:
+          PIPELINE_PERSIST: 'true'
+          OPENROUTER_TEXT_MODEL: ${{ vars.OPENROUTER_TEXT_MODEL || 'openai/gpt-5.4-mini' }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+        run: python scripts/recover_named_storyboards.py
       - name: Check for eligible source evidence
         id: preflight
         run: python scripts/run_agent_motion.py --preflight
       - name: Install the video editor and motion dependencies
-        if: steps.preflight.outputs.motion == 'true'
+        if: steps.preflight.outputs.motion == 'true' && steps.preflight.outputs.observed_only != 'true'
         run: |
           python -m pip install --disable-pip-version-check -r requirements-motion.txt
           sudo apt-get update -qq
           sudo apt-get install -y -qq ffmpeg blender xvfb fonts-dejavu-core
+      - name: Install the editor for previously observed choreography
+        if: steps.preflight.outputs.observed_only == 'true'
+        run: |
+          python -m pip install --disable-pip-version-check Pillow==11.1.0
+          if ! command -v ffprobe >/dev/null || ! command -v ffmpeg >/dev/null; then
+            sudo apt-get update -qq
+            sudo apt-get install -y -qq ffmpeg fonts-dejavu-core
+          fi
       - name: Validate the planner, status transitions and editor
         env:
           IDORE_CHECK_LIVE_WORKER: ${{ github.event_name == 'push' }}
