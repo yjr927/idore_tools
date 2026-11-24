@@ -18,6 +18,20 @@ const castLabels = { solo: '单人', group: '多人', unknown: '人数待确认'
 const transformationLabels = { makeup: '变妆', outfit: '换装', makeup_and_outfit: '变妆 + 换装', none: '无变妆 / 换装', unknown: '变装情况待确认' };
 const favoriteKey = 'idore-tiktok-discovery-favorites-v1';
 let data = { videos: [], runs: [] };
+const trendViews = { collected: '全部采集', qualified: '已达榜单门槛', named: '用户点名' };
+function trendViewFromUrl() {
+  const selected = new URLSearchParams(location.search).get('view');
+  return Object.hasOwn(trendViews, selected) ? selected : 'qualified';
+}
+let trendView = trendViewFromUrl();
+let namedReferences = new Map();
+let namedListAvailable = false;
+
+function isNamed(video) {
+  const canonical = videoUrl(video.url);
+  return !!canonical && namedReferences.get(canonical.url) === 'tiktok-' + canonical.videoId
+    && video.id === 'tiktok-' + canonical.videoId;
+}
 let category = 'all';
 let topic = 'all';
 let material = 'all';
@@ -294,23 +308,28 @@ function videoCard(video) {
   const body = el('div', 'card-body');
   body.append(el('p', 'card-author', `@${canonical.author} · ${kindLabels[video.kind] || '玩法待分类'}`));
   body.append(el('h3', '', video.title || 'TikTok 公开视频候选'));
-  body.append(classification(video));
+  const tags = classification(video);
+  tags.append(el('span', '', video.qualified_trend === true ? '已达榜单门槛' : '未入榜'));
+  if (isNamed(video)) tags.prepend(el('span', 'topic-tag', '用户点名'));
+  body.append(tags);
+  const observations = el('details', 'related-examples');
+  observations.append(el('summary', '', '动作观察与复刻建议'));
   if (video.material_classification && typeof video.material_classification === 'object') {
     const reviewed = video.material_classification;
     const note = el('div', 'classification-review');
     note.append(el('strong', '', `素材分类复核 · ${formatDate(reviewed.observed_at)}（纽约）`));
     if (typeof reviewed.note === 'string' && reviewed.note.trim()) note.append(el('p', '', reviewed.note));
     if (typeof reviewed.source === 'string' && reviewed.source.trim()) note.append(el('small', '', reviewed.source));
-    body.append(note);
+    observations.append(note);
   }
   const route = el('div', 'generation-route');
   route.append(el('strong', '', '生成准备'), el('p', '', generationRoute(video)), el('small', '', '流程建议 · 生成前需连接账户并确认素材'));
-  body.append(route);
-  if (!watched || video.assessment_note !== video.motion_summary) body.append(el('p', 'assessment', video.assessment_note || (watched ? 'Work 已记录原片观察。观看记录不代表当前热门，也不代表 AI 复刻效果已经试做。' : '已记录公开视频链接。单人、动作重复性与跟拍一致性仍待看原片核验。')));
+  observations.append(route);
+  if (!watched || video.assessment_note !== video.motion_summary) observations.append(el('p', 'assessment', video.assessment_note || (watched ? 'Work 已记录原片观察。观看记录不代表当前热门，也不代表 AI 复刻效果已经试做。' : '已记录公开视频链接。单人、动作重复性与跟拍一致性仍待看原片核验。')));
   if (typeof video.motion_summary === 'string' && video.motion_summary.trim()) {
     const summary = el('div', 'observation-notes');
     summary.append(el('strong', '', watched ? '原片动作观察' : '动作记录 · 待原片核验'), el('p', '', video.motion_summary));
-    body.append(summary);
+    observations.append(summary);
   }
   const checks = el('div', 'checks');
   checks.append(
@@ -320,18 +339,21 @@ function videoCard(video) {
     el('span', watched && video.trend_verified === true ? 'check-confirmed' : '', watched && video.trend_verified === true ? '跟拍玩法 · 有原片依据' : '跟拍玩法 · 待核验'),
     el('span', '', 'AI 复刻 · 未试做')
   );
-  body.append(checks);
-  if (watched && video.trend_verified === true) body.append(el('p', 'assessment', '已有同玩法跟拍的原片观察依据；这不代表已确认未来热度或增长。'));
+  observations.append(checks);
+  if (watched && video.trend_verified === true) observations.append(el('p', 'assessment', '已有同玩法跟拍的原片观察依据；这不代表已确认未来热度或增长。'));
   if (typeof video.recreation_notes === 'string' && video.recreation_notes.trim()) {
     const notes = el('div', 'observation-notes');
     notes.append(el('strong', '', '复刻建议 · 尚未试做'), el('p', '', video.recreation_notes));
-    body.append(notes);
+    observations.append(notes);
   }
   const related = relatedExamples(video);
-  if (related) body.append(related);
+  if (related) observations.append(related);
   const metrics = el('div', 'metrics');
   for (const [key, label] of [['views', '播放'], ['likes', '点赞'], ['comments', '评论']]) {
-    const cell = el('div'); cell.append(el('strong', '', metric(video.metrics?.[key])), el('span', '', label)); metrics.append(cell);
+    const count = video.metrics?.[key];
+    const display = Number.isFinite(count) && count >= 0
+      ? video.metric_display?.[key] || count.toLocaleString('zh-CN') : '—';
+    const cell = el('div'); cell.append(el('strong', '', display), el('span', '', '历史' + label)); metrics.append(cell);
   }
   body.append(metrics);
   const details = el('div', 'card-details');
@@ -340,7 +362,7 @@ function videoCard(video) {
   details.append(source ? externalLink(`来源：${sourceLabel} ↗`, source) : el('span', '', `来源：${sourceLabel}`));
   details.append(el('span', '', `首次发现 ${formatDate(video.first_seen_at)} · 最近观测 ${formatDate(video.last_seen_at)}`));
   details.append(el('span', '', `原视频发布 ${video.published_at ? formatDate(video.published_at) : video.published_text || '未核验'}${!video.published_at && video.published_text ? '（页面当时显示）' : ''}`));
-  body.append(details);
+  body.append(details, observations);
   const actions = el('div', 'card-actions');
   const preview = el('button', 'button primary small', '▶ 查看原片'); preview.type = 'button'; preview.addEventListener('click', () => openPreview(video));
   actions.append(preview, externalLink('TikTok 打开 ↗', canonical.url, 'button small'));
@@ -353,7 +375,22 @@ function videoCard(video) {
   return card;
 }
 function renderVideos() {
-  const valid = data.videos.filter(video => video?.qualified_trend === true && videoUrl(video.url));
+  const collected = data.videos.filter(video => video && videoUrl(video.url));
+  const groups = {
+    collected,
+    qualified: collected.filter(video => video.qualified_trend === true),
+    named: collected.filter(isNamed)
+  };
+  const valid = groups[trendView];
+  $('#candidate-heading').textContent = trendViews[trendView];
+  for (const button of document.querySelectorAll('[data-trend-view]')) {
+    const name = button.dataset.trendView;
+    const active = name === trendView;
+    button.classList.toggle('active', active);
+    button.setAttribute('aria-pressed', String(active));
+    const available = name !== 'named' || namedListAvailable;
+    button.textContent = trendViews[name] + (available ? ' · ' + groups[name].length : '');
+  }
   const base = valid.filter(video => (topic === 'all' || topicOf(video) === topic) && (category === 'all' || video.kind === category || (Array.isArray(video.kinds) && video.kinds.includes(category))) && (!onlyFavorites || favorites.has(candidateId(video))) && `${video.title || ''} ${video.author || ''} ${video.kind || ''} ${topicLabels[topicOf(video)]} ${materialLabels[materialOf(video)]} ${castLabels[castOf(video)]} ${transformationLabels[transformationOf(video)]} ${video.motion_summary || ''} ${video.recreation_notes || ''}`.toLowerCase().includes(search.toLowerCase()));
   document.querySelectorAll('[data-material]').forEach(button => {
     const key = button.dataset.material;
@@ -369,7 +406,7 @@ function renderVideos() {
     const time = video => { const value = new Date(captureMoment(video)).getTime(); return Number.isFinite(value) ? value : -Infinity; };
     return time(b) - time(a) || String(candidateId(a)).localeCompare(String(candidateId(b)));
   });
-  $('#nav-count').textContent = String(valid.length);
+  $('#nav-count').textContent = String(collected.length);
   $('#result-count').textContent = `${list.length} 条`;
   const grid = $('#video-grid');
   if (list.length) {
@@ -388,7 +425,7 @@ function renderVideos() {
       for (const [key, label] of Object.entries(materialLabels)) {
         if (material !== 'all' && material !== key) continue;
         const members = videos.filter(video => materialOf(video) === key);
-        if (!members.length && !['male', 'female'].includes(key)) continue;
+        if (!members.length && (trendView !== 'qualified' || !['male', 'female'].includes(key))) continue;
         const group = el('section', `material-group material-${key}`);
         const groupHeading = el('div', 'material-group-heading');
         groupHeading.append(el('h4', '', label), el('span', '', `${members.length} 条`));
@@ -407,8 +444,14 @@ function renderVideos() {
   }
   const empty = el('div', 'empty-state');
   empty.append(el('span', 'empty-icon', onlyFavorites ? '☆' : '⌕'));
-  empty.append(el('h3', '', onlyFavorites ? '还没有收藏的候选' : valid.length ? '没有符合当前筛选的候选' : '还没有通过核验的趋势'));
-  empty.append(el('p', '', onlyFavorites ? '收藏喜欢的视频，方便回来继续比较。收藏只保存在当前浏览器。' : valid.length ? '试试其他主题、素材分区、人数、动作或搜索词。' : '当前没有同时达到 100 万播放、10 万点赞并有两位其他创作者复刻证据的原片。过往观察可在采集记录中查看。'));
+  const missing = {
+    collected: '尚无已采集的原片',
+    qualified: '当前没有达到榜单门槛的原片',
+    named: namedListAvailable ? '当前没有已采集的点名原片' : '点名清单暂时不可用'
+  };
+  empty.append(el('h3', '', valid.length ? '当前筛选没有匹配的原片' : missing[trendView]));
+  if (valid.length) empty.append(el('p', '', '可以调整搜索词、收藏或分类筛选。'));
+  else if (trendView === 'qualified' && collected.length) empty.append(el('p', '', '选择「全部采集」查看已记录的原片与历史指标。'));
   grid.replaceChildren(empty);
 }
 function renderStatus() {
@@ -445,10 +488,22 @@ function renderStatus() {
 async function loadData() {
   const button = $('#refresh-button'); button.disabled = true; button.textContent = '正在读取…';
   try {
-    const response = await fetch(`./data/discovery.json?t=${Date.now()}`, { cache: 'no-store' });
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    const next = await response.json();
+    const [next, designated] = await Promise.all([
+      fetch('./data/discovery.json', { cache: 'no-store' }).then(response => {
+        if (!response.ok) throw new Error('Discovery unavailable');
+        return response.json();
+      }),
+      fetch('./data/named-motion.json', { cache: 'no-store' }).then(response => response.ok ? response.json() : null).catch(() => null)
+    ]);
     if (!next || !Array.isArray(next.videos) || !Array.isArray(next.runs)) throw new Error('Invalid data schema');
+    if (Array.isArray(designated?.references)) {
+      namedReferences = new Map(designated.references.flatMap(ref => {
+        const canonical = videoUrl(ref?.url);
+        return canonical && ref.source_id === 'tiktok-' + canonical.videoId ? [[canonical.url, ref.source_id]] : [];
+      }));
+      namedListAvailable = true;
+    }
+    $('#named-source-warning').hidden = Array.isArray(designated?.references);
     data = next; renderStatus(); renderVideos(); renderHistory();
   } catch {
     $('#status-heading').textContent = '暂时无法读取已发布结果';
@@ -459,6 +514,13 @@ async function loadData() {
   } finally { button.disabled = false; button.replaceChildren(el('span', '', '↻'), document.createTextNode('刷新已发布结果')); }
 }
 
+document.querySelectorAll('[data-trend-view]').forEach(button => button.addEventListener('click', () => {
+  trendView = button.dataset.trendView;
+  const url = new URL(location.href);
+  url.searchParams.set('view', trendView);
+  history.replaceState(history.state, '', url);
+  renderVideos();
+}));
 $('#refresh-button').addEventListener('click', loadData);
 $('#favorites-filter').addEventListener('change', event => { onlyFavorites = event.target.checked; renderVideos(); });
 $('#search-input').addEventListener('input', event => { search = event.target.value.trim(); renderVideos(); });
