@@ -77,18 +77,18 @@
       "generation_method": "named_reference_motion",
       "created_at": "2026-11-23T14:31:59.503658Z",
       "sequence_slot": "2026-11-23-momoko",
-      "title": "MOMOKO",
+      "title": "伊芙琳日常 · MOMOKO：练习室单人虚拟偶像手臂舞",
       "trend_id": "tiktok-7703265627972128021",
       "source_url": "https://www.tiktok.com/@itsmomoko.jp/video/7703265627972128021",
       "selection_basis": "user_selected_reference",
       "trend_verified": false,
       "plan_reserved_at": "2026-11-23T14:31:59.539599Z",
-      "status": "needs_attention",
+      "status": "plan_ready",
       "stage": "planning",
-      "message": "Cloudflare 上的策划服务暂时无法访问。",
-      "error_code": "planner_unavailable",
-      "updated_at": "2026-11-24T01:17:02.737910Z",
-      "revision": "6777b7878ab96650200c830d63ded7a2428c3024b948f6f3abe9317bfba9e765",
+      "message": "Work 已固定角色与分镜，OpenRouter 已完成英文文案，Cloudflare 已校验。",
+      "error_code": "",
+      "updated_at": "2026-11-24T01:17:04.374090Z",
+      "revision": "4ec09f688ea7b1287b5e9c01a9608bdfd6dd584ebe02abc28ec1d3772be809bc",
       "editorial_recovery": {
         "method": "work_locked_board_openrouter_copy",
         "reserved_at": "2026-11-24T01:16:58.381496Z",
@@ -141,7 +141,110 @@
             "#KneeLift"
           ]
         }
-      }
+      },
+      "planner": "openai",
+      "planner_model": "openai/gpt-5.4-mini",
+      "planner_provider": "openrouter",
+      "execution_host": "cloudflare",
+      "sequence_type": "selected_reference",
+      "source_title": "MOMOKO：练习室单人虚拟偶像手臂舞",
+      "source_metrics": {
+        "views": null,
+        "likes": 37
+      },
+      "source_metric_display": {
+        "views": null,
+        "likes": null
+      },
+      "source_observed_at": "2026-11-19T14:10:21+00:00",
+      "source_peers": [],
+      "peer_count": 0,
+      "source_photo_ids": [
+        "role-3abb96e025889f47"
+      ],
+      "source_photo_sha256": [
+        "3abb96e025889f477fd976ab634e8fd79dee3c7bf70a92157d617bcb614cbf85"
+      ],
+      "source_roles": [
+        "伊芙琳日常"
+      ],
+      "character": "伊芙琳日常",
+      "character_id": "role-3abb96e025889f47",
+      "material_group": "female",
+      "cast_type": "solo",
+      "shots": [
+        {
+          "photo_id": "role-3abb96e025889f47",
+          "framing": "wide",
+          "overlay": "Fists up, full-body, let’s start clean."
+        },
+        {
+          "photo_id": "role-3abb96e025889f47",
+          "framing": "wide",
+          "overlay": "Then the knee gets one clear spotlight."
+        },
+        {
+          "photo_id": "role-3abb96e025889f47",
+          "framing": "wide",
+          "overlay": "Forearm in, fist back—clean finish."
+        }
+      ],
+      "caption": "Evelyn keeps it crisp: fists, knee, then a tidy finish by the cheek.",
+      "hashtags": [
+        "#EvelynDance",
+        "#ArmChoreo",
+        "#KneeLift"
+      ],
+      "hook": "Fists up, full-body, let’s start clean.",
+      "source_material_group": "female",
+      "source_transformation": "unknown",
+      "casting_basis": "observed_material_group",
+      "agent_plan": {
+        "provider": "openrouter",
+        "model": "openai/gpt-5.4-mini",
+        "execution_host": "cloudflare",
+        "trend_id": "tiktok-7703265627972128021",
+        "source_id": "tiktok-7703265627972128021",
+        "source_url": "https://www.tiktok.com/@itsmomoko.jp/video/7703265627972128021",
+        "material_group": "female",
+        "cast_type": "solo",
+        "photo_ids": [
+          "role-3abb96e025889f47"
+        ],
+        "shots": [
+          {
+            "photo_id": "role-3abb96e025889f47",
+            "framing": "wide",
+            "overlay": "Fists up, full-body, let’s start clean."
+          },
+          {
+            "photo_id": "role-3abb96e025889f47",
+            "framing": "wide",
+            "overlay": "Then the knee gets one clear spotlight."
+          },
+          {
+            "photo_id": "role-3abb96e025889f47",
+            "framing": "wide",
+            "overlay": "Forearm in, fist back—clean finish."
+          }
+        ],
+        "hook": "Fists up, full-body, let’s start clean.",
+        "caption": "Evelyn keeps it crisp: fists, knee, then a tidy finish by the cheek.",
+        "hashtags": [
+          "#EvelynDance",
+          "#ArmChoreo",
+          "#KneeLift"
+        ],
+        "selection_basis": "user_selected_reference",
+        "storyboard_author": "work",
+        "copy_provider": "openrouter",
+        "validation_host": "cloudflare",
+        "recovery_method": "work_locked_board_openrouter_copy"
+      },
+      "storyboard_author": "work",
+      "copy_provider": "openrouter",
+      "validation_host": "cloudflare",
+      "recovery_method": "work_locked_board_openrouter_copy"
     },
     {
       "id": "agent-2026-11-22-morning",
@@ -550,5 +653,5 @@
     "copy_provider": "openrouter",
     "copy_model": "openai/gpt-5.4-mini"
   },
-  "updated_at": "2026-11-24T01:17:02.737994Z"
+  "updated_at": "2026-11-24T01:17:04.374149Z"
 }
