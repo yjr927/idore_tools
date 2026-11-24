@@ -6,18 +6,18 @@
       "generation_method": "named_reference_motion",
       "created_at": "2026-11-23T14:32:03.091529Z",
       "sequence_slot": "2026-11-23-bay",
-      "title": "bay · A2O LITE NEON",
+      "title": "Jace整体 · bay：A2O LITE NEON 半身手臂舞",
       "trend_id": "tiktok-7709762212679683342",
       "source_url": "https://www.tiktok.com/@mybaybie/video/7709762212679683342",
       "selection_basis": "user_selected_reference",
       "trend_verified": false,
       "plan_reserved_at": "2026-11-23T14:32:03.125827Z",
-      "status": "needs_attention",
+      "status": "plan_ready",
       "stage": "planning",
-      "message": "Cloudflare 上的策划服务暂时无法访问。",
-      "error_code": "planner_unavailable",
-      "updated_at": "2026-11-24T01:17:02.737978Z",
-      "revision": "794acdf2f363e9ab27878a6363158d988f79c854316dc49cc117b4162108961e",
+      "message": "Work 已固定角色与分镜，OpenRouter 已完成英文文案，Cloudflare 已校验。",
+      "error_code": "",
+      "updated_at": "2026-11-24T01:17:05.990496Z",
+      "revision": "2603c44ca0d4a83dd9b1b6e381e0d3399ece463b04b8079aa67f87df94769458",
       "editorial_recovery": {
         "method": "work_locked_board_openrouter_copy",
         "reserved_at": "2026-11-24T01:16:58.381496Z",
@@ -70,7 +70,110 @@
             "#A2OLiteNeon"
           ]
         }
-      }
+      },
+      "planner": "openai",
+      "planner_model": "openai/gpt-5.4-mini",
+      "planner_provider": "openrouter",
+      "execution_host": "cloudflare",
+      "sequence_type": "selected_reference",
+      "source_title": "bay：A2O LITE NEON 半身手臂舞",
+      "source_metrics": {
+        "views": null,
+        "likes": 4752
+      },
+      "source_metric_display": {
+        "views": null,
+        "likes": null
+      },
+      "source_observed_at": "2026-11-19T14:10:21+00:00",
+      "source_peers": [],
+      "peer_count": 0,
+      "source_photo_ids": [
+        "role-323c636618027cbd"
+      ],
+      "source_photo_sha256": [
+        "323c636618027cbd6d200dcb82eb823ba8d2c83a66a89a2d2f4b7b3eecd0318c"
+      ],
+      "source_roles": [
+        "Jace整体"
+      ],
+      "character": "Jace整体",
+      "character_id": "role-323c636618027cbd",
+      "material_group": "male",
+      "cast_type": "solo",
+      "shots": [
+        {
+          "photo_id": "role-323c636618027cbd",
+          "framing": "medium",
+          "overlay": "Side turn first, hands parked by the face."
+        },
+        {
+          "photo_id": "role-323c636618027cbd",
+          "framing": "medium",
+          "overlay": "Then the forearms cross and roll back."
+        },
+        {
+          "photo_id": "role-323c636618027cbd",
+          "framing": "medium",
+          "overlay": "Hands down, and the look seals it."
+        }
+      ],
+      "caption": "Jace turns in, rolls through the chest, then lets the expression land it.",
+      "hashtags": [
+        "#JaceDance",
+        "#ForearmRoll",
+        "#A2OLiteNeon"
+      ],
+      "hook": "Side turn first, hands parked by the face.",
+      "source_material_group": "unknown",
+      "source_transformation": "unknown",
+      "casting_basis": "neutral_choreography_editorial_cast",
+      "agent_plan": {
+        "provider": "openrouter",
+        "model": "openai/gpt-5.4-mini",
+        "execution_host": "cloudflare",
+        "trend_id": "tiktok-7709762212679683342",
+        "source_id": "tiktok-7709762212679683342",
+        "source_url": "https://www.tiktok.com/@mybaybie/video/7709762212679683342",
+        "material_group": "male",
+        "cast_type": "solo",
+        "photo_ids": [
+          "role-323c636618027cbd"
+        ],
+        "shots": [
+          {
+            "photo_id": "role-323c636618027cbd",
+            "framing": "medium",
+            "overlay": "Side turn first, hands parked by the face."
+          },
+          {
+            "photo_id": "role-323c636618027cbd",
+            "framing": "medium",
+            "overlay": "Then the forearms cross and roll back."
+          },
+          {
+            "photo_id": "role-323c636618027cbd",
+            "framing": "medium",
+            "overlay": "Hands down, and the look seals it."
+          }
+        ],
+        "hook": "Side turn first, hands parked by the face.",
+        "caption": "Jace turns in, rolls through the chest, then lets the expression land it.",
+        "hashtags": [
+          "#JaceDance",
+          "#ForearmRoll",
+          "#A2OLiteNeon"
+        ],
+        "selection_basis": "user_selected_reference",
+        "storyboard_author": "work",
+        "copy_provider": "openrouter",
+        "validation_host": "cloudflare",
+        "recovery_method": "work_locked_board_openrouter_copy"
+      },
+      "storyboard_author": "work",
+      "copy_provider": "openrouter",
+      "validation_host": "cloudflare",
+      "recovery_method": "work_locked_board_openrouter_copy"
     },
     {
       "id": "agent-2026-11-23-momoko",
@@ -653,5 +756,5 @@
     "copy_provider": "openrouter",
     "copy_model": "openai/gpt-5.4-mini"
   },
-  "updated_at": "2026-11-24T01:17:04.374149Z"
+  "updated_at": "2026-11-24T01:17:05.990550Z"
 }
