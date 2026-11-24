@@ -1,0 +1,57 @@
+name: Produce two authorized November 23 replacement videos
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/nov23-replacements.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  produce:
+    if: github.repository == 'yjr927/idore_tools' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 95
+    concurrency:
+      group: idore-production
+      cancel-in-progress: false
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: main
+      - name: Run the two-commission reservation and transport tests
+        run: python3 -m unittest discover -s tests -p 'test_nov23_*.py'
+      - name: Reserve each new attempt and checkpoint the video responses
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+        run: python3 scripts/produce_nov23_replacements.py submit
+      - name: Prepare the final cut tools
+        timeout-minutes: 24
+        run: |
+          if ! python3 -c 'import PIL'; then
+            python3 -m venv "$RUNNER_TEMP/nov23-editor"
+            "$RUNNER_TEMP/nov23-editor/bin/pip" install --only-binary=:all: --retries 1 Pillow==11.1.0
+            echo "$RUNNER_TEMP/nov23-editor/bin" >> "$GITHUB_PATH"
+          fi
+          if ! command -v ffmpeg >/dev/null || ! command -v ffprobe >/dev/null; then
+            opts=(-o Dir::Etc::sourcelist=/etc/apt/sources.list.d/ubuntu.sources -o Dir::Etc::sourceparts=- -o Acquire::Retries=1 -o Acquire::http::Timeout=20 -o Acquire::https::Timeout=20)
+            if ! sudo apt-get "${opts[@]}" install -y --no-install-recommends ffmpeg fonts-dejavu-core; then
+              sudo apt-get "${opts[@]}" update
+              sudo apt-get "${opts[@]}" install -y --no-install-recommends ffmpeg fonts-dejavu-core
+            fi
+          fi
+      - name: Retrieve the existing model jobs and edit their real motion
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+        run: python3 scripts/produce_nov23_replacements.py collect
+      - name: Archive verified individual films
+        if: always() && hashFiles('nov23-replacement-films/*/metadata.json') != ''
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: nov23-replacement-films-${{ github.run_id }}-${{ github.run_attempt }}
+          path: nov23-replacement-films/
+          if-no-files-found: error
+          retention-days: 14
+          compression-level: 0
