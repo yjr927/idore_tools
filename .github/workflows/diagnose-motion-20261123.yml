@@ -1,0 +1,39 @@
+name: Diagnose named motion planner transport
+on:
+  push:
+    branches: [codex/diagnose-motion-20261123]
+    paths: ['.github/workflows/diagnose-motion-20261123.yml']
+permissions:
+  contents: read
+jobs:
+  cloudflare:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Exercise the two named slates on both stateless routes twice
+        env:
+          OPENROUTER_TEXT_MODEL: ${{ vars.OPENROUTER_TEXT_MODEL || 'openai/gpt-5.4-mini' }}
+        run: python scripts/probe_motion_cloudflare.py
+
+  openrouter:
+    if: github.run_attempt == '1' && github.event.before == '760d9b353d1d73a1100bbb2e4484fbd0a866549b'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Verify real structured text and image replies through the project connection
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          OPENROUTER_TEXT_MODEL: ${{ vars.OPENROUTER_TEXT_MODEL || 'openai/gpt-5.4-mini' }}
+        run: python scripts/probe_motion_openrouter.py --modality both
