@@ -14,6 +14,10 @@
       "https://www.tiktok.com/@itsmomoko.jp/video/7703265627972128021",
       "role-3abb96e025889f47",
       "3abb96e025889f477fd976ab634e8fd79dee3c7bf70a92157d617bcb614cbf85"
-    ]
+    ],
+    "paid_posts": 1,
+    "video_post_http_status": 403,
+    "video_post_reason": "access_denied",
+    "checked_at": "2026-11-24T01:56:36.313535Z"
   }
 }
