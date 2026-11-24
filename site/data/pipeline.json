@@ -16,8 +16,33 @@
       "stage": "planning",
       "message": "Cloudflare 上的策划服务暂时无法访问。",
       "error_code": "planner_unavailable",
-      "updated_at": "2026-11-23T14:32:04.636872Z",
-      "revision": "794acdf2f363e9ab27878a6363158d988f79c854316dc49cc117b4162108961e"
+      "updated_at": "2026-11-24T01:16:58.381533Z",
+      "revision": "794acdf2f363e9ab27878a6363158d988f79c854316dc49cc117b4162108961e",
+      "editorial_recovery": {
+        "method": "work_locked_board_openrouter_copy",
+        "reserved_at": "2026-11-24T01:16:58.381496Z",
+        "run_id": "45303820759",
+        "model": "openai/gpt-5.4-mini",
+        "batch_sha256": "a36f03f6044c5fe415aff7702e8228cf35759fc0e0f946e33625f91c17d3c765",
+        "original_planning_row": {
+          "id": "agent-2026-11-23-bay",
+          "generation_method": "named_reference_motion",
+          "created_at": "2026-11-23T14:32:03.091529Z",
+          "sequence_slot": "2026-11-23-bay",
+          "title": "bay · A2O LITE NEON",
+          "trend_id": "tiktok-7709762212679683342",
+          "source_url": "https://www.tiktok.com/@mybaybie/video/7709762212679683342",
+          "selection_basis": "user_selected_reference",
+          "trend_verified": false,
+          "plan_reserved_at": "2026-11-23T14:32:03.125827Z",
+          "status": "needs_attention",
+          "stage": "planning",
+          "message": "Cloudflare 上的策划服务暂时无法访问。",
+          "error_code": "planner_unavailable",
+          "updated_at": "2026-11-23T14:32:04.636872Z",
+          "revision": "794acdf2f363e9ab27878a6363158d988f79c854316dc49cc117b4162108961e"
+        }
+      }
     },
     {
       "id": "agent-2026-11-23-momoko",
@@ -34,8 +59,33 @@
       "stage": "planning",
       "message": "Cloudflare 上的策划服务暂时无法访问。",
       "error_code": "planner_unavailable",
-      "updated_at": "2026-11-23T14:32:01.705341Z",
-      "revision": "6777b7878ab96650200c830d63ded7a2428c3024b948f6f3abe9317bfba9e765"
+      "updated_at": "2026-11-24T01:16:58.381516Z",
+      "revision": "6777b7878ab96650200c830d63ded7a2428c3024b948f6f3abe9317bfba9e765",
+      "editorial_recovery": {
+        "method": "work_locked_board_openrouter_copy",
+        "reserved_at": "2026-11-24T01:16:58.381496Z",
+        "run_id": "45303820759",
+        "model": "openai/gpt-5.4-mini",
+        "batch_sha256": "a36f03f6044c5fe415aff7702e8228cf35759fc0e0f946e33625f91c17d3c765",
+        "original_planning_row": {
+          "id": "agent-2026-11-23-momoko",
+          "generation_method": "named_reference_motion",
+          "created_at": "2026-11-23T14:31:59.503658Z",
+          "sequence_slot": "2026-11-23-momoko",
+          "title": "MOMOKO",
+          "trend_id": "tiktok-7703265627972128021",
+          "source_url": "https://www.tiktok.com/@itsmomoko.jp/video/7703265627972128021",
+          "selection_basis": "user_selected_reference",
+          "trend_verified": false,
+          "plan_reserved_at": "2026-11-23T14:31:59.539599Z",
+          "status": "needs_attention",
+          "stage": "planning",
+          "message": "Cloudflare 上的策划服务暂时无法访问。",
+          "error_code": "planner_unavailable",
+          "updated_at": "2026-11-23T14:32:01.705341Z",
+          "revision": "6777b7878ab96650200c830d63ded7a2428c3024b948f6f3abe9317bfba9e765"
+        }
+      }
     },
     {
       "id": "agent-2026-11-22-morning",
@@ -444,5 +494,5 @@
     "copy_provider": "openrouter",
     "copy_model": "openai/gpt-5.4-mini"
   },
-  "updated_at": "2026-11-23T20:26:05.399123Z"
+  "updated_at": "2026-11-24T01:16:58.381544Z"
 }
