@@ -711,6 +711,66 @@
       ],
       "trend_note": "Web sources were searched, but no current trend hashtag was verified. These hashtags are content or character/brand suggestions matched to the visible video frames. No audio was analyzed, and no official or real-time TikTok ranking or reach is claimed. Source observed_at is retrieval time, not evidence of current popularity.",
       "caption_basis": "completed_video_frames"
+    },
+    {
+      "title": "Isaiah Marsh · Full moon",
+      "character": "Isaiah Marsh",
+      "material_group": "male",
+      "cast_type": "solo",
+      "video_path": "generated/video-930b3d5dde9e3aff59207733.mp4",
+      "poster_path": "generated/video-930b3d5dde9e3aff59207733.jpg",
+      "sha256": "930b3d5dde9e3aff59207733bee05339d30161d508357a6651ba32ee335dd6ef",
+      "created_at": "2026-11-23T02:17:46.322766+00:00",
+      "model": "idore original photo edit",
+      "id": "review-video-930b3d5dde9e3aff59207733",
+      "status": "generating_copy",
+      "stage": "copy",
+      "message": "成片已保存，等待云端生成英文文案与标签。",
+      "approval": {
+        "status": "pending"
+      },
+      "updated_at": "2026-11-24T05:31:00.554746Z",
+      "revision": "7c5bdfee4e357590669de43e131fc0bfe67d3e013c906ebd0e09a8473d1d3356"
+    },
+    {
+      "title": "Beckett Hale · The dress code",
+      "character": "Beckett Hale",
+      "material_group": "male",
+      "cast_type": "solo",
+      "video_path": "generated/video-ce4b52dc8b2768739d6553e0.mp4",
+      "poster_path": "generated/video-ce4b52dc8b2768739d6553e0.jpg",
+      "sha256": "ce4b52dc8b2768739d6553e07700f095efb3b029c05eec2759012ac439c6fa8b",
+      "created_at": "2026-11-23T02:17:46.025083+00:00",
+      "model": "idore original photo edit",
+      "id": "review-video-ce4b52dc8b2768739d6553e0",
+      "status": "generating_copy",
+      "stage": "copy",
+      "message": "成片已保存，等待云端生成英文文案与标签。",
+      "approval": {
+        "status": "pending"
+      },
+      "updated_at": "2026-11-24T05:31:00.554808Z",
+      "revision": "01becfaf4d68681c618b24d0bbcce3015a3ca1b0b378518dfd5d7f66ba7a4fb8"
+    },
+    {
+      "title": "Lena Reyes · Understudy",
+      "character": "Lena Reyes",
+      "material_group": "female",
+      "cast_type": "solo",
+      "video_path": "generated/video-3aadb81b7d2aecb631b7104c.mp4",
+      "poster_path": "generated/video-3aadb81b7d2aecb631b7104c.jpg",
+      "sha256": "3aadb81b7d2aecb631b7104cc115f1b682bd9bbcfe409541d303bf1610db312b",
+      "created_at": "2026-11-23T02:17:45.855614+00:00",
+      "model": "idore original photo edit",
+      "id": "review-video-3aadb81b7d2aecb631b7104c",
+      "status": "generating_copy",
+      "stage": "copy",
+      "message": "成片已保存，等待云端生成英文文案与标签。",
+      "approval": {
+        "status": "pending"
+      },
+      "updated_at": "2026-11-24T05:31:00.554824Z",
+      "revision": "ced39dde303dab96d7095222b6d8eee5893adf1dea3b992f6ac884d1a66fa536"
     }
   ],
   "connections": {
@@ -774,7 +834,8 @@
     "run-45087846044",
     "run-45133411890",
     "run-45190033179",
-    "run-45256558701"
+    "run-45256558701",
+    "run-45328535639"
   ],
   "settings": {
     "daily_limit": 4,
@@ -788,5 +849,5 @@
     "copy_provider": "openrouter",
     "copy_model": "openai/gpt-5.4-mini"
   },
-  "updated_at": "2026-11-24T01:35:27.891162Z"
+  "updated_at": "2026-11-24T05:31:00.554898Z"
 }
