@@ -266,7 +266,26 @@ def reservations(current_run=None):
         stop('paid_reservation_not_confirmed')
 
 
-def wait_envelope(path):
+def envelope_for_run(raw, run_id):
+    """An older run's sealed request remains on the branch until replaced."""
+    value = parse(raw)
+    core = dict(schema_version=1, task_id=TASK, repository=REPO, branch=BRANCH)
+    if (not isinstance(value, dict) or set(value) != ENVELOPE_FIELDS
+            or any(type(value.get(k)) is not type(v) or value.get(k) != v for k, v in core.items())
+            or not isinstance(value.get('key_run_id'), str)
+            or not re.fullmatch(r'[0-9]{1,22}', value['key_run_id'])):
+        stop('invalid_envelope_metadata')
+    if value['key_run_id'] != run_id:
+        return False
+    if (not isinstance(value.get('public_key_sha256'), str)
+            or not re.fullmatch(r'[a-f0-9]{64}', value['public_key_sha256'])):
+        stop('invalid_envelope_metadata')
+    for field, minimum, maximum in [('encrypted_key',384,384), ('iv',12,12), ('tag',16,16), ('ciphertext',1,64*1024)]:
+        unb64(value[field], minimum, maximum)
+    return True
+
+
+def wait_envelope(path, run_id):
     token = os.environ.get('GITHUB_TOKEN', '')
     if not token:
         stop('missing_github_configuration')
@@ -287,9 +306,10 @@ def wait_envelope(path):
             result = unb64(encoded, 1, MAX_ENVELOPE)
             if len(result) != value['size']:
                 stop('invalid_envelope_download')
-            write(path, result)
-            return
-        if status != 404:
+            if envelope_for_run(result, run_id):
+                write(path, result)
+                return
+        if status not in (200, 404):
             stop('github_read_failed')
         time.sleep(10)
     stop('private_request_timeout')
@@ -440,7 +460,7 @@ def main(argv=None):
             print('Public key SHA-256: ' + meta['public_key_sha256'])
             return 0
         if args.phase == 'wait':
-            wait_envelope(args.envelope)
+            wait_envelope(args.envelope, run_id)
             print('Encrypted request received.')
             return 0
         body = decrypt_request(args.bundle, read(args.envelope), run_id, secret)

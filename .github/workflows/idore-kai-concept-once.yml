@@ -60,6 +60,11 @@ jobs:
         with:
           name: idore-kai-concept-20261124-request-key
           path: ${{ runner.temp }}/key-bundle
+      - name: Install the media verifier before any generation
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends ffmpeg
+          ffprobe -version
       - name: Wait for the encrypted private request
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
