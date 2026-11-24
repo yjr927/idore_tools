@@ -1,7 +1,7 @@
 {
   "2026-11-23-momoko": {
     "attempt": 2,
-    "status": "reserved",
+    "status": "needs_attention",
     "model": "bytedance/seedance-2.5",
     "run_id": "45308693102",
     "reserved_at": "2026-11-24T01:56:31.516539Z",
@@ -18,6 +18,7 @@
     "paid_posts": 1,
     "video_post_http_status": 403,
     "video_post_reason": "access_denied",
-    "checked_at": "2026-11-24T01:56:36.313535Z"
+    "checked_at": "2026-11-24T01:56:37.322854Z",
+    "error_code": "access_denied"
   }
 }
