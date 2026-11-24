@@ -1,0 +1,101 @@
+name: One private idore Kai concept film
+on:
+  push:
+    branches: [codex/idore-kai-concept-20261124]
+    paths:
+      - '.github/workflows/idore-kai-concept-once.yml'
+      - 'scripts/run_idore_kai_concept_once.py'
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: idore-kai-concept-20261124-once
+  cancel-in-progress: false
+
+jobs:
+  request_key:
+    if: github.event.created == false && github.event.deleted == false && github.run_attempt == '1' && github.ref == 'refs/heads/codex/idore-kai-concept-20261124'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install bounded cryptography dependency
+        run: python -m pip install --disable-pip-version-check cryptography==44.0.3
+      - name: Prepare public request key and encrypted private key
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python scripts/run_idore_kai_concept_once.py keys --bundle "$RUNNER_TEMP/key-bundle"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: idore-kai-concept-20261124-request-key
+          path: |
+            ${{ runner.temp }}/key-bundle/public-key.pem
+            ${{ runner.temp }}/key-bundle/encrypted-private-key.json
+          if-no-files-found: error
+          retention-days: 1
+
+  generate_once:
+    needs: request_key
+    if: github.event.created == false && github.event.deleted == false && github.run_attempt == '1' && github.ref == 'refs/heads/codex/idore-kai-concept-20261124'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 50
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install bounded cryptography dependency
+        run: python -m pip install --disable-pip-version-check cryptography==44.0.3
+      - uses: actions/download-artifact@v4
+        with:
+          name: idore-kai-concept-20261124-request-key
+          path: ${{ runner.temp }}/key-bundle
+      - name: Wait for the encrypted private request
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python scripts/run_idore_kai_concept_once.py wait --envelope "$RUNNER_TEMP/request.enc.json"
+      - name: Validate identity, account and current capabilities without generation
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          GITHUB_TOKEN: ${{ github.token }}
+        run: >-
+          python scripts/run_idore_kai_concept_once.py preflight
+          --bundle "$RUNNER_TEMP/key-bundle" --envelope "$RUNNER_TEMP/request.enc.json"
+          --state "$RUNNER_TEMP/private-state" --ready "$RUNNER_TEMP/reservation/paid-reservation.json"
+      - name: Persist the one-time paid reservation before submission
+        uses: actions/upload-artifact@v4
+        with:
+          name: idore-kai-concept-20261124-paid-reservation
+          path: ${{ runner.temp }}/reservation/paid-reservation.json
+          if-no-files-found: error
+          retention-days: 3
+      - name: Generate the single authorized film and verify its media
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          GITHUB_TOKEN: ${{ github.token }}
+        run: >-
+          python scripts/run_idore_kai_concept_once.py generate
+          --bundle "$RUNNER_TEMP/key-bundle" --envelope "$RUNNER_TEMP/request.enc.json"
+          --state "$RUNNER_TEMP/private-state" --ready "$RUNNER_TEMP/reservation/paid-reservation.json"
+          --output "$RUNNER_TEMP/result"
+      - name: Save only the film and safe recovery summary
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: idore-kai-concept-20261124-result
+          path: |
+            ${{ runner.temp }}/result/idore-kai-concept.mp4
+            ${{ runner.temp }}/result/summary.json
+          if-no-files-found: warn
+          retention-days: 3
