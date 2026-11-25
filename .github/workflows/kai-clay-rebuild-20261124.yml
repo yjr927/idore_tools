@@ -1,0 +1,141 @@
+name: KAI fresh clay motion rebuild
+
+on:
+  push:
+    branches: [codex/kai-openrouter-check-20261124]
+    paths: [.github/workflows/kai-clay-rebuild-20261124.yml]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: kai-fresh-clay-20261124
+  cancel-in-progress: false
+
+jobs:
+  render:
+    if: >-
+      github.repository == 'yjr927/idore_tools' &&
+      github.event_name == 'push' &&
+      github.ref == 'refs/heads/codex/kai-openrouter-check-20261124' &&
+      github.event.deleted == false &&
+      github.event.created == false &&
+      github.run_attempt == '1'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      PYTHONUNBUFFERED: '1'
+      LIBGL_ALWAYS_SOFTWARE: '1'
+    steps:
+      - name: Check the rebuild window
+        run: |
+          python3 - <<'PY'
+          from datetime import datetime, timezone
+          deadline = datetime(2026, 11, 26, tzinfo=timezone.utc)
+          if datetime.now(timezone.utc) >= deadline:
+              raise SystemExit('The authorized clay rebuild window has ended.')
+          PY
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install pose and offline rendering tools
+        run: |
+          python -m pip install --disable-pip-version-check -r requirements-motion.txt
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq blender ffmpeg xvfb
+      - name: Read and verify the same selected original motion source
+        run: |
+          python scripts/prepare_motion_source.py --output "$RUNNER_TEMP/kai-source.mp4" --summary clay-output/source-summary.json
+      - name: Extract fresh body and finger motion from the original
+        run: |
+          python scripts/extract_motion_pose.py --input "$RUNNER_TEMP/kai-source.mp4" --output "$RUNNER_TEMP/kai-motion.json" --model-dir "$RUNNER_TEMP/pose-models" | tee clay-output/extraction-summary.json
+      - name: Render a new anonymous clay animation from the fresh extraction
+        run: |
+          xvfb-run -a blender -b -t 2 --python-exit-code 1 --python scripts/render_motion_clay.py -- --input "$RUNNER_TEMP/kai-motion.json" --output-dir "$RUNNER_TEMP/clay-frames"
+      - name: Package the newly rendered motion preview for review
+        run: |
+          python scripts/package_clay_preview.py --frames "$RUNNER_TEMP/clay-frames" --pose "$RUNNER_TEMP/kai-motion.json" --output clay-output
+      - name: Record fresh extraction and render provenance
+        run: |
+          python - <<'PY'
+          import hashlib
+          import json
+          import os
+          from datetime import datetime, timezone
+          from pathlib import Path
+
+          output = Path('clay-output')
+          source = json.loads((output / 'source-summary.json').read_text())
+          if (source.get('status') != 'source_verified'
+                  or source.get('source_id') != '7706633304702848276'
+                  or source.get('verified') is not True):
+              raise SystemExit('The freshly downloaded source was not verified.')
+          files = (
+              'source-summary.json', 'extraction-summary.json', 'render-summary.json',
+              'clay-summary.json', 'clay-bizzyboom.mp4', 'clay-contact-sheet.jpg',
+          )
+          artifact_files = {}
+          for name in files:
+              path = output / name
+              if not path.is_file() or path.is_symlink():
+                  raise SystemExit('A required derived output or safe summary is missing.')
+              artifact_files[name] = {
+                  'bytes': path.stat().st_size,
+                  'sha256': hashlib.sha256(path.read_bytes()).hexdigest(),
+              }
+          unchanged_inputs = (
+              'scripts/prepare_motion_source.py', 'scripts/extract_motion_pose.py',
+              'scripts/render_motion_clay.py', 'scripts/package_clay_preview.py',
+              'requirements-motion.txt',
+          )
+          rebuilt_at = datetime.now(timezone.utc).isoformat().replace('+00:00', 'Z')
+          manifest = {
+              'schema_version': 1,
+              'task_id': 'kai-openrouter-check-20261124',
+              'status': 'freshly_rebuilt_for_review',
+              'rebuilt_at': rebuilt_at,
+              'rebuilt_at_utc': rebuilt_at,
+              'source_id': '7706633304702848276',
+              'source_sha256': source['sha256'],
+              'sha256': artifact_files['clay-bizzyboom.mp4']['sha256'],
+              'rebuild_run_id': os.environ['GITHUB_RUN_ID'],
+              'workflow_run_id': os.environ['GITHUB_RUN_ID'],
+              'workflow_run_attempt': os.environ['GITHUB_RUN_ATTEMPT'],
+              'repository': os.environ['GITHUB_REPOSITORY'],
+              'workflow_commit_sha': os.environ['GITHUB_SHA'],
+              'construction': 'fresh_original_download_to_pose_extraction_to_blender_clay_render',
+              'reused_existing_clay_video': False,
+              'source_pixels_in_artifact': False,
+              'paid_model_calls': 0,
+              'pipeline_input_sha256': {
+                  name: hashlib.sha256(Path(name).read_bytes()).hexdigest()
+                  for name in unchanged_inputs
+              },
+              'artifact_files': artifact_files,
+          }
+          (output / 'rebuild-provenance.json').write_text(json.dumps(manifest, indent=2) + '\n')
+          print('Fresh clay rebuild complete; derived outputs and safe provenance are ready for review.')
+          PY
+      - name: Retain only the new clay preview and safe summaries
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: kai-fresh-clay-20261124
+          path: |
+            clay-output/clay-bizzyboom.mp4
+            clay-output/clay-contact-sheet.jpg
+            clay-output/source-summary.json
+            clay-output/extraction-summary.json
+            clay-output/render-summary.json
+            clay-output/clay-summary.json
+            clay-output/rebuild-provenance.json
+          if-no-files-found: warn
+          retention-days: 3
+      - name: Remove private source, poses and model cache from temporary storage
+        if: always()
+        run: |
+          rm -f -- "$RUNNER_TEMP/kai-source.mp4" "$RUNNER_TEMP/kai-motion.json"
+          rm -rf -- "$RUNNER_TEMP/pose-models" "$RUNNER_TEMP/clay-frames"
