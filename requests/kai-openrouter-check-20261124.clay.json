@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "task_id": "kai-openrouter-check-20261124",
+  "source_id": "7706633304702848276",
+  "status": "reviewed",
+  "model": "bytedance/seedance-2.5",
+  "character": "KAI",
+  "duration": 6,
+  "media_url": "https://raw.githubusercontent.com/yjr927/idore_tools/e4fb0588e85e3ab4710607b6f958391ec1169feb/reference-assets/clay-kai-fresh-20261124.mp4",
+  "sha256": "cba3de043a89c246c56c4ec912fa522428f5a693af6a35b089c653740c605af0",
+  "rebuild_run_id": "45518390559",
+  "rebuilt_at_utc": "2026-11-25T00:31:51.717211Z",
+  "provenance_sha256": "78679bb7a45314bb699f005bed5d17ad5c36629a11c67ac8b8f708c1660ed699"
+}

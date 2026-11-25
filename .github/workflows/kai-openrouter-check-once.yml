@@ -1,0 +1,69 @@
+name: One isolated KAI OpenRouter baseline check
+on:
+  push:
+    branches: [codex/kai-openrouter-check-20261124]
+    paths:
+      - '.github/workflows/kai-openrouter-check-once.yml'
+      - 'scripts/run_kai_openrouter_check_once.py'
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: kai-openrouter-check-20261124-once
+  cancel-in-progress: false
+
+jobs:
+  baseline_once:
+    if: github.event.created == false && github.event.deleted == false && github.run_attempt == '1' && github.ref == 'refs/heads/codex/kai-openrouter-check-20261124'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install the media verifier before any generation
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends ffmpeg
+          ffprobe -version
+      - name: Validate the exact approved baseline without generation
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          GITHUB_TOKEN: ${{ github.token }}
+        run: >-
+          python scripts/run_kai_openrouter_check_once.py prepare
+          --config requests/kai-openrouter-check-20261124.clay.json
+          --provenance requests/kai-openrouter-check-20261124.rebuild-provenance.json
+          --receipt "$RUNNER_TEMP/reservation/receipt.json" --output "$RUNNER_TEMP/kai-baseline"
+      - name: Persist the paid reservation before the single submission
+        uses: actions/upload-artifact@v4
+        with:
+          name: kai-openrouter-check-20261124-paid-reservation
+          path: ${{ runner.temp }}/reservation/receipt.json
+          if-no-files-found: error
+          retention-days: 3
+      - name: Run the unchanged approved KAI plus clay generation once
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          GITHUB_TOKEN: ${{ github.token }}
+        run: >-
+          python scripts/run_kai_openrouter_check_once.py run
+          --config requests/kai-openrouter-check-20261124.clay.json
+          --provenance requests/kai-openrouter-check-20261124.rebuild-provenance.json
+          --receipt "$RUNNER_TEMP/reservation/receipt.json" --output "$RUNNER_TEMP/kai-baseline"
+      - name: Save the new film and safe diagnostic evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: kai-openrouter-check-20261124-result
+          path: |
+            ${{ runner.temp }}/kai-baseline/*.mp4
+            ${{ runner.temp }}/kai-baseline/clay-generation-summary.json
+            ${{ runner.temp }}/kai-baseline/diagnostic.json
+          if-no-files-found: warn
+          retention-days: 3
