@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "task_id": "kai-openrouter-check-20261124",
+  "status": "freshly_rebuilt_for_review",
+  "rebuilt_at": "2026-11-25T00:31:51.717211Z",
+  "rebuilt_at_utc": "2026-11-25T00:31:51.717211Z",
+  "source_id": "7706633304702848276",
+  "source_sha256": "380829d68b6ff10c59520a422b41272fffaa4334a8e337737b590cc5482b3bb6",
+  "sha256": "cba3de043a89c246c56c4ec912fa522428f5a693af6a35b089c653740c605af0",
+  "rebuild_run_id": "45518390559",
+  "workflow_run_id": "45518390559",
+  "workflow_run_attempt": "1",
+  "repository": "yjr927/idore_tools",
+  "workflow_commit_sha": "9206e0879bcfe9648a09a4451b297cd274eacafc",
+  "construction": "fresh_original_download_to_pose_extraction_to_blender_clay_render",
+  "reused_existing_clay_video": false,
+  "source_pixels_in_artifact": false,
+  "paid_model_calls": 0,
+  "pipeline_input_sha256": {
+    "scripts/prepare_motion_source.py": "7646873b272225da3ea95697e491144099967de8114073ac4580e3fa0b2f7c02",
+    "scripts/extract_motion_pose.py": "dfa9b6df093848d59817d7224ae4d589e50a043d5d4738ea8578aa117da89ad3",
+    "scripts/render_motion_clay.py": "5992f89672aa04cf152fd7b24524ae7c245e8ab6ffcfa2aaac085ac4043932c6",
+    "scripts/package_clay_preview.py": "cc17d00d59dce5f7ce08ad492ac0e64004677b31a731943fddc98113ff8188b9",
+    "requirements-motion.txt": "cb3b2eafa2d574c9585dc1052e813c05516b999827657b8e49aed7e35fd38963"
+  },
+  "artifact_files": {
+    "source-summary.json": {
+      "bytes": 210,
+      "sha256": "62c72c6bedfaba014513f56e739b70043a9333b75e4807bd7c8bbec181551c35"
+    },
+    "extraction-summary.json": {
+      "bytes": 3965,
+      "sha256": "deb9126130ed6f52a3bca43dece7a3b39de377d04fc71b47f2ccb7894d40fc8b"
+    },
+    "render-summary.json": {
+      "bytes": 2153,
+      "sha256": "1fac7e8e39f20d1ce0b49ab1593383fd945ee10a1bc2365fa05fe138046722fe"
+    },
+    "clay-summary.json": {
+      "bytes": 6234,
+      "sha256": "985f9f65e1de2f4828e5c2722b08caa176d5179bb4ce37887e3808f0658a6c4d"
+    },
+    "clay-bizzyboom.mp4": {
+      "bytes": 559032,
+      "sha256": "cba3de043a89c246c56c4ec912fa522428f5a693af6a35b089c653740c605af0"
+    },
+    "clay-contact-sheet.jpg": {
+      "bytes": 96787,
+      "sha256": "c9cffe9daff58c233ec180e0a7cd144eebe6855db8a8bb1000cff25f64060acc"
+    }
+  }
+}
